@@ -1,5 +1,6 @@
 import java.time.LocalTime
 
+@Suppress("ControlFlowWithEmptyBody", "unused")
 fun checkVirtualThreads() {
     val parallelism = System.getProperty("jdk.virtualThreadScheduler.parallelism")
     val maxPoolSize = System.getProperty("jdk.virtualThreadScheduler.maxPoolSize")
@@ -11,7 +12,6 @@ fun checkVirtualThreads() {
         while (true) {
 
         }
-        println("${LocalTime.now()} cpu heavy thread is finished")
     }
 
     /*
@@ -21,7 +21,7 @@ fun checkVirtualThreads() {
      -Djdk.virtualThreadScheduler.minRunnable=1
     then printingThread will never start executing, because Java's virtual threads are cooperative
 
-    Good write up about it is here: https://blog.rockthejvm.com/ultimate-guide-to-java-virtual-threads/
+    Good write-up about it is here: https://blog.rockthejvm.com/ultimate-guide-to-java-virtual-threads/
      */
     val printingThread = Thread.ofVirtual().name("my thread").start {
         println("${LocalTime.now()} i am a virtual thread!")
