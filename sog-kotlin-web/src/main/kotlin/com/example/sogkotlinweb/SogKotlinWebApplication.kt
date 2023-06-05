@@ -1,3 +1,11 @@
+/*
+ To run:
+ ```
+    gradlew clean bootJar  # this will create uber jar in build/lib
+    DB_URI=jdbc:postgresql://localhost:5432/notes DB_USER=aershov java -jar sog-kotlin-web-0.0.1-SNAPSHOT.jar
+ ```
+ */
+
 package com.example.sogkotlinweb
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
