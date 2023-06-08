@@ -8,6 +8,19 @@
 # 15:58 continue with tries
 # 16:30 figured out O(m * n) with two tries, started writing
 # 16:45 started checking
+# 16:49 checked
+# 16:52 couple of typos
+# 16:52 KeyError (bug in find_biggest_suffix_node)
+# 16:56 NoneType AttributeError ()
+# 17:00 wrong answer: approach is wrong, you can't compare counts of prefixes & suffixes, just forgot about it.
+# 17:06 pause
+# 10:00 continue, started thinking
+# 10:29 started writing fast hash solution
+# 10:31 pause, this is still O(m^2 * n)
+# 12:50 continue with the sparse hash that'll give O(m * n)
+# 12:57 started checking
+# 13:00 checked
+# 13:03 lot of small errors and TLE
 
 
 # ideas:
@@ -15,72 +28,49 @@
 # same prefix and same suffix
 # trie
 
-from dataclasses import dataclass
-from typing import List
-from typing import Optional
+NUM_HASH_CHARS = 10
 
 
-@dataclass
-class Trie:
-    char: str
-    children: dict[str, 'Trie']
-    parent: Optional['Trie']
-    count: int
+class PrefixAndSuffix:
+    def __init__(self, string: str, i: int):
+        self._string = string
+        self._i = i
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, PrefixAndSuffix):
+            return False
+        if self._i != other._i:
+            return False
+        for i, (ch, other_ch) in enumerate(zip(self._string, other._string)):
+            if i == self._i:
+                continue
+            if ch != other_ch:
+                return False
+        return self._string[self._i] != other._string[other._i]
+
+    def __hash__(self):
+        i = self._i
+        prefix_size = i
+        suffix_size = len(self._string) - prefix_size - 1
+        return hash((prefix_size, suffix_size, self._sparse_hash(0, i), self._sparse_hash(i + 1, len(self._string))))
+
+    def _sparse_hash(self, begin: int, end: int) -> int:
+        step = max(1, (end - begin) // NUM_HASH_CHARS)
+        return hash(''.join(self._string[i] for i in range(begin, end, step)))
 
 
 class Solution:
-    def differByOne(self, dict: List[str]) -> bool:
+    def differByOne(self, dict: list[str]) -> bool:
         strings = dict
-        prefix_trie = build_trie(strings)
-        suffix_trie = build_trie(build_reversed_strings(strings))
+        pairs = set()
         for a_string in strings:
-            suffix_node = find_biggest_suffix_node(suffix_trie, a_string)
-            prefix_node = prefix_trie
-            if is_a_solution(suffix_node, prefix_node):
-                return True
-            for char in a_string:
-                prefix_node = prefix_node[char]
-                suffix_node = suffix_node.parent
-                # TODO: DRY it up
-                if is_a_solution(suffix_node, prefix_node):
+            for a_pair in iter_pairs(a_string):
+                if a_pair in pairs:
                     return True
+                pairs.add(a_pair)
         return False
 
 
-def is_a_solution(prefix_node: Trie, suffix_node: Trie) -> bool:
-    # O(1) time & memory
-    return prefix_node.count > 1 and suffix_node.count > 1
-
-
-
-def build_trie(strings: list[str]) -> Trie:
-    # O(n * m) time & memory
-    trie = Trie(char='', children={}, parent=None, count=0)
-    for a_string in strings:
-        add_to_trie(a_string, trie)
-    return trie
-
-def add_to_trie(string: str, trie: Trie) -> None:
-    # O(m) time & memory
-    node = trie
-    node.count += 1
-    for char in string:
-        if char not in node.children:
-            node.children[char] = Trie(char=char, children={}, parent=node, count=0)
-        node = node.children[char]
-        node.count += 1
-
-
-def build_reversed_strings(strings: list[str]) -> list[str]:
-    # O(n * m) time & memory
-    return [a_string[::-1] for a_string in strings]
-
-
-def find_biggest_suffix_node(trie, a_string):
-    # O(m) time & memory
-    reversed_string = a_string[::-1]
-    node = trie
-    for char in reversed_string[1:]:
-        node = node.children[char]
-    return node
+def iter_pairs(string: str):
+    for i in range(0, len(string)):
+        yield PrefixAndSuffix(string, i)
