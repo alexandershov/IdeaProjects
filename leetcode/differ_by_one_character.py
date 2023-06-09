@@ -21,7 +21,7 @@
 # 12:57 started checking
 # 13:00 checked
 # 13:03 lot of small errors and TLE
-
+# 12:52 implemented rolling hash after a hint
 
 # ideas:
 # iterate over all strings in parallel and group somehow
@@ -32,9 +32,11 @@ NUM_HASH_CHARS = 10
 
 
 class PrefixAndSuffix:
-    def __init__(self, string: str, i: int):
+    def __init__(self, string: str, i: int, prefix_hash: int, suffix_hash: int):
         self._string = string
         self._i = i
+        self._prefix_hash = prefix_hash
+        self._suffix_hash = suffix_hash
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, PrefixAndSuffix):
@@ -49,15 +51,7 @@ class PrefixAndSuffix:
         return self._string[self._i] != other._string[other._i]
 
     def __hash__(self):
-        i = self._i
-        prefix_size = i
-        suffix_size = len(self._string) - prefix_size - 1
-        return hash((prefix_size, suffix_size, self._sparse_hash(0, i), self._sparse_hash(i + 1, len(self._string))))
-
-    def _sparse_hash(self, begin: int, end: int) -> int:
-        step = max(1, (end - begin) // NUM_HASH_CHARS)
-        return hash(''.join(self._string[i] for i in range(begin, end, step)))
-
+        return hash((self._prefix_hash, self._suffix_hash))
 
 class Solution:
     def differByOne(self, dict: list[str]) -> bool:
@@ -72,5 +66,9 @@ class Solution:
 
 
 def iter_pairs(string: str):
-    for i in range(0, len(string)):
-        yield PrefixAndSuffix(string, i)
+    suffix_hash = sum(map(ord, string))
+    prefix_hash = 0
+    for i, char in enumerate(string):
+        suffix_hash -= ord(char)
+        yield PrefixAndSuffix(string, i, prefix_hash, suffix_hash)
+        prefix_hash += ord(char)
