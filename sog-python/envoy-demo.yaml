@@ -1,4 +1,5 @@
 # this configuration proxies from localhost:10000 to localhost:8000
+# with rate limiting
 # run as:
 # envoy -c envoy-demo.yaml
 
