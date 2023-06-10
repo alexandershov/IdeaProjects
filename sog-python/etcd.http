@@ -1,0 +1,21 @@
+# etcd is a distributed key-value storage based on raft
+# it's good to store small (several GB) configuration data
+# etcd primary interface is grpc, but it has http gateway.
+# we can also get the stream of key changes (/watch endpoint)
+
+### set key value, key and value are base64 encoded (key=test, value=abc)
+POST http://localhost:2379/v3/kv/put
+Content-Type: application/json
+
+{
+  "key": "dGVzdA==",
+  "value": "YWJj"
+}
+
+### get key value
+POST http://localhost:2379/v3/kv/range
+Content-Type: application/json
+
+{
+  "key": "dGVzdA=="
+}
