@@ -1,0 +1,37 @@
+### GraphQL
+# HTTP client supports graphql.
+# Here's an example of query with variables
+GRAPHQL http://localhost:8000/graphql
+
+query MessageWithVar($cursor: String!) {
+  messages(cursor: $cursor) {
+    id
+    body
+  }
+}
+
+{
+  "cursor": "abc"
+}
+
+### Imported from cURL
+# You can import cURL requests ("Convert cURL to HTTP request" command)
+# curl -L http://localhost:2379/v3/kv/range -X POST -d '{"key": "dGVzdA=="}'
+POST http://localhost:2379/v3/kv/range
+Content-Type: application/x-www-form-urlencoded
+
+{"key": "dGVzdA=="}
+
+
+### Request variables
+# you can set variables using javascript (rhinojs) runtime
+# and you have an access to Java methods
+< {%
+    // rhino converts .bytes to .getBytes() in beans
+    let bytes = new java.lang.String("test").bytes
+    request.variables.set("keyValue", java.util.Base64.encoder.encodeToString(bytes))
+%}
+POST http://localhost:2379/v3/kv/range
+Content-Type: application/x-www-form-urlencoded
+
+{"key": "{{ keyValue }}" }

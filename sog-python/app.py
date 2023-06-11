@@ -26,7 +26,7 @@ class GraphqlMessage:
     pass
 
 
-async def fetch_messages(cursor: str, info: Info):
+async def fetch_messages(info: Info, cursor: str = None):
     # `cursor` can be passed from graphql:
     # {
     #   messages(cursor: "test") {
@@ -42,6 +42,7 @@ async def fetch_messages(cursor: str, info: Info):
     #   }
     # }
     # you will need to pass variables: {"cursor": "abc"}
+    # also see intellij_http_client.http for examples of graphql queries
     print(f'{cursor=}')
     print(f'{info.variable_values=}')
     async with pool.acquire() as conn:
