@@ -1,5 +1,5 @@
 # this is a fastapi+graphql playground
-# run this file (python app.py) and go to http://127.0.0.1:8000/graphql
+# run this file (python fastapi_app.py) and go to http://127.0.0.1:8000/graphql
 # graphql is just a query language independent of data source
 # you add data sources (e.g. database, microservice, etc) using resolvers
 
@@ -92,4 +92,4 @@ async def get_messages(conn: asyncpg.Connection = Depends(get_conn)):
 
 
 if __name__ == '__main__':
-    uvicorn.run("app:app", reload=True)
+    uvicorn.run("fastapi_app:app", reload=True)
