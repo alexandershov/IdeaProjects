@@ -92,4 +92,4 @@ async def get_messages(conn: asyncpg.Connection = Depends(get_conn)):
 
 
 if __name__ == '__main__':
-    uvicorn.run("fastapi_app:app", reload=True)
+    uvicorn.run("fastapi_app:app", reload=True, host='0.0.0.0')
