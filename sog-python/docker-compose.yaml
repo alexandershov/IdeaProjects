@@ -1,0 +1,14 @@
+services:
+  web:
+    build: .
+    ports:
+      - 7001:8000
+    environment:
+      DB_USER: aershov
+      DB_HOST: postgres
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: notes
+      POSTGRES_USER: aershov
+      POSTGRES_HOST_AUTH_METHOD: trust

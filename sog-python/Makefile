@@ -7,3 +7,10 @@ build-docker-fastapi:
 run-docker-fast-api:
 	docker run -e DB_USER=aershov -e DB_HOST=host.docker.internal \
 	-p 7001:8000 ubuntu-fastapi-app
+
+docker-compose:
+	docker-compose up
+
+# --build rebuilds the images
+docker-compose-build:
+	docker-compose up --build
