@@ -1,0 +1,19 @@
+// grpc is a rpc system based on http2+protobuf
+// protobuf is a binary serde format
+
+// protobuf supports enums, = 0 and = 1 are not values, it's field numbers
+enum Color {
+  BLACK = 0;
+  WHITE = 1;
+}
+
+message Piece {
+  required string name = 1;
+  required Color color = 2;
+}
+
+// you define rpc in the `service` block
+service Chess {
+  // rpc is basically a function that receives a message and returns a message
+  rpc ToggleColor(Piece) returns (Piece) {}
+}
