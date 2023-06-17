@@ -5,6 +5,7 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import java.time.Duration
 import java.util.*
 
+@Suppress("unused")
 fun checkKafka() {
     // prerequisites: start kafka using instructions in kafka.md
     val props = Properties()
