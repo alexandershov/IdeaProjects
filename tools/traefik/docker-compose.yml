@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  reverse-proxy:
+    image: traefik:v2.10
+    command: --api.insecure=true --providers.docker
+    # only traefik container needs to have exposed ports
+    ports:
+      # main port
+      - 80:80
+      # web interface
+      - 8080:8080
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+  whoami:
+    image: traefik/whoami
+    # whoami container port is not exposed, traefik proxies its requests
+    # to this container
+    labels:
+      - "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`) || PathPrefix(`/my-api`)"
