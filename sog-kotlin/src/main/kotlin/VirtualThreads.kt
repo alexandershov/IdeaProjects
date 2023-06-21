@@ -1,6 +1,6 @@
 import java.time.LocalTime
 
-@Suppress("ControlFlowWithEmptyBody", "unused")
+@Suppress("ControlFlowWithEmptyBody")
 fun checkVirtualThreads() {
     val parallelism = System.getProperty("jdk.virtualThreadScheduler.parallelism")
     val maxPoolSize = System.getProperty("jdk.virtualThreadScheduler.maxPoolSize")

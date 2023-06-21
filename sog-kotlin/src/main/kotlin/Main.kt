@@ -1,9 +1,32 @@
-fun main(args: Array<String>) {
-    checkBloomFilter()
-    printNestedIfs(if (args.isNotEmpty()) args[0].toInt() else 3)
-    // checkKafka() requires running kafka broker, that's why it's commented out
-    // checkKafka()
+import kotlin.system.exitProcess
 
-    // checkVirtualThreads intentionally contains infinite loop, that's why it's commented out
-    // checkVirtualThreads()
+fun main(args: Array<String>) {
+    if (args.isEmpty()) {
+        println("no command passed, exiting")
+        exitProcess(1)
+    }
+    when (val command = args[0]) {
+        "bloomFilter" -> {
+            checkBloomFilter()
+        }
+
+        "kafka" -> {
+            // this requires running kafka broker
+            checkKafka()
+        }
+
+        "virtualThreads" -> {
+            checkVirtualThreads()
+        }
+
+        "nestedIfs" -> {
+            val (languageName, n) = Pair(args[1], args[2].toInt())
+            printNestedIfs(languageName, n)
+        }
+
+        else -> {
+            println("unknown command $command")
+            exitProcess(1)
+        }
+    }
 }
