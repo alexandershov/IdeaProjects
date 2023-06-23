@@ -176,6 +176,28 @@ class CppLanguage : Language {
     override fun onEnd() {
         println("}")
     }
+}
+
+class HaskellLanguage : Language {
+    override fun onIf() {
+        println(" (if True then")
+    }
+
+    override fun onEndIf() {
+        println(" else \"\")")
+    }
+
+    override fun onPrint() {
+        println(" \"hello world\"")
+    }
+
+    override fun onBegin() {
+        println("main = putStrLn ")
+    }
+
+    override fun onEnd() {
+
+    }
 
 }
 
@@ -188,6 +210,7 @@ fun printNestedIfs(languageName: String, n: Int) {
         "rust" -> RustLanguage()
         "js" -> JsLanguage()
         "java" -> JavaLanguage()
+        "haskell" -> HaskellLanguage()
         else -> throw IllegalArgumentException("unknown language $languageName")
     }
     // Print a C++ program with `n` nested ifs
