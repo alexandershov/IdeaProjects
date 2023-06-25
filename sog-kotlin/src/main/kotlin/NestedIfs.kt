@@ -1,255 +1,169 @@
 interface Language {
-    fun onIf()
-    fun onEndIf()
-    fun onPrint()
-    fun onBegin()
-    fun onEnd()
+    fun handle(command: Command)
 }
 
-class JavaLanguage : Language {
-    override fun onIf() {
-        println("if (true) {")
-    }
-
-    override fun onEndIf() {
-        println("}")
-    }
-
-    override fun onPrint() {
-        println("System.out.println(\"hello world\");")
-    }
-
-    override fun onBegin() {
-        println("class ifs {")
-        println("public static void main(String[] args) {")
-    }
-
-    override fun onEnd() {
-        println("}")
-        println("}")
-    }
-
+enum class Command {
+    BEGIN, END, IF, END_IF, PRINT
 }
 
-class JsLanguage : Language {
-    override fun onIf() {
-        println("if (true) {")
+class Java : Language {
+    override fun handle(command: Command) {
+        when (command) {
+            Command.IF -> println("if (true) {")
+            Command.BEGIN -> {
+                println("class ifs {")
+                println("public static void main(String[] args) {")
+            }
+
+            Command.END -> {
+                println("}")  // close void main()
+                println("}")  // close class ifs
+            }
+
+            Command.END_IF -> println("}")
+            Command.PRINT -> println("System.out.println(\"hello world\");")
+        }
     }
-
-    override fun onEndIf() {
-        println("}")
-    }
-
-    override fun onPrint() {
-        println("console.log(\"hello world\");")
-    }
-
-    override fun onBegin() {
-
-    }
-
-    override fun onEnd() {
-
-    }
-
 }
 
-class RustLanguage : Language {
-    override fun onIf() {
-        println("if true {")
+class Javascript : Language {
+    override fun handle(command: Command) {
+        when (command) {
+            Command.BEGIN -> {}
+            Command.END -> {}
+            Command.IF -> println("if (true) {")
+            Command.END_IF -> println("}")
+            Command.PRINT -> println("console.log(\"hello world\");")
+        }
     }
+}
 
-    override fun onEndIf() {
-        println("}")
+class Rust : Language {
+    override fun handle(command: Command) {
+        when (command) {
+            Command.BEGIN -> println("fn main() {")
+            Command.END -> println("}")
+            Command.IF -> println("if true {")
+            Command.END_IF -> println("}")
+            Command.PRINT -> println("print!(\"hello world\")")
+        }
     }
-
-    override fun onPrint() {
-        println("print!(\"hello world\")")
-    }
-
-    override fun onBegin() {
-        println("fn main() {")
-    }
-
-    override fun onEnd() {
-        println("}")
-    }
-
 }
 
 
 // TODO: make language interface less verbose
-class GoLanguage : Language {
-    override fun onIf() {
-        println("if true {")
-    }
+class Go : Language {
+    override fun handle(command: Command) {
+        when (command) {
+            Command.BEGIN -> {
+                println("package main")
+                println("import \"fmt\"")
+                println("func main() {")
+            }
 
-    override fun onEndIf() {
-        println("}")
+            Command.END -> println("}")
+            Command.IF -> println("if true {")
+            Command.END_IF -> println("}")
+            Command.PRINT -> println("fmt.Println(\"hello world\")")
+        }
     }
-
-    override fun onPrint() {
-        println("fmt.Println(\"hello world\")")
-    }
-
-    override fun onBegin() {
-        println("package main")
-        println("import \"fmt\"")
-        println("func main() {")
-    }
-
-    override fun onEnd() {
-        println("}")
-    }
-
 }
 
-class PythonLanguage : Language {
+class Python : Language {
     private var indentationLevel = 0
-    override fun onIf() {
-        println("${indentation()}if 1:")
-        indentationLevel += 1
-    }
 
-    override fun onEndIf() {
-        indentationLevel--
-    }
+    override fun handle(command: Command) {
+        when (command) {
+            Command.BEGIN -> {
+                println("def main():")
+                indentationLevel++
+            }
 
-    override fun onPrint() {
-        println("${indentation()}print('hello world')")
-    }
+            Command.END -> println("if __name__ == '__main__': main()")
+            Command.IF -> {
+                println("${indentation()}if 1:")
+                indentationLevel += 1
+            }
 
-    override fun onBegin() {
-        println("def main():")
-        indentationLevel++
-    }
-
-    override fun onEnd() {
-        println("if __name__ == '__main__': main()")
+            Command.END_IF -> indentationLevel--
+            Command.PRINT -> println("${indentation()}print('hello world')")
+        }
     }
 
     private fun indentation(): String {
         return " ".repeat(indentationLevel * 4)
     }
-
 }
 
-class CommonLispLanguage : Language {
-    override fun onIf() {
-        print("(if t ")
-    }
-
-    override fun onEndIf() {
-        print(")")
-    }
-
-    override fun onPrint() {
-        print("(print \"hello world\")")
-    }
-
-    override fun onBegin() {
-    }
-
-    override fun onEnd() {
-    }
-
-}
-
-class CppLanguage : Language {
-    override fun onIf() {
-        println("if (1) {")
-    }
-
-    override fun onEndIf() {
-        println("}")
-    }
-
-    override fun onPrint() {
-        println("std::cout << \"hello world\\n\";")
-    }
-
-    override fun onBegin() {
-        println("#include <iostream>")
-        println("int main() {")
-    }
-
-    override fun onEnd() {
-        println("}")
+class CommonLisp : Language {
+    override fun handle(command: Command) {
+        when (command) {
+            Command.BEGIN -> {}
+            Command.END -> {}
+            Command.IF -> print("(if t ")
+            Command.END_IF -> print(")")
+            Command.PRINT -> print("(print \"hello world\")")
+        }
     }
 }
 
-class HaskellLanguage : Language {
-    override fun onIf() {
-        println(" (if True then")
+class CPlusPlus : Language {
+    override fun handle(command: Command) {
+        when (command) {
+            Command.BEGIN -> {
+                println("#include <iostream>")
+                println("int main() {")
+            }
+
+            Command.END -> println("}")
+            Command.IF -> println("if (1) {")
+            Command.END_IF -> println("}")
+            Command.PRINT -> println("std::cout << \"hello world\\n\";")
+        }
     }
+}
 
-    override fun onEndIf() {
-        println(" else \"\")")
+class Haskell : Language {
+    override fun handle(command: Command) {
+        when (command) {
+            Command.BEGIN -> println("main = putStrLn ")
+            Command.END -> {}
+            Command.IF -> println(" (if True then")
+            Command.END_IF -> println(" else \"\")")
+            Command.PRINT -> println(" \"hello world\"")
+        }
     }
-
-    override fun onPrint() {
-        println(" \"hello world\"")
-    }
-
-    override fun onBegin() {
-        println("main = putStrLn ")
-    }
-
-    override fun onEnd() {
-
-    }
-
 }
 
 fun printNestedIfs(languageName: String, n: Int) {
-    val language = when (languageName) {
-        "c++" -> CppLanguage()
-        "python" -> PythonLanguage()
-        "common_lisp" -> CommonLispLanguage()
-        "go" -> GoLanguage()
-        "rust" -> RustLanguage()
-        "js" -> JsLanguage()
-        "java" -> JavaLanguage()
-        "haskell" -> HaskellLanguage()
-        else -> throw IllegalArgumentException("unknown language $languageName")
-    }
+    val language = languageNamed(languageName)
     // Print a C++ program with `n` nested ifs
-    val commands = ArrayDeque<String>()
-    commands.addFirst("begin")
-    for (i in 1..n) {
-        commands.addLast("if")
+    val commands = mutableListOf<Command>()
+    commands.add(Command.BEGIN)
+    repeat(n) {
+        commands.add(Command.IF)
     }
-    commands.addLast("print")
-    commands.addLast("end")
+    commands.add(Command.PRINT)
 
-    while (commands.isNotEmpty()) {
-        when (val command = commands.removeFirst()) {
-            "begin" -> {
-                language.onBegin()
-            }
-
-            "if" -> {
-                language.onIf()
-                commands.addLast("endif")
-            }
-
-            "endif" -> {
-                language.onEndIf()
-            }
-
-            "print" -> {
-                language.onPrint()
-            }
-
-            "end" -> {
-                language.onEnd()
-            }
-
-            else -> {
-                throw IllegalStateException("unknown command: $command")
-            }
-        }
+    repeat(n) {
+        commands.add(Command.END_IF)
     }
 
+    commands.add(Command.END)
+
+    commands.forEach(language::handle)
 }
 
+private fun languageNamed(languageName: String): Language {
+    return when (languageName) {
+        "c++" -> CPlusPlus()
+        "python" -> Python()
+        "common_lisp" -> CommonLisp()
+        "go" -> Go()
+        "rust" -> Rust()
+        "js" -> Javascript()
+        "java" -> Java()
+        "haskell" -> Haskell()
+        else -> throw IllegalArgumentException("unknown language $languageName")
+    }
+}
