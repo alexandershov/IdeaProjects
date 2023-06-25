@@ -154,8 +154,8 @@ fun printNestedIfs(languageName: String, n: Int) {
     commands.forEach(language::handle)
 }
 
-private fun languageNamed(languageName: String): Language {
-    return when (languageName) {
+private fun languageNamed(name: String): Language {
+    return when (name) {
         "c++" -> CPlusPlus()
         "python" -> Python()
         "common_lisp" -> CommonLisp()
@@ -164,6 +164,6 @@ private fun languageNamed(languageName: String): Language {
         "js" -> Javascript()
         "java" -> Java()
         "haskell" -> Haskell()
-        else -> throw IllegalArgumentException("unknown language $languageName")
+        else -> throw IllegalArgumentException("unknown language $name")
     }
 }
