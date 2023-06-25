@@ -136,8 +136,8 @@ class Haskell : Language {
 }
 
 fun printNestedIfs(languageName: String, n: Int) {
+    // Print a $languageName program with $n nested ifs
     val language = languageNamed(languageName)
-    // Print a C++ program with `n` nested ifs
     val commands = mutableListOf<Command>()
     commands.add(Command.BEGIN)
     repeat(n) {
