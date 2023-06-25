@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-golang-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-golang-app
+  template:
+    metadata:
+      labels:
+        app: my-golang-app
+    spec:
+      containers:
+        - name: my-golang-app
+          image: my-golang-app
+          imagePullPolicy: Never  # Force kubectl to use local docker registry
+          ports:
+            - containerPort: 8081
