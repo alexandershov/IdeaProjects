@@ -1,9 +1,33 @@
+import java.io.File
+import java.io.PrintStream
+
 interface Language {
     fun handle(command: Command)
+
+    // TODO: fix all compiled language runners
+    fun run(file: File)
+
+    val extension: String
 }
 
 enum class Command {
     BEGIN, END, IF, END_IF, PRINT
+}
+
+fun exec(command: Array<String>) {
+    val process = Runtime.getRuntime().exec(command)
+
+    val exitCode = process.waitFor()
+    if (exitCode != 0) {
+        System.err.println(process.errorStream.readAllBytes().toString(Charsets.UTF_8))
+        throw IllegalStateException("$command exited with $exitCode")
+    }
+    System.err.println(process.inputStream.readAllBytes().toString(Charsets.UTF_8))
+}
+
+fun withoutExtension(file: File): File {
+    val dir = file.parentFile
+    return File("${dir.path}/${file.nameWithoutExtension}")
 }
 
 class Java : Language {
@@ -24,6 +48,13 @@ class Java : Language {
             Command.PRINT -> println("System.out.println(\"hello world\");")
         }
     }
+
+    override fun run(file: File) {
+        exec(arrayOf("javac", file.path))
+        exec(arrayOf("java", withoutExtension(file).path))
+    }
+
+    override val extension = "java"
 }
 
 class Javascript : Language {
@@ -35,6 +66,12 @@ class Javascript : Language {
             Command.END_IF -> println("}")
             Command.PRINT -> println("console.log(\"hello world\");")
         }
+    }
+
+    override val extension = "js"
+
+    override fun run(file: File) {
+        exec(arrayOf("node", file.path))
     }
 }
 
@@ -48,10 +85,16 @@ class Rust : Language {
             Command.PRINT -> println("print!(\"hello world\")")
         }
     }
+
+    override val extension = "rs"
+
+    override fun run(file: File) {
+        exec(arrayOf("rustc", file.path))
+        exec(arrayOf(withoutExtension(file).path))
+    }
 }
 
 
-// TODO: make language interface less verbose
 class Go : Language {
     override fun handle(command: Command) {
         when (command) {
@@ -66,6 +109,12 @@ class Go : Language {
             Command.END_IF -> println("}")
             Command.PRINT -> println("fmt.Println(\"hello world\")")
         }
+    }
+
+    override val extension = "go"
+
+    override fun run(file: File) {
+        exec(arrayOf("go", "run", file.path))
     }
 }
 
@@ -90,6 +139,12 @@ class Python : Language {
         }
     }
 
+    override val extension = "py"
+
+    override fun run(file: File) {
+        exec(arrayOf("python3", file.path))
+    }
+
     private fun indentation(): String {
         return " ".repeat(indentationLevel * 4)
     }
@@ -104,6 +159,12 @@ class CommonLisp : Language {
             Command.END_IF -> print(")")
             Command.PRINT -> print("(print \"hello world\")")
         }
+    }
+
+    override val extension = "lisp"
+
+    override fun run(file: File) {
+        exec(arrayOf("sbcl", "--script", file.path))
     }
 }
 
@@ -121,6 +182,13 @@ class CPlusPlus : Language {
             Command.PRINT -> println("std::cout << \"hello world\\n\";")
         }
     }
+
+    override val extension = "cpp"
+
+    override fun run(file: File) {
+        exec(arrayOf("clang++", file.path))
+        exec(arrayOf(file.parentFile.path + "/a.out"))
+    }
 }
 
 class Haskell : Language {
@@ -133,10 +201,19 @@ class Haskell : Language {
             Command.PRINT -> println(" \"hello world\"")
         }
     }
+
+    override val extension = "hs"
+
+    override fun run(file: File) {
+        exec(arrayOf("ghc", file.path))
+        exec(arrayOf(withoutExtension(file).path))
+    }
 }
 
 fun printNestedIfs(languageName: String, n: Int) {
     // Print a $languageName program with $n nested ifs
+
+
     val language = languageNamed(languageName)
     val commands = mutableListOf<Command>()
     commands.add(Command.BEGIN)
@@ -151,7 +228,15 @@ fun printNestedIfs(languageName: String, n: Int) {
 
     commands.add(Command.END)
 
-    commands.forEach(language::handle)
+    val originalOut = System.out
+    try {
+        val tempFile = File.createTempFile("ifs", ".${language.extension}")
+        System.setOut(PrintStream(tempFile))
+        commands.forEach(language::handle)
+        language.run(tempFile)
+    } finally {
+        System.setOut(originalOut)
+    }
 }
 
 private fun languageNamed(name: String): Language {
