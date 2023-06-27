@@ -4,7 +4,6 @@ import java.io.PrintStream
 interface Language {
     fun handle(command: Command)
 
-    // TODO: fix all compiled language runners
     fun run(file: File)
 
     val extension: String
@@ -50,8 +49,8 @@ class Java : Language {
     }
 
     override fun run(file: File) {
-        exec(arrayOf("javac", file.path))
-        exec(arrayOf("java", withoutExtension(file).path))
+        exec(arrayOf("javac", "-d", file.parentFile.path, file.path))
+        exec(arrayOf("java", "-cp", file.parentFile.path, "ifs"))
     }
 
     override val extension = "java"
@@ -89,8 +88,9 @@ class Rust : Language {
     override val extension = "rs"
 
     override fun run(file: File) {
-        exec(arrayOf("rustc", file.path))
-        exec(arrayOf(withoutExtension(file).path))
+        val executable = withoutExtension(file).path
+        exec(arrayOf("rustc", "-o", executable, file.path))
+        exec(arrayOf(executable))
     }
 }
 
@@ -186,8 +186,9 @@ class CPlusPlus : Language {
     override val extension = "cpp"
 
     override fun run(file: File) {
-        exec(arrayOf("clang++", file.path))
-        exec(arrayOf(file.parentFile.path + "/a.out"))
+        val executable = withoutExtension(file).path
+        exec(arrayOf("clang++", "-o", executable, file.path))
+        exec(arrayOf(executable))
     }
 }
 
