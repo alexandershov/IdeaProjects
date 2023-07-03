@@ -187,7 +187,7 @@ class CPlusPlus : Language {
 
     override fun run(file: File) {
         val executable = withoutExtension(file).path
-        exec(arrayOf("clang++", "-o", executable, file.path))
+        exec(arrayOf("clang++", "-fbracket-depth=1000002", "-o", executable, file.path))
         exec(arrayOf(executable))
     }
 }
