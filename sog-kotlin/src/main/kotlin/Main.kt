@@ -24,6 +24,10 @@ fun main(args: Array<String>) {
             printNestedIfs(languageName, n)
         }
 
+        "geohash" -> {
+            checkGeoHash()
+        }
+
         else -> {
             println("unknown command $command")
             exitProcess(1)
