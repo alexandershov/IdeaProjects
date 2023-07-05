@@ -28,6 +28,10 @@ fun main(args: Array<String>) {
             checkGeoHash()
         }
 
+        "leakyBucket" -> {
+            checkLeakyBucket()
+        }
+
         else -> {
             println("unknown command $command")
             exitProcess(1)
