@@ -14,6 +14,10 @@
     let doubled;
 </script>
 
+<!-- You compose predefined tailwind classes -->
+<h1 class="text-3xl">Styled text</h1>
+<button class="bg-blue-500 hover:bg-blue-800">Click me</button>
+
 <!-- when values change, svelte does DOM updates efficiently-->
 <button on:click={incCount}>inc count</button>
 
@@ -25,3 +29,4 @@
 
 <!-- change of a and b is automatically renders this div -->
 <div>{a} + {b} = {a + b}</div>
+
