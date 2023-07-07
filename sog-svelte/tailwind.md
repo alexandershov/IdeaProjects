@@ -14,6 +14,8 @@ npx tailwindcss init -p
 ```
 
 Add `content: ['./src/**/*.{html,js,svelte,ts}']` to [tailwind.config.js](tailwind.config.js).
+This allows tailwind to watch html/js/svelte/ts files and to create css with only the classes
+you use.
 
 Create [app.css](src/app.css) file with tailwind directives.
 

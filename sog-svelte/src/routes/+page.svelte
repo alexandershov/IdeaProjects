@@ -16,7 +16,7 @@
 
 <!-- You compose predefined tailwind classes -->
 <h1 class="text-3xl">Styled text</h1>
-<button class="bg-blue-500 hover:bg-blue-800">Click me</button>
+<button class="bg-blue-500 hover:bg-blue-800 rounded-md p-1">Click me</button>
 
 <!-- when values change, svelte does DOM updates efficiently-->
 <button on:click={incCount}>inc count</button>
