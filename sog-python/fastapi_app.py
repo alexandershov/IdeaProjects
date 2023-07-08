@@ -72,7 +72,9 @@ pool: Optional[asyncpg.Pool] = None
 async def startup():
     global pool
     pool = await asyncpg.create_pool(user=os.getenv('DB_USER'),
-                                     database=database_name, host=os.getenv('DB_HOST'))
+                                     port=os.getenv('DB_PORT'),
+                                     database=database_name,
+                                     host=os.getenv('DB_HOST'))
 
 
 @app.on_event("shutdown")
