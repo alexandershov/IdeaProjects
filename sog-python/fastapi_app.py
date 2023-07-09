@@ -9,10 +9,15 @@ from typing import List, Optional
 import asyncpg
 import strawberry
 import uvicorn
+import fastapi
 from fastapi import FastAPI, Depends
+from fastapi import responses
 from pydantic import BaseModel
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
+from fastapi import templating
+
+templates = templating.Jinja2Templates(directory='templates')
 
 
 # Define data model
@@ -87,10 +92,34 @@ async def get_conn() -> asyncpg.Connection:
         yield connection
 
 
-@app.get("/messages", response_model=List[Message])
+@app.get('/messages', response_model=List[Message])
 async def get_messages(conn: asyncpg.Connection = Depends(get_conn)):
-    rows = await conn.fetch("SELECT id, body FROM messages")
+    rows = await conn.fetch('SELECT id, body FROM messages')
     return [Message(id=row['id'], body=row['body']) for row in rows]
+
+
+@app.get('/htmx', response_class=responses.HTMLResponse)
+async def htmx(request: fastapi.Request, conn: asyncpg.Connection = Depends(get_conn)):
+    rows = await conn.fetch('SELECT id, body FROM messages')
+    messages = [Message(id=row['id'], body=row['body']) for row in rows]
+    return templates.TemplateResponse('htmx_root.html', {'request': request, 'messages': messages})
+
+
+@app.get('/htmx/messages/edit/{message_id}', response_class=responses.HTMLResponse)
+async def htmx_edit_message(request: fastapi.Request, message_id: str, conn: asyncpg.Connection = Depends(get_conn)):
+    rows = await conn.fetch('SELECT id, body FROM messages WHERE id = $1', message_id)
+    messages = [Message(id=row['id'], body=row['body']) for row in rows]
+    assert len(messages) == 1
+    return templates.TemplateResponse('htmx_edit_message.html', {'request': request, 'message': messages[0]})
+
+
+@app.post('/htmx/messages/edit/{message_id}', response_class=responses.HTMLResponse)
+async def htmx_edit_message(request: fastapi.Request, message_id: str, body: str = fastapi.Form(...),
+                            conn: asyncpg.Connection = Depends(get_conn)):
+    rows = await conn.fetch('UPDATE messages SET body = $1 WHERE id = $2 RETURNING *', body, message_id)
+    messages = [Message(id=row['id'], body=row['body']) for row in rows]
+    assert len(messages) == 1
+    return templates.TemplateResponse('htmx_message.html', {'request': request, 'message': messages[0]})
 
 
 if __name__ == '__main__':

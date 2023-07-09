@@ -1,0 +1,22 @@
+<tr id="message-id-{{ message.id }}">
+    <td>{{ message.id }}</td>
+    <td>
+        <label>
+            <input name="body" type="text" value="{{ message.body }}"/>
+        </label>
+    </td>
+    <td>
+        <!--        This fires POST request to /htmx/messages/edit/{{ message.id }}-->
+        <!--        and will pass all inputs in the data-hx-include-->
+        <!--        and will replace content of #message-id-{{ message.id }} with-->
+        <!--        the response-->
+        <button
+                data-hx-post="/htmx/messages/edit/{{ message.id }}"
+                data-hx-target="#message-id-{{ message.id }}"
+                data-hx-include="#message-id-{{ message.id }}"
+                data-hx-swap="outerHTML"
+        >
+            Save
+        </button>
+    </td>
+</tr>

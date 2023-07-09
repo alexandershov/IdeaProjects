@@ -1,0 +1,16 @@
+<tr id="message-id-{{ message.id }}">
+    <td>{{ message.id }}</td>
+    <td>{{ message.body }}</td>
+    <td>
+        <!--        you can use hx-* instead of data-hx-*
+                    when you click the button then htmx will fire
+                    GET request to /htmx/messages/edit/{{ message.id }}
+                    and replace content of data-hx-target with the response
+        -->
+        <button data-hx-get="/htmx/messages/edit/{{ message.id }}"
+                data-hx-target="#message-id-{{ message.id }}"
+                data-hx-swap="outerHTML">
+            Edit
+        </button>
+    </td>
+</tr>

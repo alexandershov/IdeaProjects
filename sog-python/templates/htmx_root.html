@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Messages sample app</title>
+    <!--    htmx is a library that allows to update portions of the html
+            with the server-side rendering.
+
+            It's a way to allow both responsiveness of SPA and simplicity of
+            the conventional web-development with flask/django/rails/etc
+
+            See htmx_message.html and htmx_edit_message.html for examples
+    -->
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+</head>
+<body>
+<table>
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Body</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for message in messages %}
+    {% include 'htmx_message.html' %}
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>
