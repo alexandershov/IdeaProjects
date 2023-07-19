@@ -1,0 +1,17 @@
+# *.service file describe systemd services
+[Unit]
+Description=My Python Application
+# start the service after the network is available
+After=network.target
+
+[Service]
+# start service
+ExecStart=/usr/bin/python3 /home/ubuntu/app.py
+# restart service when it exits with non zero exit code
+Restart=on-failure
+# user that will be running service
+User=ubuntu
+
+[Install]
+# when service will be automatically started
+WantedBy=multi-user.target
