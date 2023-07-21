@@ -1,0 +1,36 @@
+# TOML is a configuration format similar to ini, but more strictly defined
+# TOML supports comments and is parsed into dict/hashmap
+# run python toml_tutorial.py to parse this file into dict
+
+# root-level attribute
+name = "Sasa"
+
+# arrays are supported
+names = ["Sasa"]
+
+# datetimes are supported
+created_at = 2023-07-21T10:17:00+04:00
+
+# inline dict/map
+obj = { name = "Sasa", age = 38 }
+nested.keys.create.nestedmaps = 3 # {"nested": {"keys": ...
+# map
+[details]
+# map keys
+name = "Kurt"
+age = 27
+
+# subkey in `details`
+[details.meta]
+attr = "value"
+
+# `product` is an array of maps, double brackets do this
+[[product]]
+name = "banana"
+cost = 10
+# booleans
+in_stock = true
+
+[[product]]
+name = "bread"
+cost = 2
