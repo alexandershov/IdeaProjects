@@ -165,5 +165,49 @@
 
     checkThreeJs()
 </script>
+<!--phaser is a game engine that targets canvas/webgl-->
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+<script>
+    let player;
+    function preload() {
+        console.log('calling phaser preload');
+        // now we can use asset sky.png using the key 'sky'
+        this.load.image('sky', 'sky.png');
+        this.load.image('ground', 'platform.png');
+        this.load.image('star', 'star.png');
+        this.load.image('bomb', 'bomb.png');
+        this.load.image('dude', 'dude.png', {frameWidth: 32, frameHeight: 48});
+    }
+
+    function create() {
+        console.log('calling phaser create');
+        player = this.physics.add.sprite(100, 450, 'dude');
+        player.setCollideWorldBounds(true);
+        this.add.image(400, 300, 'sky');
+        this.add.image(400, 200, 'star');
+        this.add.image(400, 100, 'dude');
+    }
+
+    function checkPhaser() {
+        const config = {
+            type: Phaser.AUTO, // prefer webgl, fallback to canvas
+            width: 800,
+            height: 600,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: {y: 200}
+                },
+
+            },
+            // preload is called before create
+            // preload and create are called only once
+            scene: {preload, create}
+        };
+        let game = new Phaser.Game(config);
+    }
+    // checkPhaser is commented out because it breaks scrolling on a page
+    // checkPhaser();
+</script>
 </body>
 </html>
