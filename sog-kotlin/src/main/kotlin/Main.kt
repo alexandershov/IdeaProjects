@@ -19,6 +19,10 @@ fun main(args: Array<String>) {
             checkVirtualThreads()
         }
 
+        "structuredConcurrency" -> {
+            checkStructuredConcurrency()
+        }
+
         "nestedIfs" -> {
             val (languageName, n) = Pair(args[1], args[2].toInt())
             printNestedIfs(languageName, n)
