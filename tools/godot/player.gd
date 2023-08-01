@@ -2,6 +2,8 @@
 
 extends Area2D
 
+signal hit
+
 
 # @export allows you to edit variable in the Node properties
 @export var speed = 400
@@ -11,6 +13,7 @@ var screen_size
 
 func _ready():
 	# _ready() is called when a node enters the scene tree
+	hide()
 	screen_size = get_viewport_rect().size
 	
 	
@@ -45,5 +48,14 @@ func _process(delta):
 		$AnimatedSprite2D.flip_v = velocity.y > 0
 		$AnimatedSprite2D.flip_h = false
 		
+
+func _on_body_entered(body):
+	hide()
+	hit.emit()
+	$CollisionShape2D.set_deferred('disabled', true)
 	
-		
+
+func start(pos):
+	position = pos
+	show()
+	$CollisionShape2D.disabled = false
