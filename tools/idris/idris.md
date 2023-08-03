@@ -10,7 +10,7 @@ Install Idris
 brew install idris2
 ```
 
-See [tutorial](./idris.md) for more details.
+See [tutorial](./tutorial.idr) for more details.
 
 Run tutorial:
 ```shell
