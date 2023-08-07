@@ -23,10 +23,13 @@ class Solution:
         for a_coin in coins:
             cur = [0] * (amount + 1)
             for cur_amount in range(1, amount + 1):
-                for i in range(1, 1 + cur_amount // a_coin):
-                    target_amount = cur_amount - i * a_coin
-                    if target_amount >= 0:
-                        cur[cur_amount] += prev[target_amount]
+                if cur_amount - a_coin >= 0:
+                    # use coin once
+                    cur[cur_amount] += prev[cur_amount - a_coin]
+            for cur_amount in range(1, amount + 1):
+                if cur_amount - a_coin >= 0:
+                    # use coin again
+                    cur[cur_amount] += cur[cur_amount - a_coin]
             prev = sum_lists(cur, prev)
         return prev[amount]
 
