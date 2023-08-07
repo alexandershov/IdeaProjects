@@ -6,7 +6,7 @@
 # 12:55 bug with duplicate combinations
 # 12:56 start over
 # 13:39 start writing not efficient version
-# 13:45 submit, bug, need to always take the current coin
+# 13:45 submit, bug
 
 
 # ideas:
@@ -22,8 +22,8 @@ class Solution:
         prev = [1] + [0] * amount
         for a_coin in coins:
             cur = [0] * (amount + 1)
-            for cur_amount in range(amount + 1):
-                for i in range(1 + cur_amount // a_coin):
+            for cur_amount in range(1, amount + 1):
+                for i in range(1, 1 + cur_amount // a_coin):
                     target_amount = cur_amount - i * a_coin
                     if target_amount >= 0:
                         cur[cur_amount] += prev[target_amount]
