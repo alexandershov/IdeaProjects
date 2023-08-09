@@ -5,6 +5,10 @@
 # 11:41 trying to submit it
 # 11:44 forgot to change visited in find_invitations
 # 11:50 wrong answer, current idea is DSU and check the cycle lengths, handle cycle.len == 2 separately
+# 13:19 continue
+# 13:41 wrong approach, solution can be constructed from disconnected components
+# 14:11 still wrong approach, we can construct solutions in a weird way
+# 14:15 thinking about completely different approach
 
 # ideas:
 # represent everything as a graph
@@ -16,39 +20,59 @@
 # find parts of graph, start with the start of each part
 
 
+from dataclasses import dataclass
+from typing import Mapping
+
+@dataclass
+class Context:
+    cycle_lengths: Mapping[int, int]
+    two_cycle_prefix: Mapping[int, int]
+
 class Solution:
     def maximumInvitations(self, favorite: list[int]) -> int:
         n = len(favorite)
         in_degrees = build_in_degrees(favorite)
-        starting_nodes = [node for node, in_deg in in_degrees.items() if in_deg == 0]
+        starting_nodes = sorted(in_degrees, key=in_degrees.__getitem__)
         if not starting_nodes:
             return n
         result = 0
+        two_cycles = {}
         for start in starting_nodes:
-            result = max(result, find_invitations(start, favorite))
+            result = max(result, find_invitations(start, favorite, two_cycles))
+
+        two_cycle_nodes = set()
+        for node in two_cycles:
+            two_cycle_nodes.add(node)
+            two_cycle_nodes.add(favorite[node])
+        num_two_cycles, rem = divmod(len(two_cycle_nodes), 2)
+        assert rem == 0
+        for node, path_len in two_cycles.items():
+            two_cycle_result = two_cycles.get(favorite[node], 0) + path_len
+            result = max(result, two_cycle_result + num_two_cycles * 2)
         return result
 
 
 def build_in_degrees(favorite):
-    in_degrees = dict.fromkeys(range(favorite), 0)
+    in_degrees = dict.fromkeys(range(len(favorite)), 0)
     for fav in favorite:
         in_degrees[fav] += 1
     return in_degrees
 
 
-def find_invitations(node, favorite):
+def find_invitations(node, favorite, two_cycles):
     visited = set()
-    i = 0
     cur = node
 
     while cur not in visited:
+        visited.add(cur)
         cur = favorite[cur]
 
     cycle_start = cur
     distance = find_distance(node, cycle_start, favorite)
     cycle_len = len(visited) - distance
     if cycle_len == 2:
-        return len(visited)
+        two_cycles[cycle_start] = max(len(visited) - 2, two_cycles.get(cycle_start, 0))
+        return 0
     return cycle_len
 
 
