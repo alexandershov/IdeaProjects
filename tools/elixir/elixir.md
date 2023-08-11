@@ -33,4 +33,13 @@ mix phx.server
 
 App is running on http://localhost:4000
 
-Liveview sends updates to client when changes happen on a server.
+Liveview sends updates to client when changes happen on the server.
+See an [example](./app/lib/app_web/live/light_live.ex) of liveview in action.
+
+It's pretty awesome: you can mark html elements with the e.g. phx-click and
+Phoenix will send events to your handle_event/3 function.
+
+After handling event Phoenix will figure out what needs to rerendered and will send the
+update to the browser. So you're getting interactive apps without writing js.
+
+Liveview is implemented via websocket connection between browser and Elixir process. 
