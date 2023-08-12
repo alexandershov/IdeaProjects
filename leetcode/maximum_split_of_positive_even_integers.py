@@ -1,7 +1,8 @@
 # 10:53 started reading
 # 10:55 started thinking
 # 11:13 trying to prove greedy
-# 11:32 implemented greedy, but don't understand why it'll give maximum split
+# 11:32 implemented greedy (with the bug in the loop condition),
+# but don't understand why it'll give maximum split
 
 
 # ideas:
