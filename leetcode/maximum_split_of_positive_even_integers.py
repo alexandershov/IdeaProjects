@@ -6,7 +6,7 @@
 
 
 # ideas:
-# greedy
+# [yes]greedy
 # answer is basically the same for odd/problem, but divided by 2
 # dynamic programming
 
