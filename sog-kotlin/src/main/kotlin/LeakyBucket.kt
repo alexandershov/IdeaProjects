@@ -12,6 +12,17 @@ import kotlin.random.nextInt
   Leaky bucket outputs traffic that doesn't exceed some constant rate.
   Inbound traffic can have burst, but that doesn't make outbound traffic to have bursts.
  */
+
+/* There is also a token bucket.
+   Tokens are added to the bucket at the constant rate.
+
+   Each incoming request spends some amount of tokens.
+   If there's not enough tokens, then request is rejected.
+
+   The difference between token bucket and leaky bucket is that
+   token bucket allows bursts in outgoing traffic (e.g. when basket is full of tokens
+   and we spend them all really fast because of the surge in the traffic)
+ */
 fun checkLeakyBucket() {
     val size = AtomicInteger(0)
     val maxSize = 1000
