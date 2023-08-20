@@ -3,6 +3,7 @@
 # 07:47 started writing
 # 07:55 started checking
 # 07:57 checked, bugs: swap in str instead of a list, and typo when defining rest
+# 12:50 improved algo to O(b * log(b)) where b = log(num)
 
 import heapq
 
