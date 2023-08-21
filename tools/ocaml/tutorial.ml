@@ -12,3 +12,9 @@ let three = (module Three : X_int);
    I need to look at https://hirrolot.github.io/posts/compiler-development-rust-or-ocaml.html#type-flexibility-first-class-modules
    more carefully
 *)
+
+(* Functors has a different meaning in OCaml.
+   Functor is basically a function that converts module to another module.
+   It's similar to C++ templates.
+ *)
+module Next (X : X_int) = struct let x = X.x + 1 end;;
