@@ -13,7 +13,7 @@ let three = (module Three : X_int);
    more carefully
 *)
 
-(* Functors has a different meaning in OCaml.
+(* Functors have different meaning in OCaml.
    Functor is basically a function that converts module to another module.
    It's similar to C++ templates.
  *)
