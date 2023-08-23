@@ -1,0 +1,13 @@
+# 2016 is a port
+:2016 {
+	respond "Haha"
+}
+
+:2017 {
+	respond "hoho"
+}
+
+# reverse proxy from port 2018
+:2018 {
+	reverse_proxy localhost:8000
+}
