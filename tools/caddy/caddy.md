@@ -50,3 +50,22 @@ Convert Caddyfile to json
 ```shell
 caddy adapt
 ```
+
+Caddy supports automatic https.
+
+Install network security services
+```shell
+brew install nss
+```
+
+Run caddy with https-enabled Caddyfile (it uses domain name for port 2016, and Caddy enables https in this case)
+```shell
+caddy run -c Caddyfile_https
+```
+
+Caddy will ask for a permission to add certificate.
+
+After that site will be served via https: https://localhost:2016 
+
+For localhost Caddy will issue self-signed certificate.
+For different domains Caddy will get a certificate from let's encrypt.
