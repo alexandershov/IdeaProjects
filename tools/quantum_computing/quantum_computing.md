@@ -46,3 +46,10 @@ qubit 1|0>, 0|1> (it's just classical 0 bit) and vice versa 0 gets flipped to 1
 
 Quantum algorithms can factor integers in O(log(n)^x) time (Shor's algorithms)
 and search a database without indexes in O(sqrt(N)) (Grover's algorithm).
+
+Run a simulation of Grover's algorithm:
+```shell
+python grover_algorithm.py 3
+```
+
+See [source code](./grover_algorithm.py) for details of Grover's algorithm.
