@@ -30,5 +30,5 @@ def rec_solve(s: str, words: set[str], start: int, cache=None):
     for a_word in words:
         if s.startswith(a_word, start):
             num_chars = min(num_chars, rec_solve(s, words, start + len(a_word), cache))
-            cache[start] = num_chars
+    cache[start] = num_chars
     return num_chars
