@@ -4,7 +4,8 @@
 # 15:04 started checking
 # 15:09 checked
 # 15:11 TLE
-
+# 14:56 started writing dijkstra
+# 15:03 wrong signature of heapq, otherwise no bugs
 
 """
 ideas
@@ -12,11 +13,37 @@ ideas
 2. greedy (no)
 3. sort + dp
 """
-
+import collections
+import heapq
 import math
 
 
 class Solution:
+    def swimInWater(self, grid: list[list[int]]) -> int:
+        values = collections.defaultdict(lambda: math.inf)
+        start = (0, 0)
+        target = (num_rows(grid) - 1, num_columns(grid) - 1)
+        values[start] = at(grid, start)
+        frontier = [(values[start], start)]
+        while frontier:
+            val, cell = heapq.heappop(frontier)
+            values[cell] = min(values[cell], val)
+            if cell == target:
+                break
+            for neighbour in iter_neighbours(cell, grid):
+                new_value = max(at(grid, neighbour), val)
+                if new_value < values[neighbour]:
+                    values[neighbour] = new_value
+                    heapq.heappush(frontier, (new_value, neighbour))
+        return values[target]
+
+
+def at(grid, cell):
+    r, c = cell
+    return grid[r][c]
+
+
+class QuadraticSolution:
     def swimInWater(self, grid: list[list[int]]) -> int:
         if not grid:
             return 0
