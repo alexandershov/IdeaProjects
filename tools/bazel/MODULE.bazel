@@ -1,0 +1,12 @@
+# module definition
+module(
+    name = "bazel_tutorial",
+    version = "1.0.0",
+)
+
+download = use_extension("//:extensions.bzl", "download")
+
+# use_repo executes implementation function of extension
+# and brings specified repos in the scope of current module
+# this is executed during the loading phase
+use_repo(download, "leetcode_problem")

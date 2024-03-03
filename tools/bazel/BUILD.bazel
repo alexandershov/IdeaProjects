@@ -1,0 +1,11 @@
+# rule that runs shell script
+sh_binary(
+    name = "print_leetcode_problem",
+    # shell script to run
+    srcs = ["my_cat.sh"],
+    # arguments to shell script
+    # $location is to convert bazel label to a file system path
+    args = ["$(location @leetcode_problem//:downloaded)"],
+    # runtime data for the command
+    data = ["@leetcode_problem//:downloaded"],
+)
