@@ -26,16 +26,21 @@ _download = repository_rule(
 )
 
 def _download_impl(module_ctx):
-    _download(
-        # name is a standard argument in repository rules, no need to define it in
-        # attrs of `repository_rule`
-        name = "leetcode_problem",
-        url = "https://raw.githubusercontent.com/alexandershov/IdeaProjects/main/leetcode/coin_change_ii.py",
-        sha256 = "a37d6e58a856a34936401efe279a629e58abd5441faff3985261359b4ea1e0d1",
-    )
+    # iterate over all modules that use this extension
+    for mod in module_ctx.modules:
+        for do in mod.tags.do:
+            _download(
+                # name is a standard argument in repository rules, no need to define it in
+                # attrs of `repository_rule`
+                name = do.name,
+                url = do.url,
+                sha256 = do.sha256,
+            )
 
 # module extension can be used by use_extension in MODULE.bazel
 # module extension generates one or more repository rules
 download = module_extension(
     implementation = _download_impl,
+    # we can `call` this extension as download.call(name="", url="", sha256="")
+    tag_classes = {"do": tag_class({"name": attr.string(), "url": attr.string(), "sha256": attr.string()})},
 )

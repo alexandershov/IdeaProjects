@@ -1,6 +1,6 @@
 {
   "lockFileVersion": 3,
-  "moduleFileHash": "6a336e2712e763c057c3b3c4a23b3a987d0abedaac8880ffd482a5f3d692f73e",
+  "moduleFileHash": "935cadef843c3e764a03749b5c4e525d9ae3712ef52133b778eeb9e2a9cbb713",
   "flags": {
     "cmdRegistries": [
       "https://bcr.bazel.build/"
@@ -34,10 +34,40 @@
             "column": 25
           },
           "imports": {
-            "leetcode_problem": "leetcode_problem"
+            "leetcode_problem": "leetcode_problem",
+            "second_leetcode_problem": "second_leetcode_problem"
           },
           "devImports": [],
-          "tags": [],
+          "tags": [
+            {
+              "tagName": "do",
+              "attributeValues": {
+                "name": "leetcode_problem",
+                "sha256": "a37d6e58a856a34936401efe279a629e58abd5441faff3985261359b4ea1e0d1",
+                "url": "https://raw.githubusercontent.com/alexandershov/IdeaProjects/main/leetcode/coin_change_ii.py"
+              },
+              "devDependency": false,
+              "location": {
+                "file": "@@//:MODULE.bazel",
+                "line": 12,
+                "column": 12
+              }
+            },
+            {
+              "tagName": "do",
+              "attributeValues": {
+                "name": "second_leetcode_problem",
+                "sha256": "bad_sha256",
+                "url": "bad_unknown_url"
+              },
+              "devDependency": false,
+              "location": {
+                "file": "@@//:MODULE.bazel",
+                "line": 19,
+                "column": 12
+              }
+            }
+          ],
           "hasDevUseExtension": false,
           "hasNonDevUseExtension": true
         }
@@ -641,7 +671,7 @@
   "moduleExtensions": {
     "//:extensions.bzl%download": {
       "general": {
-        "bzlTransitiveDigest": "SiTWywmrIA3saoauv8ANDqC+OzE6sTo9X1AAFgs70F0=",
+        "bzlTransitiveDigest": "W8QnhZt2aRaKH6/2w5ART3XPB6A0in71xwg5Oa7s6Ew=",
         "accumulatedFileDigests": {},
         "envVariables": {},
         "generatedRepoSpecs": {
@@ -652,6 +682,15 @@
               "name": "_main~download~leetcode_problem",
               "url": "https://raw.githubusercontent.com/alexandershov/IdeaProjects/main/leetcode/coin_change_ii.py",
               "sha256": "a37d6e58a856a34936401efe279a629e58abd5441faff3985261359b4ea1e0d1"
+            }
+          },
+          "second_leetcode_problem": {
+            "bzlFile": "@@//:extensions.bzl",
+            "ruleClassName": "_download",
+            "attributes": {
+              "name": "_main~download~second_leetcode_problem",
+              "url": "bad_unknown_url",
+              "sha256": "bad_sha256"
             }
           }
         },

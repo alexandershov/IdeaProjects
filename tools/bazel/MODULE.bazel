@@ -6,7 +6,25 @@ module(
 
 download = use_extension("//:extensions.bzl", "download")
 
+# `do` is a tag_class defined in the extension definition
+# download.do` doesn't actually does anything, it just add a tag
+# the downloading itself is done when someone wants to use a repo
+download.do(
+    name = "leetcode_problem",
+    sha256 = "a37d6e58a856a34936401efe279a629e58abd5441faff3985261359b4ea1e0d1",
+    url = "https://raw.githubusercontent.com/alexandershov/IdeaProjects/main/leetcode/coin_change_ii.py",
+)
+# since no target depends on second_leetcode_problem it never gets executed
+
+download.do(
+    name = "second_leetcode_problem",
+    sha256 = "bad_sha256",
+    url = "bad_unknown_url",
+)
+
 # use_repo executes implementation function of extension
 # and brings specified repos in the scope of current module
 # this is executed during the loading phase
-use_repo(download, "leetcode_problem")
+# we can add second_leetcode_problem to use_repo and will not break anything
+# since no target depends on @second_leetcode_problem repo
+use_repo(download, "leetcode_problem", "second_leetcode_problem")
