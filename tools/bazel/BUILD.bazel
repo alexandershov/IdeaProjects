@@ -1,3 +1,5 @@
+load(":rules.bzl", "my_rule")
+
 # rule that runs shell script
 sh_binary(
     name = "print_leetcode_problem",
@@ -9,3 +11,21 @@ sh_binary(
     # runtime data for the command
     data = ["@leetcode_problem//:downloaded"],
 )
+
+# when we call a rule we produce a target
+# here it's a target named "my_rule_name_1"
+my_rule(
+    name = "my_rule_name_1",
+    username = "sasa",
+)
+
+my_rule(
+    name = "my_rule_name_2",
+    username = "some name",
+    deps = [
+        ":bazel.md",
+        ":my_rule_name_1",
+    ],
+)
+
+print("BUILD file")
