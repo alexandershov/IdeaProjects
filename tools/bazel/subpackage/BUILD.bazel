@@ -1,0 +1,12 @@
+# by default files are visible only in current package
+# exports_files allows files to be visible in other packages
+exports_files(["file_in_subpackage.txt"])
+
+py_binary(
+    name = "check_runfiles",
+    srcs = [":check_runfiles.py"],
+    data = [
+        "//:bazel.md",
+        "//subpackage:file_in_subpackage.txt",
+    ],
+)

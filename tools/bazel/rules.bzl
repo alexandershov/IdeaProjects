@@ -1,6 +1,7 @@
 def _my_rule_impl(ctx):
     # this is called during the analysis phase
     print("analyzing", ctx.label)
+    print("workspace", ctx.workspace_name)
     print("deps", ctx.attr.deps)
     if ctx.attr.deps:
         # deps[0] is a Target, that has attribute .files
