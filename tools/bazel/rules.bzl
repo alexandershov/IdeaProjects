@@ -8,6 +8,13 @@ def _my_rule_impl(ctx):
         print("deps[0]", ctx.attr.deps[0].files)
 
     # declare a file and write something to it
+    # actually ctx.actions.write doesn't write to the file
+    # it registers an action that will write to the file
+    # the action will execute during the execution phase
+    # so if we run `bazel cquery --output=files :all`
+    # then although this _my_rule_impl will get executed
+    # no files will be created/written to
+    # merely an action will be registered
     out = ctx.actions.declare_file(ctx.label.name)
     out_1 = ctx.actions.declare_file(ctx.label.name + "_1")
     ctx.actions.write(output = out, content = "Hello %s\n" % ctx.attr.username)
