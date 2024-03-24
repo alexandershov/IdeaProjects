@@ -24,3 +24,13 @@ bazel run :print_leetcode_problem
 ```
 
 See .bzl and .bazel files for how `:print_leetcode_problem` target is defined.
+
+Executable path in bazel-out, can be joined with workspace_root to get the absolute path
+```shell
+bazel cquery --output=starlark --starlark:expr='target.files_to_run.executable.path' //:check_runfiles
+```
+
+Executable path in runfiles
+```shell
+bazel cquery --output=starlark --starlark:expr='target.files_to_run.executable.short_path' //:check_runfiles
+```
