@@ -39,4 +39,18 @@ my_rule(
     ],
 )
 
+py_test(
+    name = "sandbox_test",
+    srcs = ["test_sandbox.py"],
+    main = "test_sandbox.py",
+)
+
+genrule(
+    name = "sandbox",
+    outs = ["sandbox.txt"],
+    # during the build time you can't write to filesystem outside the sandbox
+    # see [test_sandbox.py] for an explanation of sandboxing
+    cmd = "echo some_content > ~/tmp/some_file && echo done > $@",
+)
+
 print("BUILD file")
