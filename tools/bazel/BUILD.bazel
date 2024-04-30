@@ -17,6 +17,8 @@ sh_binary(
 py_binary(
     name = "check_runfiles",
     srcs = ["check_runfiles.py"],
+    # using check_runfiles_library won't work as it's testonly
+    # srcs = [":check_runfiles_library"],
     data = [
         ":bazel.md",
         "//subpackage:file_in_subpackage.txt",
@@ -41,8 +43,19 @@ my_rule(
 
 py_test(
     name = "sandbox_test",
+    # bazel styleguide says that source files should not start with `:`
+    # so we don't write
+    # srcs = [":test_sandbox.py"],
+    # although it'll work
     srcs = ["test_sandbox.py"],
     main = "test_sandbox.py",
+)
+
+py_library(
+    name = "check_runfiles_library",
+    # testonly = True means that only testonly (e.g py_test) targets can use this library
+    testonly = True,
+    srcs = ["check_runfiles.py"],
 )
 
 genrule(
