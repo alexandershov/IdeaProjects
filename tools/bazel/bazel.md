@@ -27,20 +27,16 @@ See .bzl and .bazel files for how `:print_leetcode_problem` target is defined.
 
 ## Query
 
-Executable path in bazel-out, can be joined with workspace_root to get the absolute path
-```shell
-bazel cquery --output=starlark --starlark:expr='target.files_to_run.executable.path' //:check_runfiles
-```
-
-Executable path in runfiles
-```shell
-bazel cquery --output=starlark --starlark:expr='target.files_to_run.executable.short_path' //:check_runfiles
-```
-
 Find all dependencies of a target:
 ```shell
 bazel query --notool_deps 'deps(:check_runfiles)'
 ```
+
+Find all direct dependencies of a target, second argument of deps means depth
+```shell
+bazel query --notool_deps 'deps(:check_runfiles, 1)'
+```
+
 
 Find some dependency path between two targets
 ```shell
@@ -95,4 +91,44 @@ bazel query --notool_deps 'deps(//...) except deps(//subpackage/...)'
 Find common things between dependencies (`//:*` are all targets in root package)
 ```shell
 bazel query --notool_deps 'deps(//:*) intersect deps(//subpackage/...)'
+```
+
+List all platforms
+```shell
+bazel query @platforms//os:all
+```
+
+## cquery
+
+cquery can run after analysis phase (query runs after loading phase) and so it knows about 
+output files
+
+```shell
+bazel cquery --output=files :my_rule_name_1
+```
+
+This doesn't work as we don't know output files after loading phase:
+```shell
+# doesn't work
+bazel query --output=files :my_rule_name_1
+```
+
+Executable path in bazel-out, can be joined with workspace_root to get the absolute path
+```shell
+bazel cquery --output=starlark --starlark:expr='target.files_to_run.executable.path' //:check_runfiles
+```
+
+Executable path in runfiles
+```shell
+bazel cquery --output=starlark --starlark:expr='target.files_to_run.executable.short_path' //:check_runfiles
+```
+
+cquery can resolve results of `select`
+```shell
+bazel cquery 'deps(:my_rule_name_2, 1)'
+```
+
+query can't resolve results of `select` and conservatively outputs all possibilities
+```shell
+bazel query 'deps(:my_rule_name_2, 1)'
 ```

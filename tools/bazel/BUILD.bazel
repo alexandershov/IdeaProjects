@@ -29,16 +29,41 @@ py_binary(
 # here it's a target named "my_rule_name_1"
 my_rule(
     name = "my_rule_name_1",
+    platform = select(
+        {
+            "@platforms//os:osx": "osx",
+            "@platforms//os:linux": "linux",
+        },
+    ),
     username = "sasa",
+)
+
+config_setting(
+    name = "macos_platform",
+    constraint_values = ["@platforms//os:osx"],
+)
+
+config_setting(
+    name = "linux_platform",
+    constraint_values = ["@platforms//os:linux"],
 )
 
 my_rule(
     name = "my_rule_name_2",
+    platform = "whatever",
     username = "some name",
-    deps = [
-        ":bazel.md",
-        ":my_rule_name_1",
-    ],
+    # select can be used as right hand side of attribute assignment
+    # here we pass different dependencies based on current platform
+    deps = select(
+        {
+            "macos_platform": [
+                ":bazel.md",
+                ":hello.tp",
+                ":my_rule_name_1",
+            ],
+            "linux_platform": [":bad_target"],
+        },
+    ),
 )
 
 py_test(

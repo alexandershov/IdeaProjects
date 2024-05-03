@@ -17,7 +17,7 @@ def _my_rule_impl(ctx):
     # no files will be created/written to
     # merely an action will be registered
     out = ctx.actions.declare_file(ctx.label.name)
-    out_1 = ctx.actions.declare_file(ctx.label.name + "_1")
+    out_1 = ctx.actions.declare_file(ctx.label.name + "_1_" + ctx.attr.platform)
     ctx.actions.write(output = out, content = "Hello %s\n" % ctx.attr.username)
 
     # .expand_template doesn't need to store template string in memory
@@ -45,6 +45,7 @@ my_rule = rule(
         # without allow_files = True you can only pass targets
         # allow_files can also be a list of allowed file extensions
         "deps": attr.label_list(allow_files = True),
+        "platform": attr.string(mandatory = True),
     },
 )
 
