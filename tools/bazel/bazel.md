@@ -157,3 +157,11 @@ Setting user-defined platforms
 ```shell
 bazel cquery 'deps(:my_rule_name_2, 1)' --noimplicit_deps --platforms=//:rock_paper_scissors
 ```
+
+cquery outputs configuration id, it's essentially a hash of all build options.
+
+View configuration (7170974 is short configuration id):
+```shell
+bazel config 7170974
+```
+It's just a bunch of options.
