@@ -125,10 +125,15 @@ bazel cquery --output=starlark --starlark:expr='target.files_to_run.executable.s
 
 cquery can resolve results of `select`
 ```shell
-bazel cquery 'deps(:my_rule_name_2, 1)'
+bazel cquery 'deps(:my_rule_name_2, 1)' --noimplicit_deps
 ```
 
 query can't resolve results of `select` and conservatively outputs all possibilities
 ```shell
-bazel query 'deps(:my_rule_name_2, 1)'
+bazel query 'deps(:my_rule_name_2, 1)' --noimplicit_deps
+```
+
+Setting user-defined platforms
+```shell
+bazel cquery 'deps(:my_rule_name_2, 1)' --noimplicit_deps --platforms=//:rock_paper_scissors
 ```

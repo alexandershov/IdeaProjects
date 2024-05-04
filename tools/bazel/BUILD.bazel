@@ -40,12 +40,79 @@ my_rule(
 
 config_setting(
     name = "macos_platform",
+    # this setting "wins" in select() on osx
     constraint_values = ["@platforms//os:osx"],
 )
 
 config_setting(
     name = "linux_platform",
+    # this setting "wins" in select() on linux
     constraint_values = ["@platforms//os:linux"],
+)
+
+config_setting(
+    name = "x86_cpu",
+    # this setting wins in select() when --cpu=x86 is passed on command line
+    values = {
+        "cpu": "x86",
+    },
+)
+
+config_setting(
+    name = "arm_cpu",
+    # this setting wins in select() when --cpu=arm is passed on command line
+    values = {
+        "cpu": "arm",
+    },
+)
+
+config_setting(
+    name = "rock_paper",
+    constraint_values = [
+        ":rock",
+        ":white",
+    ],
+)
+
+# this is like enum definition for constraints, but with a terrible name constraint_setting
+constraint_setting(name = "item_kind")
+
+constraint_value(
+    name = "rock",
+    constraint_setting = "item_kind",
+)
+
+constraint_value(
+    name = "paper",
+    constraint_setting = "item_kind",
+)
+
+constraint_value(
+    name = "scissors",
+    constraint_setting = "item_kind",
+)
+
+constraint_setting(name = "item_color")
+
+constraint_value(
+    name = "white",
+    constraint_setting = "item_color",
+)
+
+constraint_value(
+    name = "black",
+    constraint_setting = "item_color",
+)
+
+# platform is a terrible name for setting a bunch of constraint_values in one go
+# when you pass --platforms=:rock_paper_scissors it will set these constraint_values
+platform(
+    name = "rock_paper_scissors",
+    constraint_values = [
+        ":rock",
+        ":white",
+        "@platforms//os:windows",
+    ],
 )
 
 my_rule(
@@ -54,15 +121,24 @@ my_rule(
     username = "some name",
     # select can be used as right hand side of attribute assignment
     # here we pass different dependencies based on current platform
+    # if there are two matches then results should be equal or one constraint
+    # should be superset of another
     deps = select(
         {
-            "macos_platform": [
+            ":macos_platform": [
                 ":bazel.md",
                 ":hello.tp",
                 ":my_rule_name_1",
             ],
-            "linux_platform": [":bad_target"],
+            ":linux_platform": [":unknown_linux_platform_target"],
+            ":x86_cpu": [":unknown_x86_cpu_target"],
+            ":arm_cpu": [":unknown_arm_cpu_target"],
+            # can be triggered with passing --platforms=//:rock_paper_scissors
+            ":rock_paper": [":unknown_rock_paper"],
+            # matches when nothing else matches
+            "//conditions:default": [],
         },
+        no_match_error = "Some error message if nothing matches",
     ),
 )
 
