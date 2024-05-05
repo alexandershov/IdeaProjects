@@ -184,6 +184,7 @@ By default, test files are not instrumented for coverage, you can change that wi
 
 You can additionally specify which rules to instrument for coverage with
 `--instrumentation_filter` which is a comma-separated list of target regexes
+prefix regex with `-` to exclude mathing targets from instrumentation
 ```shell
- bazel coverage --combined_report=lcov --instrumentation_filter '//subpackage:b.*,//subpackage:a.*' //subpackage:passing_test
+ bazel coverage --combined_report=lcov --instrumentation_filter '//subpackage:b.*,-//subpackage:a.*' //subpackage:passing_test
 ```
