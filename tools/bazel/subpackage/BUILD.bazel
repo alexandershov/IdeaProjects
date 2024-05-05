@@ -1,3 +1,5 @@
+load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
+
 # by default files are visible only in current package
 # exports_files allows files to be visible in other packages
 exports_files(["file_in_subpackage.txt"])
@@ -8,5 +10,20 @@ py_binary(
     data = [
         "//:bazel.md",
         "//subpackage:file_in_subpackage.txt",
+    ],
+)
+
+py_library(
+    name = "adder",
+    srcs = ["adder.py"],
+    imports = ["."],
+)
+
+py_test(
+    name = "passing_test",
+    srcs = ["test_subpackage.py"],
+    main = "test_subpackage.py",
+    deps = [
+        ":adder",
     ],
 )

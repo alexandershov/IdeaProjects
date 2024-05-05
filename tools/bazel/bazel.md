@@ -164,4 +164,26 @@ View configuration (7170974 is short configuration id):
 ```shell
 bazel config 7170974
 ```
-It's just a bunch of options.
+Configuration is just a bunch of options.
+
+## Coverage
+See python.toolchain call in [MODULE.bazel](./MODULE.bazel) for coverage configuration for python.
+
+Run coverage
+```shell
+ bazel coverage --combined_report=lcov //subpackage:passing_test
+```
+
+Coverage report will be available in bazel-out/_coverage/_coverage_report.dat
+
+By default, test files are not instrumented for coverage, you can change that with
+`--instrument_test_targets`
+```shell
+ bazel coverage --combined_report=lcov --instrument_test_targets //subpackage:passing_test
+```
+
+You can additionally specify which rules to instrument for coverage with
+`--instrumentation_filter` which is a comma-separated list of target regexes
+```shell
+ bazel coverage --combined_report=lcov --instrumentation_filter '//subpackage:b.*,//subpackage:a.*' //subpackage:passing_test
+```
