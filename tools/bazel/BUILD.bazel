@@ -159,6 +159,13 @@ py_library(
     srcs = ["check_runfiles.py"],
 )
 
+# if it was uncommented, then check_runfiles_library would resolve
+# srcs = ["check_runfiles.py"] to this py_library instead of the source file check_runfiles.py
+#py_library(
+#    name = "check_runfiles.py",
+#    srcs = ["test_sandbox.py"],
+#)
+
 genrule(
     name = "sandbox",
     outs = ["sandbox.txt"],
