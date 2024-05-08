@@ -150,6 +150,8 @@ py_test(
     # although it'll work
     srcs = ["test_sandbox.py"],
     main = "test_sandbox.py",
+    # we can disable sandbox with no-sandbox tag
+    # tags = ["no-sandbox"],
 )
 
 py_library(
