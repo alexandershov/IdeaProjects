@@ -210,3 +210,17 @@ prefix regex with `-` to exclude mathing targets from instrumentation
 ```shell
  bazel coverage --combined_report=lcov --instrumentation_filter '//subpackage:b.*,-//subpackage:a.*' //subpackage:passing_test
 ```
+
+## Caching
+Bazel uses content-addressable storage (CAS) similar to git.
+All source files are in CAS. All target outputs are in CAS.
+
+Bazel builds action graph. It has Action Cache (AC). 
+AC key is hash of action inputs (input files, envvars, command being executed). 
+AC value are hashes of outputs.
+Since bazel expects all actions to be hermetic (i.e. each action should be a pure function from its inputs to its outputs), this
+means that given inputs, bazel can look up if outputs are already in cache and skip actually
+executing an action.
+
+Cache can be local or remote. Local cache is, ahem, local and lives on a local host machine.
+Remote cache is, ahem, remote, essentially it's cache on some remote host.
