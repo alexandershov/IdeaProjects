@@ -23,6 +23,10 @@ py_test(
     name = "passing_test",
     srcs = ["test_subpackage.py"],
     main = "test_subpackage.py",
+    # no-cache tag supposed to disable test caching, but it doesn't work, maybe because of in-memory caching
+    # tags = ["no-cache"],
+    # external tag forces test executing without any cache
+    tags = ["external"],
     deps = [
         ":adder",
     ],
