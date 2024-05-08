@@ -222,5 +222,7 @@ Since bazel expects all actions to be hermetic (i.e. each action should be a pur
 means that given inputs, bazel can look up if outputs are already in cache and skip actually
 executing an action.
 
+You can explore bazel action  graph with the `bazel aquery <...>`
+
 Cache can be local or remote. Local cache is, ahem, local and lives on a local host machine.
 Remote cache is, ahem, remote, essentially it's cache on some remote host.
