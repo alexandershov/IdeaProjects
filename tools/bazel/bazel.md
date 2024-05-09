@@ -233,3 +233,13 @@ It's written in Java and stores build-graph in memory.
 
 You can shutdown bazel server with `bazel shutdown`.
 On the next CLI invocation bazel server will be started again.
+
+## Profiling
+
+You can generate profile data with bazel, use `--profile=` flag.
+
+```shell
+bazel test --profile=subpackage_passing_test.json //subpackage:passing_test
+```
+This will generate profile data in Chrome Trace Event Format, you can visualize it
+on https://ui.perfetto.dev
