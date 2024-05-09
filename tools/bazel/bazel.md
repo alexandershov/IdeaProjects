@@ -226,3 +226,10 @@ You can explore bazel action  graph with the `bazel aquery <...>`
 
 Cache can be local or remote. Local cache is, ahem, local and lives on a local host machine.
 Remote cache is, ahem, remote, essentially it's cache on some remote host.
+
+There's also in-memory cache.
+When you do `bazel <command>` it actually starts or uses already started bazel server.
+It's written in Java and stores build-graph in memory.
+
+You can shutdown bazel server with `bazel shutdown`.
+On the next CLI invocation bazel server will be started again.
