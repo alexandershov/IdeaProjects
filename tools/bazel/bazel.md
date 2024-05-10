@@ -227,9 +227,37 @@ You can explore bazel action  graph with the `bazel aquery <...>`
 Cache can be local or remote. Local cache is, ahem, local and lives on a local host machine.
 Remote cache is, ahem, remote, essentially it's cache on some remote host.
 
+There's also repository cache. when you use some repository_rule (e.g. http_archive), then
+it uses `ctx.download` or `ctx.download_and_extract` which uses repository cache under the hood.
+You pass sha256 to these repo_rules and bazel don't download anything if given sha256 is already in cache. 
+Even if you pass the wrong url, then you'll still get the data from repository cache if there's an
+entry in cache with the given sha256.
+
+Repository cache is located at directory `bazel info repository_cache`.
+It's also CAS and is shared across different workspaces.
+
+Repository cache is not affected by bazel clean:
+
+```shell
+➜  bazel git:(main) ✗ ls $(bazel info repository_cache)/content_addressable/sha256  | wc -l
+      31
+➜  bazel git:(main) ✗ bazel clean --expunge
+INFO: Starting clean (this may take a while). Consider using --async if the clean takes more than several minutes.
+➜  bazel git:(main) ✗ ls $(bazel info repository_cache)/content_addressable/sha256  | wc -l
+Starting local Bazel server and connecting to it...
+      31
+```
+
+You can specify repository_cache directory with `--repository_cache` option:
+```shell
+bazel build :print_leetcode_problem --repository_cache ~/tmp/bazel_repo_cache
+```
+
+
 There's also in-memory cache.
 When you do `bazel <command>` it actually starts or uses already started bazel server.
 It's written in Java and stores build-graph in memory.
+
 
 You can shutdown bazel server with `bazel shutdown`.
 On the next CLI invocation bazel server will be started again.
