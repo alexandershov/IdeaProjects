@@ -3,14 +3,15 @@
 # graphql is just a query language independent of data source
 # you add data sources (e.g. database, microservice, etc) using resolvers
 
+import datetime as dt
 import os
-from typing import List, Optional
+from typing import Annotated, List, Optional
 
 import asyncpg
 import strawberry
 import uvicorn
 import fastapi
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request, Response
 from fastapi import responses
 from pydantic import BaseModel
 from strawberry.fastapi import GraphQLRouter
@@ -18,6 +19,14 @@ from strawberry.types import Info
 from fastapi import templating
 
 templates = templating.Jinja2Templates(directory='templates')
+
+
+class Date:
+    def __init__(self, s):
+        self.value = dt.date.fromisoformat(s)
+
+    def render(self):
+        return self.value.isoformat()
 
 
 # Define data model
@@ -71,6 +80,23 @@ database_name = "notes"
 
 # Create a connection pool
 pool: Optional[asyncpg.Pool] = None
+
+
+async def get_date(request: Request):
+    body = await request.body()
+    return Date(body.decode('utf-8'))
+
+
+class DateResponse(Response):
+    def render(self, content):
+        print(f"{content}")
+        return content.render().encode('utf-8')
+
+
+@app.post("/next_day", response_class=DateResponse)
+async def next_day(date: Annotated[Date, Depends(get_date)]) -> DateResponse:
+    date.value += dt.timedelta(days=1)
+    return DateResponse(date)
 
 
 @app.on_event("startup")
