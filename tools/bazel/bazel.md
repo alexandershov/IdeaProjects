@@ -271,6 +271,8 @@ When you do `bazel <command>` it actually starts or uses already started bazel s
 It's written in Java and stores build-graph in memory.
 You can shutdown bazel server with `bazel shutdown`.
 On the next CLI invocation bazel server will be started again.
+Bazel server can execute only one command at a time. That's why you're getting all
+these "Another Bazel command is running" when trying two execute two bazel commands in parallel.
 
 ## Profiling
 
