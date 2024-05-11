@@ -218,6 +218,12 @@ All source files are in CAS. All target outputs are in CAS.
 Bazel builds action graph. It has Action Cache (AC). 
 AC key is hash of action inputs (input files, envvars, command being executed). 
 AC value are hashes of outputs.
+AC is located in `$(bazel info output_base)/action_cache
+Action cache is represented as binary files in a filesystem.
+We can explore it with 
+```shell
+bazel dump --action_cache
+```
 Since bazel expects all actions to be hermetic (i.e. each action should be a pure function from its inputs to its outputs), this
 means that given inputs, bazel can look up if outputs are already in cache and skip actually
 executing an action.
