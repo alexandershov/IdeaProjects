@@ -212,9 +212,13 @@ prefix regex with `-` to exclude mathing targets from instrumentation
 ```
 
 ## Caching
+
+### Content Addressable Storage (CAS)
 Bazel uses content-addressable storage (CAS) similar to git.
 All source files are in CAS. All target outputs are in CAS.
 
+
+### Action Cache (AC)
 Bazel builds action graph. It has Action Cache (AC). 
 AC key is hash of action inputs (input files, envvars, command being executed). 
 AC value are hashes of outputs.
@@ -230,9 +234,11 @@ executing an action.
 
 You can explore bazel action  graph with the `bazel aquery <...>`
 
+### Local/Remote Cache
 Cache can be local or remote. Local cache is, ahem, local and lives on a local host machine.
 Remote cache is, ahem, remote, essentially it's cache on some remote host.
 
+### Repository Cache
 There's also repository cache. when you use some repository_rule (e.g. http_archive), then
 it uses `ctx.download` or `ctx.download_and_extract` which uses repository cache under the hood.
 You pass sha256 to these repo_rules and bazel don't download anything if given sha256 is already in cache. 
@@ -259,12 +265,10 @@ You can specify repository_cache directory with `--repository_cache` option:
 bazel build :print_leetcode_problem --repository_cache ~/tmp/bazel_repo_cache
 ```
 
-
+### In-memory Cache
 There's also in-memory cache.
 When you do `bazel <command>` it actually starts or uses already started bazel server.
 It's written in Java and stores build-graph in memory.
-
-
 You can shutdown bazel server with `bazel shutdown`.
 On the next CLI invocation bazel server will be started again.
 
