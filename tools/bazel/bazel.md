@@ -211,6 +211,51 @@ prefix regex with `-` to exclude mathing targets from instrumentation
  bazel coverage --combined_report=lcov --instrumentation_filter '//subpackage:b.*,-//subpackage:a.*' //subpackage:passing_test
 ```
 
+
+## Directory structure
+Bazel writes all of its data to a directory called `outputUserRoot`.
+Its exact location differs across OSes.
+On Linux it's `~/.cache/bazel/_bazel_${USER}`. On Mac it's `/private/var/tmp/_bazel_${USER}`
+`outputUserRoot` contains:
+* directories for each workspace (their names are md5 hashes of full paths to workspaces)
+* `install/` directory containing installation of bazel
+
+Bazel writes output of builds in workspace to `{outputUserRoot}/{md5(workspace)}/execroot/_main/bazel-out`.
+For convenience bazel creates symlink to this directory in `{workspace}/bazel-out`.
+`bazel info output_path` == `{outputUserRoot}/{md5(workspace)}/execroot/_main/bazel-out`
+`bazel info output_base` == `{outputUserRoot}/{md5(workspace)}`
+output_base also contains:
+* `action_cache/` directory. So action cache is per-workspace.
+* `external/` directory containing all fetched external repositories
+
+`bazel clean` cleans `action_cache/` and output_path:
+
+```shell
+➜  bazel git:(main) ✗ ls $(bazel info output_base)/action_cache | wc -l
+       2
+➜  bazel git:(main) ✗ ls $(bazel info output_path) | wc -l
+       4
+➜  bazel git:(main) ✗ bazel clean
+INFO: Starting clean (this may take a while). Consider using --async if the clean takes more than several minutes.
+➜  bazel git:(main) ✗ ls $(bazel info output_base)/action_cache | wc -l
+ls: /private/var/tmp/_bazel_aershov/aa113e5d9cb7e4bbe0353cfbd569ece8/action_cache: No such file or directory
+       0
+➜  bazel git:(main) ✗ ls $(bazel info output_path) | wc -l
+ls: /private/var/tmp/_bazel_aershov/aa113e5d9cb7e4bbe0353cfbd569ece8/execroot/_main/bazel-out: No such file or directory
+       0
+```
+
+`bazel clean --expunge` removes the whole output_base
+```shell
+➜  bazel git:(main) ✗ file $(bazel info output_base)
+/private/var/tmp/_bazel_aershov/aa113e5d9cb7e4bbe0353cfbd569ece8: directory
+➜  bazel git:(main) ✗ bazel clean --expunge
+INFO: Starting clean (this may take a while). Consider using --async if the clean takes more than several minutes.
+➜  bazel git:(main) ✗ ls /private/var/tmp/_bazel_aershov/aa113e5d9cb7e4bbe0353cfbd569ece8
+ls: /private/var/tmp/_bazel_aershov/aa113e5d9cb7e4bbe0353cfbd569ece8: No such file or directory
+```
+
+
 ## Caching
 
 ### Content Addressable Storage (CAS)
