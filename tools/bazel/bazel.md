@@ -279,10 +279,6 @@ executing an action.
 
 You can explore bazel action  graph with the `bazel aquery <...>`
 
-### Local/Remote Cache
-Cache can be local or remote. Local cache is, ahem, local and lives on a local host machine.
-Remote cache is, ahem, remote, essentially it's cache on some remote host.
-
 ### Repository Cache
 There's also repository cache. when you use some repository_rule (e.g. http_archive), then
 it uses `ctx.download` or `ctx.download_and_extract` which uses repository cache under the hood.
@@ -318,6 +314,25 @@ You can shutdown bazel server with `bazel shutdown`.
 On the next CLI invocation bazel server will be started again.
 Bazel server can execute only one command at a time. That's why you're getting all
 these "Another Bazel command is running" when trying two execute two bazel commands in parallel.
+
+
+### Local/Remote Cache
+Cache can be local or remote. Local cache is, ahem, local and lives on a local host machine.
+Remote cache is, ahem, remote, essentially it's cache on some remote host.
+Aside from that there is little differences between local and remote cache. Especially if you ignore tags = ["no-remote-cache"] 
+which considers local cache as totally different from remote.
+
+Local cache location is specified via --disk_cache parameter:
+```shell
+bazel test //subpackage:passing_test  --disk_cache=~/.cache/bazel
+```
+
+Disk cache stores actions, CAS of output files, and stdout/stderr of actions.
+ATTENTION: this is a separate cache from AC and CAS. 
+Disk cache can be shared by different workspaces. And disk cache is not garbage collected,
+so you need a separate process of cleaning it up.
+
+Passing disk_cache='' disables disk cache. It's actually default behaviour.
 
 ## Profiling
 
