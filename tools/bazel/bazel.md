@@ -25,6 +25,15 @@ bazel run :print_leetcode_problem
 
 See .bzl and .bazel files for how `:print_leetcode_problem` target is defined.
 
+## Modules
+bzlmod is a new system for managing bazel dependencies. See [MODULE.bazel](./MODULE.bazel) for a description of bzlmod.
+
+Show bazel module dependency graph:
+
+```shell
+bazel mod graph
+```
+
 ## Query
 
 Find all rule names recursively

@@ -1,10 +1,21 @@
+# bzlmod is a new way of dependency management in bazel
+# bzlmod is described by heavily restricted subset of starlark with some extra functions (*_override, etc)
+# e.g. you can't use `load` function (and almost everything else) here
+
 # module definition
 module(
     name = "bazel_tutorial",
     version = "1.0.0",
 )
 
+# also includes all transitive dependencies of rules_python, that's one of the
+# advantages of bzlmod over old WORKSPACE system
 bazel_dep(name = "rules_python", version = "0.31.0")
+
+# aspect_rules_py==0.7.3 has a transitive dependency on rules_python==0.29.0
+# since our project MODULE.bazel already have direct dependency on rules_python==0.31.0
+# bzlmod chooses the maximum version, here it's 0.31.0
+bazel_dep(name = "aspect_rules_py", version = "0.7.3")
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python.toolchain(
