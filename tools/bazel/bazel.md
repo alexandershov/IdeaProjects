@@ -18,6 +18,11 @@ brew install bazelisk
 Bazelisk is a wrapper around bazel, that can download the required version
 of bazel and run it.
 
+You can specify bazel version you want to use in .bazelversion.
+Bazel has 2 kind of releases:
+* LTS, you should use them
+* Rolling releases (built from HEAD about every two weeks, see [here](https://bazel.build/release/rolling) for a list of rolling releases)
+
 Run target:
 ```shell
 bazel run :print_leetcode_problem
