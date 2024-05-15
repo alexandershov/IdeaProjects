@@ -1,6 +1,8 @@
 import os
 import pathlib
 
+import requests
+
 
 def main():
     # cwd is bazel-out/..../_main

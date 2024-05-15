@@ -1,4 +1,8 @@
 load(":rules.bzl", "my_rule")
+load("@python_versions//3.11:defs.bzl", "compile_pip_requirements")
+
+# @python_main_hub was specified in MODULE.bazel in pip.parse
+load("@python_main_hub//:requirements.bzl", "requirement")
 
 exports_files(["bazel.md"])
 
@@ -23,6 +27,13 @@ py_binary(
         ":bazel.md",
         "//subpackage:file_in_subpackage.txt",
     ],
+    # requirement function converts pip package name to a bazel label
+    # you can check it with `bazel query --output=build :check_runfiles`
+    # it's just @python_main_hub//requests:pkg
+    # you can explore this repo with bazel query @python_main_hub//requests/...
+    # e.g bazel cquery --output=files @python_main_hub//requests:pkg
+    # will return source files of requests library
+    deps = [requirement("requests")],
 )
 
 # when we call a rule we produce a target
@@ -174,6 +185,15 @@ genrule(
     # during the build time you can't write to filesystem outside the sandbox
     # see [test_sandbox.py] for an explanation of sandboxing
     cmd = "echo some_content > ~/tmp/some_file && echo done > $@",
+)
+
+# compile_pip_requirements creates requirements lock file with pinned versions
+# from requirements.in
+# you can run it with `bazel run //:requirements.update`
+compile_pip_requirements(
+    name = "requirements",
+    src = "requirements.in",
+    requirements_txt = "requirements.txt",
 )
 
 print("BUILD file")

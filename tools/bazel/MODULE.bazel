@@ -25,8 +25,19 @@ bazel_dep(name = "aspect_rules_py", version = "0.7.3")
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python.toolchain(
     configure_coverage_tool = True,
-    python_version = "3.9",
+    python_version = "3.11",
 )
+use_repo(python, "python_versions")
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "python_main_hub",
+    python_version = "3.11",
+    requirements_lock = "//:requirements.txt",
+)
+
+# provides repo @python_main_hub
+use_repo(pip, "python_main_hub")
 
 download = use_extension("//:extensions.bzl", "download")
 
