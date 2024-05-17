@@ -2,6 +2,8 @@ def _download_repo_rule_impl(repository_ctx):
     # dynamically configure a repository using repository_ctx
     # this is executed during loading phase
     # and can access filesystem/network/etc
+    # dynamic_deps contains labels with canonical repo names, so they can be used
+    # across repos
     dynamic_deps = repository_ctx.read(repository_ctx.attr.deps_file).split("\n")
     print("dynamic_deps = ", dynamic_deps)
 
@@ -14,10 +16,6 @@ def _download_repo_rule_impl(repository_ctx):
     )
     if not response.success:
         fail("could not download", repository_ctx.attr.url)
-
-    # TODO: how to make it work without it using global deps?
-    for dep in dynamic_deps:
-        repository_ctx.file(dep.lstrip(":/"), content = repository_ctx.read(Label(dep)))
 
     repository_ctx.file(
         "print_data.py",

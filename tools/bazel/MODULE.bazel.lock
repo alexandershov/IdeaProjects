@@ -1388,7 +1388,7 @@
   "moduleExtensions": {
     "//:extensions.bzl%download": {
       "general": {
-        "bzlTransitiveDigest": "e9pAKP29vBFcV82fOGfVm93AOZKfVChDjVu0m++IJuo=",
+        "bzlTransitiveDigest": "Qp7jOluGnpdhNf/EwZmbh5x5/eR232ammOr0sdrCujA=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},

@@ -4,7 +4,11 @@ load("@python_versions//3.11:defs.bzl", "compile_pip_requirements")
 # @python_main_hub was specified in MODULE.bazel in pip.parse
 load("@python_main_hub//:requirements.bzl", "requirement")
 
-exports_files(["bazel.md"])
+exports_files([
+    "bazel.md",
+    "hello.tp",
+    "inc.bazel",
+])
 
 # rule that runs shell script
 sh_binary(

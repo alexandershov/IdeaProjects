@@ -1,2 +1,2 @@
-//:hello.tp
-//:inc.bazel
+@@//:hello.tp
+@@//:inc.bazel

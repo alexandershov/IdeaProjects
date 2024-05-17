@@ -39,6 +39,12 @@ Show bazel module dependency graph:
 bazel mod graph
 ```
 
+## Labels
+Repos has globally unique names. They are called canonical repo names.
+They are referred as @@<canonical name>. Main repo has empty canonical name and 
+targets in the main repo can be referred as `@@//path/to:target`.
+With @@ even external repos can reference targets in the main repo. 
+
 ## Query
 
 Find all rule names recursively
