@@ -1,6 +1,6 @@
 {
   "lockFileVersion": 6,
-  "moduleFileHash": "d6730b0312087f4d80de91003ec24afdd429f328cdb03f40e9972d09578cb09d",
+  "moduleFileHash": "2bc482caa6f55cf531265c973c7ff77564ad1c17792ad39db7e717e9e21aafe5",
   "flags": {
     "cmdRegistries": [
       "https://bcr.bazel.build/"
@@ -106,6 +106,7 @@
               "tagName": "do",
               "attributeValues": {
                 "name": "leetcode_problem",
+                "deps_file": "//:dynamic_deps.txt",
                 "sha256": "a37d6e58a856a34936401efe279a629e58abd5441faff3985261359b4ea1e0d1",
                 "url": "https://raw.githubusercontent.com/alexandershov/IdeaProjects/main/leetcode/coin_change_ii.py"
               },
@@ -120,13 +121,14 @@
               "tagName": "do",
               "attributeValues": {
                 "name": "second_leetcode_problem",
+                "deps_file": "//:dynamic_deps.txt",
                 "sha256": "bad_sha256",
                 "url": "bad_unknown_url"
               },
               "devDependency": false,
               "location": {
                 "file": "@@//:MODULE.bazel",
-                "line": 54,
+                "line": 55,
                 "column": 12
               }
             }
@@ -1386,7 +1388,7 @@
   "moduleExtensions": {
     "//:extensions.bzl%download": {
       "general": {
-        "bzlTransitiveDigest": "W8QnhZt2aRaKH6/2w5ART3XPB6A0in71xwg5Oa7s6Ew=",
+        "bzlTransitiveDigest": "e9pAKP29vBFcV82fOGfVm93AOZKfVChDjVu0m++IJuo=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -1396,7 +1398,8 @@
             "ruleClassName": "_download",
             "attributes": {
               "url": "https://raw.githubusercontent.com/alexandershov/IdeaProjects/main/leetcode/coin_change_ii.py",
-              "sha256": "a37d6e58a856a34936401efe279a629e58abd5441faff3985261359b4ea1e0d1"
+              "sha256": "a37d6e58a856a34936401efe279a629e58abd5441faff3985261359b4ea1e0d1",
+              "deps_file": "@@//:dynamic_deps.txt"
             }
           },
           "second_leetcode_problem": {
@@ -1404,7 +1407,8 @@
             "ruleClassName": "_download",
             "attributes": {
               "url": "bad_unknown_url",
-              "sha256": "bad_sha256"
+              "sha256": "bad_sha256",
+              "deps_file": "@@//:dynamic_deps.txt"
             }
           }
         },

@@ -46,6 +46,7 @@ download = use_extension("//:extensions.bzl", "download")
 # the downloading itself is done when someone wants to use a repo
 download.do(
     name = "leetcode_problem",
+    deps_file = "//:dynamic_deps.txt",
     sha256 = "a37d6e58a856a34936401efe279a629e58abd5441faff3985261359b4ea1e0d1",
     url = "https://raw.githubusercontent.com/alexandershov/IdeaProjects/main/leetcode/coin_change_ii.py",
 )
@@ -53,6 +54,7 @@ download.do(
 
 download.do(
     name = "second_leetcode_problem",
+    deps_file = "//:dynamic_deps.txt",
     sha256 = "bad_sha256",
     url = "bad_unknown_url",
 )
