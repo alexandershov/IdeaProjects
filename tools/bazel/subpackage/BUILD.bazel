@@ -31,7 +31,15 @@ py_test(
     #    tags = ["no-cache"],
     # external tag forces test executing without any cache
     # this _really_ ignores all the caches including action cache
-    tags = ["external"],
+    tags = [
+        "external",
+        # block-network restricts sandbox to only using localhost for network
+        # see test_block_network_tag test for a test that'll be affected by this tag
+        # there's also global option --sandbox_default_allow_network=false
+        # and a tag "requires-network" that allow to override sandbox_default_allow_network
+        # for a specific test
+        "block-network",
+    ],
     deps = [
         ":adder",
     ],
