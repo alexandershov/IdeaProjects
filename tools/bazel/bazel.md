@@ -354,6 +354,18 @@ so you need a separate process of cleaning it up.
 
 Passing disk_cache='' disables disk cache. It's actually default behaviour.
 
+## Toolchains
+Toolchains allow you to essentially get the effect of select() inside the `attr.label(default=)`.
+select can't be used as value for default in `attr.label`.
+Sometimes you want to get this effect: e.g. py_binary rule can contain implicit dependency on python interpreter.
+(something like _interpreter=attr.label(default="//path/to:interpreter")). 
+The problem is that interpreter can be different depending on the platform/cpu
+
+Toolchains allow you to achieve essentially that. 
+The extra advantage is that you can provide toolchains that the rule author didn't
+think about. Disadvantage is that it's extra complexity and another entry in ever-growing collection of
+bazel crutches.
+
 ## Profiling
 
 You can generate profile data with bazel, use `--profile=` flag.
