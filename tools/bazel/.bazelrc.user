@@ -1,0 +1,2 @@
+# redefines --unconditional_warning in .bazelrc
+common --unconditional_warning='overridden warning'

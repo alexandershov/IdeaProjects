@@ -1,0 +1,10 @@
+# you can set bazel-wide options in .bazelrc
+
+# print a warning unconditionally. Can be useful if you need to broadcast some message
+# to your users
+# common --unconditional_warning hahaha
+
+# try to import file .bazelrc.user config
+# if .bazelrc.user doesn't exist then this line is ignored
+# in .bazelrc.user you can redefine some flags
+try-import %workspace%/.bazelrc.user
