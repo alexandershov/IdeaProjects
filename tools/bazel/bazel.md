@@ -30,6 +30,30 @@ bazel run :print_leetcode_problem
 
 See .bzl and .bazel files for how `:print_leetcode_problem` target is defined.
 
+
+## Phases
+Bazel does stuff in three phases, which are (mostly terribly) named Loading, Analysis, and Execution.
+
+### Loading Phase
+Bazel reads BUILD files. 
+Repo rules are executed. During this phase you can do non-hermetic stuff: read files, access network, etc.
+E.g. you can read a file and dynamically construct a repo based on this file content.
+Output of loading phase is a Build Graph: targets and their dependencies.
+Yes, bazel knows dependencies of targets even without executing rule implementations.
+It can (not 100% sure, but very probably) infer dependencies based on rule definitions:
+if rule has an attribute of type `attr.label` then it's a dependency of the current rule.
+
+### Analysis Phase
+Ordinary rules are executed. `select` calls are resolved. 
+This phase is strictly deterministic. No IO actually takes place.
+When you do `ctx.actions.write_file` in a rule implementation it doesn't actually write to file.
+It just registers this action in an Execution Graph.
+Output of analysis phase is Execution Graph: actions (e.g. write a file) and their dependencies.
+
+### Execution Phase
+Execution graph is, well, executed. 
+Output of execution phase is a build: build files etc in bazel-out/ dir
+
 ## Modules
 bzlmod is a new system for managing bazel dependencies. See [MODULE.bazel](./MODULE.bazel) for a description of bzlmod.
 
