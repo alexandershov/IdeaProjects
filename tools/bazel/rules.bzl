@@ -49,4 +49,16 @@ my_rule = rule(
     },
 )
 
+# when name starts with an underscore it can't be used in other modules
+# compared to Python this behaviour is strictly enforced
+_private = []
+
+# you can modify this variable only during the loading of this file
+immutable_outside_of_this_file = []
+
+def change():
+    immutable_outside_of_this_file.append(1)
+
+change()
+
 print("bazel file evaluation")

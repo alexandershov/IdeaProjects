@@ -1,4 +1,4 @@
-load(":rules.bzl", "my_rule")
+load(":rules.bzl", "change", "immutable_outside_of_this_file", "my_rule")
 load("@python_versions//3.11:defs.bzl", "compile_pip_requirements")
 
 # @python_main_hub was specified in MODULE.bazel in pip.parse
@@ -199,5 +199,17 @@ compile_pip_requirements(
     src = "requirements.in",
     requirements_txt = "requirements.txt",
 )
+
+# functions can't be defined in BUILD files, use .bzl files for that
+#def add(x, y):
+#    return x + y
+
+# you can't modify vars from other files
+# be it direct use ...
+# immutable_outside_of_this_file.append(8)
+# ... or calling function from the other file
+# change()
+
+print("immutable_outside_of_this_file = ", immutable_outside_of_this_file)
 
 print("BUILD file")
