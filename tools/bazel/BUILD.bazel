@@ -1,4 +1,5 @@
 load(":rules.bzl", "change", "immutable_outside_of_this_file", "my_rule")
+load(":rules_test.bzl", "rules_test_suite")
 load("@python_versions//3.11:defs.bzl", "compile_pip_requirements")
 
 # @python_main_hub was specified in MODULE.bazel in pip.parse
@@ -199,6 +200,9 @@ compile_pip_requirements(
     src = "requirements.in",
     requirements_txt = "requirements.txt",
 )
+
+# we can test it with `bazel test //:double_test`
+rules_test_suite(name = "double_test")
 
 # functions can't be defined in BUILD files, use .bzl files for that
 #def add(x, y):

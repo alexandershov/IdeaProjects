@@ -56,6 +56,9 @@ _private = []
 # you can modify this variable only during the loading of this file
 immutable_outside_of_this_file = []
 
+def double(x):
+    return x + x
+
 def change():
     immutable_outside_of_this_file.append(1)
 
