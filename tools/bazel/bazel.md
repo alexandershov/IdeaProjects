@@ -330,7 +330,9 @@ executing an action.
 You can explore bazel action  graph with the `bazel aquery <...>`
 
 ### Repository Cache
-There's also repository cache. when you use some repository_rule (e.g. http_archive), then
+There's also (terribly named) repository cache. Repository cache doesn't cache the whole repositories,
+it just caches downloads.
+When you use some repository_rule (e.g. http_archive), then
 it uses `ctx.download` or `ctx.download_and_extract` which uses repository cache under the hood.
 You pass sha256 to these repo_rules and bazel don't download anything if given sha256 is already in cache. 
 Even if you pass the wrong url, then you'll still get the data from repository cache if there's an
