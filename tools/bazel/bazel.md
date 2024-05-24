@@ -238,6 +238,14 @@ You can set rerun flaky tests with:
 bazel test --flaky_test_attempts=3 //subpackage:passing_test
 ```
 
+By default, bazel runs all tests even if some tests are failed.
+You can fail fast with:
+```shell
+# with --notest_keep_going `bazel test` exits immediately as soon as one test has failed. 
+bazel test --notest_keep_going //...
+```
+
+
 ## Coverage
 See python.toolchain call in [MODULE.bazel](./MODULE.bazel) for coverage configuration for python.
 
