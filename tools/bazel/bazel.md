@@ -232,6 +232,12 @@ bazel config 7170974
 ```
 Configuration is just a bunch of options.
 
+## Testing
+You can set rerun flaky tests with:
+```shell
+bazel test --flaky_test_attempts=3 //subpackage:passing_test
+```
+
 ## Coverage
 See python.toolchain call in [MODULE.bazel](./MODULE.bazel) for coverage configuration for python.
 
