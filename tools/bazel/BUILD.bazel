@@ -1,6 +1,7 @@
 load(":rules.bzl", "change", "immutable_outside_of_this_file", "my_rule")
 load(":rules_test.bzl", "rules_test_suite")
 load(":depsets.bzl", "play_with_depsets")
+load(":aspects.bzl", "deps_count_aspect", "deps_count_rule")
 load("@python_versions//3.11:defs.bzl", "compile_pip_requirements")
 
 # @python_main_hub was specified in MODULE.bazel in pip.parse
@@ -40,6 +41,13 @@ py_binary(
     # e.g bazel cquery --output=files @python_main_hub//requests:pkg
     # will return source files of requests library
     deps = [requirement("requests")],
+)
+
+# this uses aspects
+deps_count_rule(
+    name = "deps_count_check_runfiles",
+    extension = "py",
+    deps = [":check_runfiles"],
 )
 
 # when we call a rule we produce a target
