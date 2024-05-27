@@ -25,6 +25,16 @@ sh_binary(
     data = ["@leetcode_problem//:downloaded"],
 )
 
+# filegroup can group several files into one target, so
+# it can be referenced easier
+filegroup(
+    name = "some_files",
+    data = [
+        "bazel.md",
+        "//subpackage:file_in_subpackage.txt",
+    ],
+)
+
 py_binary(
     name = "check_runfiles",
     # srcs are for source files (or for rules that output codegen files)
@@ -32,10 +42,13 @@ py_binary(
     # using check_runfiles_library won't work as it's testonly
     # srcs = [":check_runfiles_library"],
     # data is for runtime dependencies
+    # we can use filegroup instead of listing each file, it works as expected
+    # data = [":some_files"],
     data = [
         ":bazel.md",
         "//subpackage:file_in_subpackage.txt",
     ],
+
     # requirement function converts pip package name to a bazel label
     # you can check it with `bazel query --output=build :check_runfiles`
     # it's just @python_main_hub//requests:pkg
