@@ -27,9 +27,11 @@ sh_binary(
 
 py_binary(
     name = "check_runfiles",
+    # srcs are for source files (or for rules that output codegen files)
     srcs = ["check_runfiles.py"],
     # using check_runfiles_library won't work as it's testonly
     # srcs = [":check_runfiles_library"],
+    # data is for runtime dependencies
     data = [
         ":bazel.md",
         "//subpackage:file_in_subpackage.txt",
@@ -40,6 +42,7 @@ py_binary(
     # you can explore this repo with bazel query @python_main_hub//requests/...
     # e.g bazel cquery --output=files @python_main_hub//requests:pkg
     # will return source files of requests library
+    # deps are for module/library (local/third_party) dependencies
     deps = [requirement("requests")],
 )
 
