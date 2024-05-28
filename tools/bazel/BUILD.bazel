@@ -39,6 +39,12 @@ py_binary(
     name = "check_runfiles",
     # srcs are for source files (or for rules that output codegen files)
     srcs = ["check_runfiles.py"],
+    # using $(rlocationpath ...) and `runfiles` library is the recommended way to finding
+    # dependencies at runtime
+    args = [
+        "--rlocationpath",
+        "$(rlocationpath //subpackage:file_in_subpackage.txt)",
+    ],
     # using check_runfiles_library won't work as it's testonly
     # srcs = [":check_runfiles_library"],
     # data is for runtime dependencies
@@ -56,7 +62,10 @@ py_binary(
     # e.g bazel cquery --output=files @python_main_hub//requests:pkg
     # will return source files of requests library
     # deps are for module/library (local/third_party) dependencies
-    deps = [requirement("requests")],
+    deps = [
+        requirement("bazel_runfiles"),
+        requirement("requests"),
+    ],
 )
 
 # this uses aspects

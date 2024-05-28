@@ -3543,7 +3543,7 @@
       "os:osx,arch:aarch64": {
         "bzlTransitiveDigest": "qwnr+OqjFHd4CBppOzYAXDvkZQd2RaetZkB+qSI9ZaE=",
         "recordedFileInputs": {
-          "@@//requirements.txt": "2e6fe1a6044b1fcfc53e06f469aedeae2666e99af12c86ae920c7207888bf8be"
+          "@@//requirements.txt": "f6884369afa79ac5ea28a232712b4fb1ac303074b326862f770aad9c6aa1ebda"
         },
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -3668,12 +3668,39 @@
               "group_deps": []
             }
           },
+          "python_main_hub_311_bazel_runfiles": {
+            "bzlFile": "@@rules_python~//python/pip_install:pip_repository.bzl",
+            "ruleClassName": "whl_library",
+            "attributes": {
+              "requirement": "bazel-runfiles==0.32.2     --hash=sha256:2ed5cc73da6a44dff127105dacdbbd7632fde4eaf30f11d5ec1521f80d26d8fd",
+              "repo": "python_main_hub_311",
+              "repo_prefix": "python_main_hub_311_",
+              "whl_patches": {},
+              "experimental_target_platforms": [],
+              "python_interpreter": "",
+              "python_interpreter_target": "@@rules_python~~python~python_3_11_host//:python",
+              "quiet": true,
+              "timeout": 600,
+              "isolated": true,
+              "extra_pip_args": [],
+              "download_only": false,
+              "pip_data_exclude": [],
+              "enable_implicit_namespace_pkgs": false,
+              "environment": {},
+              "envsubst": [],
+              "group_name": "",
+              "group_deps": []
+            }
+          },
           "python_main_hub": {
             "bzlFile": "@@rules_python~//python/private/bzlmod:pip_repository.bzl",
             "ruleClassName": "pip_repository",
             "attributes": {
               "repo_name": "python_main_hub",
               "whl_map": {
+                "bazel_runfiles": [
+                  "3.11"
+                ],
                 "certifi": [
                   "3.11"
                 ],
