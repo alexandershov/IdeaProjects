@@ -286,6 +286,11 @@ output_base also contains:
 * `action_cache/` directory. So action cache is per-workspace.
 * `external/` directory containing all fetched external repositories
 
+Show a bunch of information about bazel (output_base, install_base, workspace, etc)
+```shell
+bazel info --show_make_env
+```
+
 `bazel clean` cleans `action_cache/` and output_path:
 
 ```shell
