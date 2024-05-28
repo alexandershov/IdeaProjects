@@ -217,6 +217,14 @@ genrule(
     cmd = "echo some_content > ~/tmp/some_file && echo done > $@",
 )
 
+genrule(
+    name = "check_execpath",
+    srcs = ["bazel.md"],
+    outs = ["check_execpath.txt"],
+    # execpath expands label into path, that you can read during execution phase
+    cmd = "cat $(execpath bazel.md) > $@",
+)
+
 # compile_pip_requirements creates requirements lock file with pinned versions
 # from requirements.in
 # you can run it with `bazel run //:requirements.update`
