@@ -276,7 +276,7 @@ Its exact location differs across OSes.
 On Linux it's `~/.cache/bazel/_bazel_${USER}`. On Mac it's `/private/var/tmp/_bazel_${USER}`
 `outputUserRoot` contains:
 * directories for each workspace (their names are md5 hashes of full paths to workspaces)
-* `install/` directory containing installation of bazel
+* `install/` directory containing installation of bazel (`bazel info install_base`)
 
 Bazel writes output of builds in workspace to `{outputUserRoot}/{md5(workspace)}/execroot/_main/bazel-out`.
 For convenience bazel creates symlink to this directory in `{workspace}/bazel-out`.
