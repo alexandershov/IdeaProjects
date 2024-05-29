@@ -87,6 +87,26 @@ More info is available using this command:
 bazel help target-syntax
 ```
 
+Select targets by regex:
+```shell
+bazel query 'filter(".*check.*", //...)'
+```
+
+Find buildfiles (and `.bzl` files that they use) in packages of target set
+```shell
+bazel query 'buildfiles(//subpackage/...)'
+```
+
+Find targets having .py `srcs` (you can specify any rule attribute instead of `srcs`):
+```shell
+bazel query 'attr(srcs, "\.py\b", //...)'
+```
+
+Find `.bzl` files required to load packages of target set
+```shell
+bazel query 'loadfiles(//...)'
+```
+
 Find all dependencies of a target:
 ```shell
 bazel query --notool_deps 'deps(:check_runfiles)'
@@ -97,7 +117,6 @@ Find all direct dependencies of a target, second argument of deps means depth
 bazel query --notool_deps 'deps(:check_runfiles, 1)'
 ```
 
-
 Find some dependency path between two targets
 ```shell
 bazel query --notool_deps 'somepath(:check_runfiles, @bazel_tools//src/main/cpp/util:logging.cc)'
@@ -106,6 +125,16 @@ bazel query --notool_deps 'somepath(:check_runfiles, @bazel_tools//src/main/cpp/
 Find who depends on a target (aka "reversed dependencies")
 ```shell
 bazel query --notool_deps 'rdeps(//..., check_runfiles.py)'
+```
+
+Find direct reversed dependencies in a same package:
+```shell
+bazel query 'same_pkg_direct_rdeps(//:check_runfiles)'
+```
+
+Find all targets in the same package:
+```shell
+bazel query 'siblings(//:check_runfiles)'
 ```
 
 Find packages
@@ -126,6 +155,12 @@ bazel query 'kind(rule, //...)' --output=location
 Expand macros & globs
 ```shell
 bazel query '//...' --output=build
+```
+
+Show build graph:
+```shell
+bazel query '//...' --output=graph | dot -Tsvg > /tmp/deps.svg
+open /tmp/deps.svg
 ```
 
 Find rules
@@ -163,11 +198,9 @@ Find all source files in dependencies of a target. This includes also files in `
 bazel query 'kind("source file", deps(//:check_runfiles))' --noimplicit_deps
 ```
 
-
 ```shell
 bazel query 'kind("generated file", //...)'
 ```
-
 
 Find differences between dependencies
 ```shell
@@ -200,6 +233,7 @@ bazel query --output=files :my_rule_name_1
 ```
 
 Executable path in bazel-out, can be joined with workspace_root to get the absolute path
+(you can specify some starlark code in --starlark:expr)
 ```shell
 bazel cquery --output=starlark --starlark:expr='target.files_to_run.executable.path' //:check_runfiles
 ```
@@ -226,11 +260,21 @@ bazel cquery 'deps(:my_rule_name_2, 1)' --noimplicit_deps --platforms=//:rock_pa
 
 cquery outputs configuration id, it's essentially a hash of all build options.
 
+Show available configurations:
+```shell
+bazel config
+```
+
 View configuration (7170974 is short configuration id):
 ```shell
 bazel config 7170974
 ```
 Configuration is just a bunch of options.
+
+You can cquery across given configuration:
+```shell
+bazel cquery 'config(//subpackage/... except //subpackage:adder, 7170974)'
+```
 
 ## Testing
 You can set rerun flaky tests with:
