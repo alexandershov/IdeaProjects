@@ -3,10 +3,26 @@ def _my_rule_impl(ctx):
     print("analyzing", ctx.label)
     print("workspace", ctx.workspace_name)
     print("deps", ctx.attr.deps)
+    outs = []
     if ctx.attr.deps:
         # deps[0] is a Target, that has attribute .files
-        # which is a list with this Target output files
+        # which is a depset with this Target output files
         print("deps[0]", ctx.attr.deps[0].files)
+        private_out = ctx.actions.declare_file("_private.txt")
+
+        # ctx.actions.args() provides a way to efficiently build a string from depset
+        arguments = ctx.actions.args()
+        arguments.add_joined(ctx.attr.deps[0].files, join_with = " ")
+
+        ctx.actions.run_shell(
+            arguments = [arguments],
+            # command should write to the files specified in `outputs`
+            # $@ is a list of arguments
+            command = "cat $@ > {}".format(private_out.path),
+            outputs = [private_out],
+            inputs = ctx.attr.deps[0].files,
+        )
+        outs.append(private_out)
 
     # declare a file and write something to it
     # actually ctx.actions.write doesn't write to the file
@@ -29,7 +45,7 @@ def _my_rule_impl(ctx):
 
     # this tells bazel that out and out_1 are really a rule output, not just
     # some temporary files
-    return [DefaultInfo(files = depset([out, out_1]))]
+    return [DefaultInfo(files = depset(outs + [out, out_1]))]
 
 my_rule = rule(
     implementation = _my_rule_impl,
