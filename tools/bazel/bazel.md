@@ -276,6 +276,40 @@ You can cquery across given configuration:
 bazel cquery 'config(//subpackage/... except //subpackage:adder, 7170974)'
 ```
 
+## aquery
+aquery allows you to query Execution Graph. It outputs actions.
+You can see action inputs, outputs, and command line.
+
+Show actions that are executed when building target 
+(I use --noinclude* flags here, because rules_python rules output is huge without them):
+```shell
+bazel aquery '//:check_runfiles' --noinclude_commandline --noinclude_artifacts
+```
+
+Show actions that have input files matching regex:
+```shell
+bazel aquery 'inputs(".*py$", //...)' --noinclude_commandline --noinclude_artifacts
+```
+
+Show actions that have output files matching regex:
+```shell
+bazel aquery 'outputs(".*txt$", //...)'
+```
+
+You can chain action functions:
+```shell
+bazel aquery 'inputs(".*md", outputs(".*txt$", //...))'
+```
+
+You can query actions that are currently in-memory cache (Skyframe)
+With typical bazel legendary easy of use it doesn't work with default output format and requires --output=*proto*
+```shell
+bazel aquery --skyframe_state --output=textproto 'outputs(".*txt")'
+```
+
+If we do `bazel shutdown` and then immediately run aquery with --skyframe_state we'll get nothing in return,
+because cache is empty.
+
 ## Testing
 You can set rerun flaky tests with:
 ```shell
