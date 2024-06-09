@@ -18,6 +18,8 @@ defmodule ThamesWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    get "/gpt", GPTController, :chat
   end
 
   # Other scopes may use custom stacks.
