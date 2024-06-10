@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPT proxy</title>
+</head>
+<body>
+  <div>
+    <%= for message <- @conversation do %>
+	<%= if message["role"] == "assistant" do %>
+	  <div style="background-color: #add8e6"><%= message["content"] %></div>
+	<%= else %>
+	  <div><%= message["content"] %></div>
+	<% end %>
+	
+    <% end %>
+    </div>
+    <.form for={@form} method="get" phx-submit="send">
+      <.input type="text" field={@form[:query]} placeholder="Enter your query"/>
+      <button type="submit">Send</button>
+    </.form>
+</body>
+</html>
+

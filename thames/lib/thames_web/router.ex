@@ -1,5 +1,6 @@
 defmodule ThamesWeb.Router do
   use ThamesWeb, :router
+  import Phoenix.LiveView.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -19,7 +20,7 @@ defmodule ThamesWeb.Router do
 
     get "/", PageController, :home
 
-    get "/gpt", GPTController, :chat
+    live "/gpt", GPTLive
   end
 
   # Other scopes may use custom stacks.
