@@ -1,3 +1,4 @@
+# TODO: clean up code
 defmodule ThamesWeb.GPTLive do
   use Phoenix.LiveView
   import ThamesWeb.CoreComponents
@@ -7,16 +8,22 @@ defmodule ThamesWeb.GPTLive do
   end
 
   def handle_event("send", params, socket) do
+    # TODO: clean form query
     query = params["query"]
+
+    # TODO: persist messages in a database
     conversation = socket.assigns.conversation ++ [%{"content" => query, "role" => "user"}]
+    # TODO: improve logging
     IO.inspect(conversation)
 
+    # TODO: use streaming
     response =
       Req.post!("https://api.openai.com/v1/chat/completions",
         json: %{model: "gpt-4o", messages: conversation},
         auth: {:bearer, System.get_env("OPENAI_API_KEY")}
       )
 
+    # TODO: add tests
     answer = List.first(response.body["choices"])["message"]["content"]
     conversation = conversation ++ [%{"role" => "assistant", "content" => answer}]
     {:noreply, socket |> assign(:conversation, conversation)}
