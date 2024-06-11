@@ -13,8 +13,7 @@ defmodule ThamesWeb.GPTLive do
 
     # TODO: persist messages in a database
     conversation = socket.assigns.conversation ++ [%{"content" => query, "role" => "user"}]
-    # TODO: improve logging
-    IO.inspect(conversation)
+    IO.puts("current conversation = #{inspect(conversation)}")
 
     # TODO: use streaming
     response =
