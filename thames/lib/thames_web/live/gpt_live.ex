@@ -2,6 +2,7 @@
 defmodule ThamesWeb.GPTLive do
   use Phoenix.LiveView
   import ThamesWeb.CoreComponents
+  require Logger
 
   def mount(_params, _session, socket) do
     {:ok, socket |> assign(:form, to_form(%{"query" => ""})) |> assign(:conversation, [])}
@@ -13,7 +14,7 @@ defmodule ThamesWeb.GPTLive do
 
     # TODO: persist messages in a database
     conversation = socket.assigns.conversation ++ [%{"content" => query, "role" => "user"}]
-    IO.puts("current conversation = #{inspect(conversation)}")
+    Logger.info("current conversation = #{inspect(conversation)}")
 
     # TODO: use streaming
     response =
