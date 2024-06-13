@@ -17,8 +17,9 @@
         <% end %>
       <% end %>
     </div>
-    <.form for={@form} method="get" phx-submit="send">
-      <.input type="text" field={@form[:query]} placeholder="Enter your query" />
+    <%!-- TODO: don't send "change" on every keypress --%>
+    <.form for={@form} method="get" phx-change="change" phx-submit="send">
+      <.input type="text" field={@form[:query]} placeholder="Enter your query"/>
       <button type="submit">Send</button>
     </.form>
   </body>

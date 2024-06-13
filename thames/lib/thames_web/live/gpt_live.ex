@@ -4,12 +4,20 @@ defmodule ThamesWeb.GPTLive do
   import ThamesWeb.CoreComponents
   require Logger
 
+  def make_form(query) do
+    to_form(%{"query" => query})
+  end
+
+
   def mount(_params, _session, socket) do
-    {:ok, socket |> assign(:form, to_form(%{"query" => ""})) |> assign(:conversation, [])}
+    {:ok, socket |> assign(:form, make_form("")) |> assign(:conversation, [])}
+  end
+
+  def handle_event("change", params, socket) do
+    {:noreply, socket |> assign(:form, make_form(params["query"]))}
   end
 
   def handle_event("send", params, socket) do
-    # TODO: clean form query
     query = params["query"]
 
     # TODO: persist messages in a database
@@ -26,6 +34,6 @@ defmodule ThamesWeb.GPTLive do
     # TODO: add tests
     answer = List.first(response.body["choices"])["message"]["content"]
     conversation = conversation ++ [%{"role" => "assistant", "content" => answer}]
-    {:noreply, socket |> assign(:conversation, conversation)}
+    {:noreply, socket |> assign(:conversation, conversation) |> assign(:form, make_form(""))}
   end
 end
