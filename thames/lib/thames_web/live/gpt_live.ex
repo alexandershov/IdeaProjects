@@ -38,9 +38,15 @@ defmodule ThamesWeb.GPTLive do
       |> Enum.map(&JSON.decode/1)
     words = for {:ok, item} <- jsons, do: List.first(item["choices"])["delta"]["content"]
     answer = Enum.join(words, "")
+    {:noreply, socket
+     |> assign(:form, make_form(""))
+     |> assign(:conversation, conversation)
+     |> start_async(:stream_reply, fn -> %{"role" => "assistant", "content" => answer} end)}
 
     # TODO: add tests
-    conversation = conversation ++ [%{"role" => "assistant", "content" => answer}]
-    {:noreply, socket |> assign(:conversation, conversation) |> assign(:form, make_form(""))}
+  end
+
+  def handle_async(:stream_reply, {:ok, result}, socket) do
+    {:noreply, socket |> assign(:conversation, socket.assigns.conversation ++ [result])}
   end
 end
