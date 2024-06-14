@@ -59,6 +59,7 @@ defmodule Thames.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.2"},
       {:req, "~> 0.5.0"},
+      {:json, "~> 1.4"},
     ]
   end
 
