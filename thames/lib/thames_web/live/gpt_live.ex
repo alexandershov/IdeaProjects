@@ -4,13 +4,24 @@ defmodule ThamesWeb.GPTLive do
   import ThamesWeb.CoreComponents
   require JSON
   require Logger
+  require UUID
 
   def make_form(query) do
     to_form(%{"query" => query})
   end
 
-  def mount(_params, _session, socket) do
-    {:ok, socket |> assign(:form, make_form("")) |> assign(:conversation, [])}
+  def mount(params, _session, socket) do
+    if not Map.has_key?(params, "chat_id") do
+      chat_id = UUID.uuid4()
+      {:ok, socket |> Phoenix.LiveView.push_navigate(to: "/gpt/?chat_id=#{chat_id}")}
+    else
+      chat_id = params["chat_id"]
+      {:ok,
+       socket
+       |> assign(:form, make_form(""))
+       |> assign(:conversation, [])
+       |> assign(:chat_id, chat_id)}
+    end
   end
 
   def handle_event("change", params, socket) do
@@ -51,7 +62,11 @@ defmodule ThamesWeb.GPTLive do
   def reader_loop(response) do
     receive do
       {:next, pid} ->
-        to_send = receive do {_, {:data, data}} -> data end
+        to_send =
+          receive do
+            {_, {:data, data}} -> data
+          end
+
         send(pid, {:your_next, to_send})
     end
 
@@ -64,6 +79,7 @@ defmodule ThamesWeb.GPTLive do
     receive do
       {:your_next, message} ->
         split = String.split(message, "\n\n")
+
         jsons =
           split
           |> Enum.map(fn s -> String.slice(s, 6, String.length(s)) end)

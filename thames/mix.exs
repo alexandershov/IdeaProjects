@@ -60,6 +60,7 @@ defmodule Thames.MixProject do
       {:bandit, "~> 1.2"},
       {:req, "~> 0.5.0"},
       {:json, "~> 1.4"},
+      {:uuid, "~> 1.1"},
     ]
   end
 
