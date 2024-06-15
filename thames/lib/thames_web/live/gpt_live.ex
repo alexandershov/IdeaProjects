@@ -1,5 +1,9 @@
 # TODO: clean up code
 defmodule ThamesWeb.GPTLive do
+  require Ecto.Query
+  alias Thames.Message
+  alias Thames.Chat
+  alias Thames.Repo
   use Phoenix.LiveView
   import ThamesWeb.CoreComponents
   require JSON
@@ -13,13 +17,20 @@ defmodule ThamesWeb.GPTLive do
   def mount(params, _session, socket) do
     if not Map.has_key?(params, "chat_id") do
       chat_id = UUID.uuid4()
+      changeset = Chat.changeset(%Chat{}, %{chat_id: chat_id})
+      {:ok, _} = Repo.insert(changeset)
       {:ok, socket |> Phoenix.LiveView.push_navigate(to: "/gpt/?chat_id=#{chat_id}")}
     else
       chat_id = params["chat_id"]
+      query = Ecto.Query.from m in Message,
+        where: m.chat_id == ^chat_id,
+        order_by: m.id
+      messages = Repo.all(query)
+      conversation = for m <- messages, do: %{"role" => m.role, "content" => m.content}
       {:ok,
        socket
        |> assign(:form, make_form(""))
-       |> assign(:conversation, [])
+       |> assign(:conversation, conversation)
        |> assign(:chat_id, chat_id)}
     end
   end
@@ -31,19 +42,34 @@ defmodule ThamesWeb.GPTLive do
   def handle_event("send", params, socket) do
     query = params["query"]
 
-    # TODO: persist messages in a database
+    changeset =
+      Message.changeset(%Message{}, %{
+        content: query,
+        role: "user",
+        chat_id: socket.assigns.chat_id,
+        order: 0
+      })
+    Logger.info("changeset is valid #{changeset.valid?}")
+    {:ok, _} = Repo.insert(changeset)
     conversation = socket.assigns.conversation ++ [%{"content" => query, "role" => "user"}]
     Logger.info("current conversation = #{inspect(conversation)}")
 
     pid = spawn(fn -> reader(conversation) end)
-
+    changeset = Message.changeset(%Message{}, %{
+      content: "x",
+      role: "assistant",
+      chat_id: socket.assigns.chat_id,
+      order: 0
+    })
+    {:ok, res} = Repo.insert(changeset)
+    Logger.info("insert result = #{inspect(res)}")
     socket =
       assign(socket, :conversation, conversation ++ [%{"role" => "assistant", "content" => ""}])
 
     {:noreply,
      socket
      |> assign(:form, make_form(""))
-     |> start_async(:stream_reply, fn -> stream_reply(pid) end)}
+     |> start_async(:stream_reply, fn -> stream_reply(pid, res.id) end)}
 
     # TODO: add tests
   end
@@ -73,7 +99,7 @@ defmodule ThamesWeb.GPTLive do
     reader_loop(response)
   end
 
-  def stream_reply(pid) do
+  def stream_reply(pid, message_id) do
     send(pid, {:next, self()})
 
     receive do
@@ -87,23 +113,27 @@ defmodule ThamesWeb.GPTLive do
 
         words = for {:ok, item} <- jsons, do: List.first(item["choices"])["delta"]["content"]
         token = Enum.join(words, "")
-        {token, pid}
+        {token, pid, message_id}
     end
   end
 
   @spec handle_async(:stream_reply, {:ok, {nil, any()}}, any()) :: {:noreply, any()}
-  def handle_async(:stream_reply, {:ok, {token, pid}}, socket) do
+  def handle_async(:stream_reply, {:ok, {token, pid, message_id}}, socket) do
     if token == nil do
+      Logger.info("finished reply")
       {:noreply, socket}
     else
       done = Enum.slice(socket.assigns.conversation, 0, length(socket.assigns.conversation) - 1)
       current = List.last(socket.assigns.conversation)
       new = %{"role" => current["role"], "content" => current["content"] <> token}
-
+      message = Repo.get!(Message, message_id)
+      Logger.info("message = #{inspect(message)}")
+      changeset = Message.changeset(message, %{content: new["content"]})
+      {:ok, _} = Repo.update(changeset)
       {:noreply,
        socket
        |> assign(:conversation, done ++ [new])
-       |> start_async(:stream_reply, fn -> stream_reply(pid) end)}
+       |> start_async(:stream_reply, fn -> stream_reply(pid, message_id) end)}
     end
   end
 end
