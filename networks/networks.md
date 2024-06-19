@@ -46,3 +46,12 @@ tcpdump results checks out with the theory
 02:57:20.040634 IP localhost.ddi-tcp-2 > localhost.60472: Flags [S.], seq 2752747578, ack 3640016406, win 65535, options [mss 16344,nop,wscale 6,nop,nop,TS val 1252349557 ecr 1826727395,sackOK,eol], length 0
 02:57:20.040659 IP localhost.60472 > localhost.ddi-tcp-2: Flags [.], ack 1, win 6379, options [nop,nop,TS val 1826727395 ecr 1252349557], length 0
 ```
+
+#### Close connection
+In theory connection is closed with four-way handshake.
+Client sends FIN packet to server.
+Server sends ACK for FIN.
+Server sends FIN packet to client.
+Client sends ACK for FIN.
+
+In practice, it's possible to do it in a three-way handshake: FIN -> FIN-ACK -> ACK 
