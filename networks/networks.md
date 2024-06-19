@@ -28,7 +28,7 @@ python tcp_client.py test --port 8889
 
 ### TCP 
 
-#### Open connection
+#### Opening connection
 Famous (and somewhat confusingly named) three-way handshake is this:
 
 Client generates its sequence number C. Send SYN packet to server with this number.
@@ -47,11 +47,39 @@ tcpdump results checks out with the theory
 02:57:20.040659 IP localhost.60472 > localhost.ddi-tcp-2: Flags [.], ack 1, win 6379, options [nop,nop,TS val 1826727395 ecr 1252349557], length 0
 ```
 
-#### Close connection
+#### Closing connection
 In theory connection is closed with four-way handshake.
 Client sends FIN packet to server.
 Server sends ACK for FIN.
 Server sends FIN packet to client.
 Client sends ACK for FIN.
 
-In practice, it's possible to do it in a three-way handshake: FIN -> FIN-ACK -> ACK 
+In practice, it's possible to do it in a three-way handshake: FIN -> FIN-ACK -> ACK
+
+
+#### Flow control & slow start
+Receiver can tell sender to hold its horses with "receive window size" (rwnd).
+Which is essentially: You can have at most `rwnd` of unacked data. 
+
+The sender starts with a small congestion window (cwnd), which is essentially maximum number of unacked packets.
+and gradually increases it as it receives ACKs from the
+receiver. For each ACKed packet cwnd increases by 1. 
+So we'll have exponential growth of cwnd (if every packet is ACKed, 
+then for each X packets you'll increase cwnd by X and it'll be equal to 2X, then 4X, etc):
+Obviously network has limited bandwidth, exponential growth is not sustainable, so eventually you'll
+packet loss. Packet loss is used as feedback mechanism in TCP.
+If you got packet loss, then another algorithm kicks-in, which on one hand doesn't want to be pessimistic and grow speed,
+and on another hand it doesn't want to be to optimistic and overwhelm the network.
+
+Since we have three-way handshake and slow start this means that:
+* You pay a round-trip time for each new connection
+* Speed at the beginning of your connection is not good.
+
+That's why reusing TCP connections (keep-alive, http2) is important: 
+since you pay the price of handshake and slow start only once for long standing connections.
+
+Here's an example of slow start in action (notice that it takes some time to get to maximum speed):
+
+![TCP Slow Start](tcp_slow_start.png)
+
+Source code is [here](tcp_download.py)
