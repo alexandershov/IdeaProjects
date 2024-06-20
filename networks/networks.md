@@ -102,3 +102,35 @@ E is received, same.
 Now we get 3 duplicate ACKs.
 Fast retransmit is triggered after 3 duplicate ACKS. 
 In our case it resends packet B without waiting for retransmit timeout.
+
+
+#### Nagle's algorithm
+Let's say we have 3 small pieces of data: A, B, C.
+We write A to a socket. This sends TCP packet with A.
+We write B to a socket. With Nagle's algorithm we don't send it immediately, we wait for ACK of A.
+We write C to a socket. With Nagle's algorithm we don't send it immediately, we wait for ACK of A.
+
+We're getting ACK of A. Since B & C are small we send a single packet containing B+C.
+
+Nagle's algorithm plays badly with delayed ACKS, you can disable it with TCP_NODELAY.
+See source code in [tcp_nagle.py](./tcp_nagle.py)
+Run it as:
+````shell
+nc -l 1234
+````
+
+Run with Nagle algorithm:
+```shell
+NGL_HOST=localhost NGL_PORT=1234 NGL_TCP_NODELAY=0 python tcp_nagle.py
+```
+
+Run without Nagle algorithm:
+```shell
+NGL_HOST=localhost NGL_PORT=1234 NGL_TCP_NODELAY=1 python tcp_nagle.py
+```
+
+You can see results with tcpdump:
+```shell
+sudo tcpdump -i lo0 tcp port 1234
+```
+We'll get only 2 PUSHes with Nagle. And 9 PUSHes without it.
