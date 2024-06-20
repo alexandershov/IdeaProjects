@@ -83,3 +83,8 @@ Here's an example of slow start in action (notice that it takes some time to get
 ![TCP Slow Start](tcp_slow_start.png)
 
 Source code is [here](tcp_download.py)
+
+#### Head-of-line blocking
+Since TCP guarantees ordered delivery this means when packets A, B, C are sent and
+packet A is lost, then application will need to wait until A gets delivered and will not see B and C
+before that. That's head-of-line blocking. 
