@@ -88,3 +88,17 @@ Source code is [here](tcp_download.py)
 Since TCP guarantees ordered delivery this means when packets A, B, C are sent and
 packet A is lost, then application will need to wait until A gets delivered and will not see B and C
 before that. That's head-of-line blocking. 
+
+
+#### Fast retransmit
+Let's say sender sends packets A, B, C, D, E.
+
+Receiver gets A, acks it ACK(A + len(A))
+Let's say B is lost.
+C is received, but since it's out of order, we still send ACK(A + len(A))
+D is received, it's also out of order, we send the same ACK.
+E is received, same.
+
+Now we get 3 duplicate ACKs.
+Fast retransmit is triggered after 3 duplicate ACKS. 
+In our case it resends packet B without waiting for retransmit timeout.
