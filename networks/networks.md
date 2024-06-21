@@ -139,3 +139,55 @@ We'll get only 2 PUSHes with Nagle. And 9 PUSHes without it.
 ### Sockets
 Sockets are extra abstraction over network protocols. 
 They have their own (separate from TCP) receive/send buffers.
+
+
+### DNS
+DNS is implemented on UDP on port 53
+
+You can look at dns traffic:
+```shell
+sudo tcpdump -i any udp port 53
+```
+
+`dig` can make dns queries:
+
+```shell
+dig google.com
+;; ANSWER SECTION:
+google.com.		148	IN	A	142.250.179.142
+```
+
+`148` is TTL in seconds, `A` is an address record type, essentially mapping of name to IPv4 address.
+AAAA is the same as A, just for IPv6.
+
+tcpdump for that dig query is:
+```shell
+# ask for an address (A?) of google.com
+20:47:01.041952 IP alexanders-mbp.home.63947 > home.domain: 60002+ [1au] A? google.com. (39)
+# result
+20:47:01.055565 IP home.domain > alexanders-mbp.home.63947: 60002 1/0/1 A 142.250.179.142 (55)
+```
+
+if we dig for non-existing domain e.g. `googlekjdfff.com`, then we'll get NXDomain, which means domain doesn't exist.
+NXDomain answers are also cached.
+
+```shell
+20:49:43.732249 IP alexanders-mbp.home.64213 > home.domain: 28942+ [1au] A? googlekjdfff.com. (45)
+20:49:43.754266 IP home.domain > alexanders-mbp.home.64213: 28942 NXDomain 0/1/1 (118)
+```
+
+When you want to resolve host.org to ip address then 
+* you ask well-known root dns servers for that
+* root servers essentially redirect you to .org servers
+* .org servers redirect you to host.org servers
+* and then you'll get an ip address
+
+Each of these steps can be (and will be) cached.
+
+CNAME is name alias, e.g. mask.icloud.com is an alias for mask.apple-dns.net
+```shell
+dig +all mask.icloud.com
+;; ANSWER SECTION:
+mask.icloud.com.	38267	IN	CNAME	mask.apple-dns.net.
+mask.apple-dns.net.	116	IN	A	17.248.176.9
+```
