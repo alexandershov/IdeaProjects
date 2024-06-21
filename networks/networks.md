@@ -134,3 +134,8 @@ You can see results with tcpdump:
 sudo tcpdump -i lo0 tcp port 1234
 ```
 We'll get only 2 PUSHes with Nagle. And 9 PUSHes without it.
+
+
+### Sockets
+Sockets are extra abstraction over network protocols. 
+They have their own (separate from TCP) receive/send buffers.
