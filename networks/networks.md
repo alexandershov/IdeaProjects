@@ -191,3 +191,11 @@ dig +all mask.icloud.com
 mask.icloud.com.	38267	IN	CNAME	mask.apple-dns.net.
 mask.apple-dns.net.	116	IN	A	17.248.176.9
 ```
+
+### Restrictions
+
+Run process without network access (linux)
+
+```shell
+unshare -r -n ping 8.8.8.8
+```
