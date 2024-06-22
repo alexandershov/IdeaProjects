@@ -199,3 +199,25 @@ Run process without network access (linux)
 ```shell
 unshare -r -n ping 8.8.8.8
 ```
+
+### Observability
+
+Search for processes listening on a port 1234 (you may need a `sudo` to find processes of other users):
+````shell
+lsof -i :1234
+````
+
+Find tcp connections of a process <pid>
+```shell
+lsof -p <pid> | grep -i tcp
+```
+
+List all connections of a pid:
+```shell
+sudo netstat -tupn | grep <pid>
+```
+
+Look at tcp traffic at <port>
+```shell
+sudo tcpdump -i any tcp port <port>
+```
