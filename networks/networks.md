@@ -26,6 +26,25 @@ Send
 python tcp_client.py test --port 8889
 ```
 
+tcpdump output:
+```shell
+10:52:39.146542 IP localhost.61274 > localhost.ddi-tcp-2: Flags [S], seq 3848198620, win 65535, options [mss 16344,nop,wscale 6,nop,nop,TS val 1456208078 ecr 0,sackOK,eol], length 0
+10:52:39.146701 IP localhost.ddi-tcp-2 > localhost.61274: Flags [S.], seq 3915623198, ack 3848198621, win 65535, options [mss 16344,nop,wscale 6,nop,nop,TS val 465120611 ecr 1456208078,sackOK,eol], length 0
+10:52:39.146729 IP localhost.61274 > localhost.ddi-tcp-2: Flags [.], ack 1, win 6379, options [nop,nop,TS val 1456208078 ecr 465120611], length 0
+10:52:39.146740 IP localhost.ddi-tcp-2 > localhost.61274: Flags [.], ack 1, win 6379, options [nop,nop,TS val 465120611 ecr 1456208078], length 0
+10:52:39.146869 IP localhost.61274 > localhost.ddi-tcp-2: Flags [P.], seq 1:5, ack 1, win 6379, options [nop,nop,TS val 1456208078 ecr 465120611], length 4
+10:52:39.146887 IP localhost.ddi-tcp-2 > localhost.61274: Flags [.], ack 5, win 6379, options [nop,nop,TS val 465120611 ecr 1456208078], length 0
+10:52:39.146906 IP localhost.61274 > localhost.ddi-tcp-2: Flags [F.], seq 5, ack 1, win 6379, options [nop,nop,TS val 1456208078 ecr 465120611], length 0
+10:52:39.146928 IP localhost.ddi-tcp-2 > localhost.61274: Flags [.], ack 6, win 6379, options [nop,nop,TS val 465120611 ecr 1456208078], length 0
+10:52:39.146981 IP localhost.ddi-tcp-2 > localhost.61274: Flags [P.], seq 1:5, ack 6, win 6379, options [nop,nop,TS val 465120611 ecr 1456208078], length 4
+10:52:39.147012 IP localhost.61274 > localhost.ddi-tcp-2: Flags [R], seq 3848198626, win 0, length 0
+```
+
+`.` means ACK
+`P` means PUSH (instruction to a receiving side to skip buffering and send it directly to app)
+`S` means SYN
+`F` means FIN
+
 ### TCP 
 
 #### Opening connection
