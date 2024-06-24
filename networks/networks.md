@@ -1,7 +1,24 @@
 ## Networks
 
+
+### IP Addresses
+IPv4 is a 32-bit address. E.g. 127.0.0.1.
+You can describe ranges of IPv4 addresses with /XX notation.
+E.g. 127.0.0.1/24 describes all IPv4 addresses with the first 24 bits equal to 127.0.0
+So it's essentially glob 127.0.0.*.
+
+IPv6 is a 128-bit address. E.g. 0001:0002:0003:0004:000a:000b:000c:000d 
+(it consists of 8 parts, each is 16-bit, 8 * 16 == 128).
+Bunch of zeroes in IPv6 address can be replaced by :: (you can use it only once),
+E.g. localhost is `::1`, which is the same as `0000:0000:0000:0000:0000:0000:0000:0001`
+
+IPv4 and IPv6 are actually two incompatible protocols, IPv6 packet is incompatible with IPv4 packet.
+So to support both IPv4 and IPv6 you need to have two implementations of network stacks.
+
 ### IP
 IP is a simple protocol, it can send data between IP addresses.
+IP packet has TTL, when it travels between routers TTL is decreased by 1. 
+This is done to avoid infinitely traveling packets.
 
 ### UDP
 UDP is a simple extension of IP. Essentially it adds ports to IP.
