@@ -1,5 +1,5 @@
 ## Networks
-
+I ran all commands on Mac unless I explicitly mention linux.
 
 ### IP Addresses
 IPv4 is a 32-bit address. E.g. 127.0.0.1.
@@ -14,6 +14,14 @@ E.g. localhost is `::1`, which is the same as `0000:0000:0000:0000:0000:0000:000
 
 IPv4 and IPv6 are actually two incompatible protocols, IPv6 packet is incompatible with IPv4 packet.
 So to support both IPv4 and IPv6 you need to have two implementations of network stacks.
+To specify port in IPv6-infected uri, you need to put IP part in brackets (because `:` is used as both
+host/port separator and separator inside the IPv6 host). e.g.:
+```shell
+curl '[::1]:1234'
+```
+
+`0.0.0.0` (or `::` in IPv6) is a special address, when used in listen call it essentially means
+"I want to listen on all available network interfaces"
 
 ### IP
 IP is a simple protocol, it can send data between IP addresses.
@@ -248,12 +256,35 @@ Find tcp connections of a process <pid>
 lsof -p <pid> | grep -i tcp
 ```
 
-List all connections of a pid:
+List all connections/listeners of a pid:
 ```shell
-sudo netstat -tupn | grep <pid>
+sudo netstat -tulpn | grep <pid>
 ```
 
 Look at tcp traffic at <port>
 ```shell
 sudo tcpdump -i any tcp port <port>
 ```
+
+### Network interfaces
+Network interface can be physical (e.g. network card) or virtual (e.g. loopback)
+Loopback is a virtual network interface, packets sent to loopback don't actually use any real
+network devices. 127.0.0.1 is a loopback address.
+
+You can list you network interfaces with `ifconfig`.
+
+
+## Routing
+When you'll get an IP packet with some destination address then route tables will decide which
+network interface to use for this packet.
+
+Show route table (linux):
+
+```shell
+> ip route list table all
+
+```
+E.g line 
+```local 127.0.0.0/8 dev lo table local proto kernel scope host src 127.0.0.1```
+means that packets with a destination in a range of 127.0.0.0/8 are sent to `lo` (aka loopback) network interface.
+
