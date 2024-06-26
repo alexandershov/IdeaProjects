@@ -15,9 +15,6 @@ Then empty line and optional request body.
 All lines are ending with `\r\n` (carriage return + newline)
 
 
-GET /health_chunked HTTP/1.1
-Host: localhost
-
 ```shell
 # -c so newline becomes `\r\n`
 nc -c localhost 8000
@@ -76,7 +73,7 @@ With chunked encoding you can stream responses:
 
 ```shell
 nc -c localhost 8000
-GET /health_chunked HTTP/1.1
+GET /chunked HTTP/1.1
 Host: localhost
 
 HTTP/1.1 200 OK
@@ -97,3 +94,27 @@ Response has header "transfer-encoding: chunked".
 And then it's <chunk_length>\r\n<chunk_data>\r\n...
 Last chunk has length 0.
 Attention: for some reason chunk_length is in hex. E.g. content-length is decimal.
+
+Both client and server can play this game, client can also send chunked request:
+
+```shell
+POST /chunked_request HTTP/1.1
+host: localhost
+transfer-encoding: chunked
+
+2
+ab
+3
+abc
+0
+
+HTTP/1.1 200 OK
+date: Wed, 26 Jun 2024 19:27:02 GMT
+server: uvicorn
+content-length: 37
+content-type: application/json
+
+{"parts":["[0] ab","[1] abc","[2] "]}
+```
+
+Encoding rules are the same for request.
