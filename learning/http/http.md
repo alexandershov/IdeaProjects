@@ -154,3 +154,20 @@ content-type: application/json
 
 {"delay":1.0,"2024-06-27T18:57:16.685386+00:00":"2024-06-27T18:57:16.685386+00:00","finished_at":"2024-06-27T18:57:17.686392+00:00"}
 ```
+
+## HTTP/2
+HTTP/2 preserves HTTP/1.1 semantics (methods, paths, headers, status codes) but changes underlying transport.
+It's incompatible with HTTP/1.1 on the wire.
+
+Mostly it solves performance issues with HTTP/1.1:
+1. On a single HTTP/2 connection you can have multiple interleaved logical requests and responses.
+2. You can have duplex streams similar in functionality to websockets. This feature is used in grpc to provide stream-stream endpoints.
+3. It's a binary protocol, headers can be compressed
+   (since headers are read before figuring out encoding in HTTP/1.1, this means they can be only plaintext)
+
+The most benefit from HTTP/2 comes on frontend (where you have a bunch of limits on a number of TCP connections to a single host/etc)
+The problem with HTTP/2 is: since you have several logical threads of action on a single HTTP/2 connection and behind
+a single HTTP/2 connection is a single TCP connection, this means that TCP head-of-the-line blocking will bite you
+real good. That was the reason for HTTP/3 which doesn't use TCP and uses QUIC (essentially TCP-like in userland backed by UDP)
+
+For backend the most compelling feature is duplex streams.
