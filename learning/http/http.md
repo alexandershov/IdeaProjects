@@ -118,3 +118,39 @@ content-type: application/json
 ```
 
 Encoding rules are the same for request.
+
+
+### Pipelining
+
+You can send requests without waiting for responses. This is called pipelining.
+It's not properly supported in a lot of places.
+E.g. uvicorn processes requests sequentially (look at started_at/finished_at values in responses, second response started
+only after the first completed)
+In theory with pipelining you can process requests in parallel.
+You're still required to return responses in order of requests, so if only the first response is slow, then client
+will get fast 2nd, 3rd responses after waiting for the first one. This is another variation on infamous head-of-line blocking.
+
+```shell
+nc -c localhost 8000
+GET /slow?delay=2 HTTP/1.1
+host: localhost
+
+GET /slow?delay=1 HTTP/1.1
+host: localhost
+
+
+HTTP/1.1 200 OK
+date: Thu, 27 Jun 2024 18:57:14 GMT
+server: uvicorn
+content-length: 132
+content-type: application/json
+
+{"delay":2.0,"2024-06-27T18:57:14.682339+00:00":"2024-06-27T18:57:14.682339+00:00","finished_at":"2024-06-27T18:57:16.683146+00:00"}
+HTTP/1.1 200 OK
+date: Thu, 27 Jun 2024 18:57:14 GMT
+server: uvicorn
+content-length: 132
+content-type: application/json
+
+{"delay":1.0,"2024-06-27T18:57:16.685386+00:00":"2024-06-27T18:57:16.685386+00:00","finished_at":"2024-06-27T18:57:17.686392+00:00"}
+```

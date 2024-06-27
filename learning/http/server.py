@@ -1,4 +1,7 @@
+import asyncio
+import datetime as dt
 import json
+from typing import Optional
 
 from fastapi import FastAPI, Request
 import uvicorn
@@ -27,6 +30,14 @@ async def streaming(request: Request):
         i += 1
 
     return {"parts": parts}
+
+
+@app.get("/slow")
+async def slow(delay: Optional[float] = 1):
+    started_at = dt.datetime.now(tz=dt.UTC)
+    await asyncio.sleep(delay)
+    finished_at = dt.datetime.now(tz=dt.UTC)
+    return {"delay": delay, started_at: started_at.isoformat(), "finished_at": finished_at.isoformat()}
 
 
 @app.get("/health")
