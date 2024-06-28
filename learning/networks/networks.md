@@ -41,9 +41,10 @@ Set up server
 python tcp_server.py --port 8889
 ```
 
-Analyze tcp packets on loopback interface on port 8889 (you can list interfaces with `ifconfig`) 
+Analyze tcp packets on loopback interface on port 8889 (you can list interfaces with `ifconfig`)
+(-A shows packet contents in ascii, it's pretty messy)
 ```shell
-sudo tcpdump -i lo0 tcp port 8889
+sudo tcpdump -A -i lo0 tcp port 8889
 ```
 
 Send
