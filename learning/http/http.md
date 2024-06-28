@@ -155,6 +155,26 @@ content-type: application/json
 {"delay":1.0,"2024-06-27T18:57:16.685386+00:00":"2024-06-27T18:57:16.685386+00:00","finished_at":"2024-06-27T18:57:17.686392+00:00"}
 ```
 
+### Server-sent events
+This is just a stream of message on top of HTTP/1.1 that has good support in a browser.
+See [server_sent_events.html](./server_sent_events.html) for an example.
+Format of messages is:
+```
+data: <any data>
+
+data: <any data>
+```
+You can also add attributes `id:` and `event:` (event type).  
+
+Start server:
+```shell
+python server.py
+```
+
+Then go to browser `http://localhost:8000/server_sent_events` and look at console.
+You can stop server and js client will try to reconnect automatically, it will remember the last seen event id
+and send it in a `Last-Event-ID` header. Cool stuff.
+
 ## HTTP/2
 HTTP/2 preserves HTTP/1.1 semantics (methods, paths, headers, status codes) but changes underlying transport.
 It's incompatible with HTTP/1.1 on the wire.

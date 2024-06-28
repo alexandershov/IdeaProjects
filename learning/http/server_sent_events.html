@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript">
+        let source = new EventSource("/stream_server_sent_events?start=1");
+        source.onmessage = function (event) {
+            console.log(event.data)
+        };
+    </script>
+</head>
+<body>
+</body>
+</html>
