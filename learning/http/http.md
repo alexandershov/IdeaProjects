@@ -52,6 +52,27 @@ location: /health/
 It uses 307 status code for redirect (there are other types of redirects that use different 30x status codes)
 Redirect location is specified via `Location` header
 
+## Compression
+Compression in http can be done by specifying `Accept-Encoding: gzip` (or another compression method)
+If server supports this encoding it'll apply it to response and add `Content-Encoding: gzip` header to response.
+```shell
+GET /health HTTP/1.1
+host: localhost
+Accept-Encoding: gzip
+
+HTTP/1.1 200 OK
+date: Sat, 29 Jun 2024 16:44:30 GMT
+server: uvicorn
+content-length: 36
+content-type: application/json
+content-encoding: gzip
+vary: Accept-Encoding
+
+<binary gzipped response>
+```
+
+This requires setup on a server side (e.g. adding gzip middleware in fastapi)
+
 
 ### Keep-Alive
 In HTTP/1.1 keep-alive is default behaviour. This means that after you make a request and

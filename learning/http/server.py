@@ -6,12 +6,14 @@ import pathlib
 from typing import Optional, Annotated
 
 from fastapi import FastAPI, Request, Response, Header, WebSocketDisconnect
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import RedirectResponse
 import uvicorn
 from starlette.responses import StreamingResponse
 from starlette.websockets import WebSocket
 
 app = FastAPI()
+app.add_middleware(GZipMiddleware, minimum_size=5)
 
 
 @app.get("/chunked_response")
