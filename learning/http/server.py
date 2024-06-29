@@ -6,6 +6,7 @@ import pathlib
 from typing import Optional, Annotated
 
 from fastapi import FastAPI, Request, Response, Header, WebSocketDisconnect
+from fastapi.responses import RedirectResponse
 import uvicorn
 from starlette.responses import StreamingResponse
 from starlette.websockets import WebSocket
@@ -86,6 +87,11 @@ async def websockets_stream(websocket: WebSocket):
         except WebSocketDisconnect:
             print("disconnected")
             break
+
+
+@app.get("/old/health")
+def read_root():
+    return RedirectResponse(url="/health/")
 
 
 if __name__ == "__main__":

@@ -33,6 +33,26 @@ content-type: application/json
 First line of response is `protocol status_code desc`, e.g. `HTTP/1.1 200 OK`.
 Then headers and response body.
 
+### Redirects
+
+Using redirects server can, ahem, redirect requests to a new location
+
+```shell
+nc -c localhost 8000
+GET /old/health HTTP/1.1
+host: localhost
+
+HTTP/1.1 307 Temporary Redirect
+date: Sat, 29 Jun 2024 16:36:12 GMT
+server: uvicorn
+content-length: 0
+location: /health/
+```
+
+It uses 307 status code for redirect (there are other types of redirects that use different 30x status codes)
+Redirect location is specified via `Location` header
+
+
 ### Keep-Alive
 In HTTP/1.1 keep-alive is default behaviour. This means that after you make a request and
 receive a response TCP connection is not closed. It's open for some time. In uvicorn it's open for 5 seconds by default.
