@@ -175,6 +175,68 @@ Then go to browser `http://localhost:8000/server_sent_events` and look at consol
 You can stop server and js client will try to reconnect automatically, it will remember the last seen event id
 and send it in a `Last-Event-ID` header. Cool stuff.
 
+### Websockets
+Websockets provide bidirectional stream of messages in browser. That's the closest you can get to raw tcp sockets.
+Still websockets are not exactly tcp sockets.
+
+Start server:
+```shell
+python server.py
+```
+
+Then go to browser `http://localhost:8000/websockets` and look at console.
+
+Client side source for websockets is [here](./websockets.html).
+
+Websockets connection uses HTTP/1.1 "Upgrade" feature, essentially you make a request with headers:
+```text
+Connection: Upgrade
+Upgrade: websocket
+```
+
+Then server responds with 101 "Switching Protocols:
+```text
+HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+```
+
+and HTTP rules are gone, you're using custom protocol on a tcp connection at this point.
+
+Running on top of http/https makes websockets http-proxy and http-infrastructure friendly.
+
+Client sends Sec-WebSocket-Key header, server returns signed value of Sec-WebSocket-Key in a Sec-WebSocket-Accept
+to prove that it understands the requested protocol version.
+
+Relevant tcpdump logs:
+```shell
+sudo tcpdump -i lo0 -A tcp port 8000
+...
+GET /websockets_stream HTTP/1.1
+Host: localhost:8000
+Sec-WebSocket-Key: <secret>
+Sec-Fetch-Site: same-origin
+Sec-WebSocket-Version: 13
+Sec-WebSocket-Extensions: permessage-deflate
+Cache-Control: no-cache
+Sec-Fetch-Mode: websocket
+Origin: http://localhost:8000
+Connection: Upgrade
+Accept-Encoding: gzip, deflate
+Upgrade: websocket
+Sec-Fetch-Dest: websocket
+
+...
+HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: <secret>
+Sec-WebSocket-Extensions: permessage-deflate
+date: Sat, 29 Jun 2024 16:20:51 GMT
+server: uvicorn
+```
+
+
 ## HTTP/2
 HTTP/2 preserves HTTP/1.1 semantics (methods, paths, headers, status codes) but changes underlying transport.
 It's incompatible with HTTP/1.1 on the wire.

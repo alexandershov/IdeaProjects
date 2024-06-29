@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript">
+        // ws is not encrypted
+        // there's also wss which is encrypted
+        let ws = new WebSocket('ws://localhost:8000/websockets_stream');
+        ws.onmessage = function(msg) {
+            console.log(msg);
+        };
+        ws.onopen = function() {
+            ws.send("first");
+            ws.send("second");
+        };
+    </script>
+</head>
+<body>
+</body>
+</html>

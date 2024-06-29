@@ -5,9 +5,10 @@ import json
 import pathlib
 from typing import Optional, Annotated
 
-from fastapi import FastAPI, Request, Response, Header
+from fastapi import FastAPI, Request, Response, Header, WebSocketDisconnect
 import uvicorn
 from starlette.responses import StreamingResponse
+from starlette.websockets import WebSocket
 
 app = FastAPI()
 
@@ -48,7 +49,7 @@ def health_check():
 
 
 @app.get("/server_sent_events")
-def server_sent_events():
+def server_sent_events_page():
     content = pathlib.Path("server_sent_events.html").read_text()
     return Response(content=content, media_type="text/html")
 
@@ -64,6 +65,27 @@ async def stream_server_sent_events(start: int, last_event_id: Annotated[Optiona
             await asyncio.sleep(1)
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+
+@app.get("/websockets")
+def websockets_page():
+    content = pathlib.Path("websockets.html").read_text()
+    return Response(content=content, media_type="text/html")
+
+
+@app.websocket("/websockets_stream")
+async def websockets_stream(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        # receive_text() receives a new message
+        try:
+            message = await websocket.receive_text()
+            now = dt.datetime.now(tz=dt.UTC)
+            # send_text() sends a new message
+            await websocket.send_text(f"received {message} at {now.isoformat()}")
+        except WebSocketDisconnect:
+            print("disconnected")
+            break
 
 
 if __name__ == "__main__":
