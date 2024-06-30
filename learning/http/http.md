@@ -294,3 +294,107 @@ a single HTTP/2 connection is a single TCP connection, this means that TCP head-
 real good. That was the reason for HTTP/3 which doesn't use TCP and uses QUIC (essentially TCP-like in userland backed by UDP)
 
 For backend the most compelling feature is duplex streams.
+
+## HTTPS & TLS
+
+HTTPS is HTTP over TLS.
+TLS is a Transport Level Security. It allows you to have encrypted communication, so that man-in-the-middle can't 
+eavesdrop on it. Technically TLS is different from SSL (SSL is an older thing), but these terms are often used
+interchangeably and are essentially different versions of the same protocol.
+
+TLS itself rides over TCP. TLS records are max 16kb. If you send too small TLS records then you pay framing/computational overhead.
+If you send too large TLS records, then you can be victim of TCP head-of-the line blocking.
+
+TLS is binary protocol, you can't deduce much from tcpdump (and everything is encrypted after cryptography details negotiation anyway):
+```shell
+sudo tcpdump -A -i any tcp port 443 and host google.com
+```
+
+You'll see the hostname in plaintext though, so with HTTPS you'll hide everything from the mitm except for your and 
+server address (and/or hostname).
+
+### Cryptography
+
+Symmetric cryptography uses a single key for encrypting and decrypting.
+Asymmetric cryptography uses one key for encrypting (public key) and another key (private key) for decrypting.
+Public key is, ahem, public and can be shared with anybody.
+Private key is, ahem, private and must be kept secret.
+
+Public key and private key are generated together as a pair.
+
+Two important properties of asymmetric cryptography:
+1. Message encrypted with the public key can be only decrypted with the corresponding private key
+2. Using private key you can sign a message. Using public key other side can validate  
+   that message was indeed signed by the corresponding private key.
+
+
+### Handshake
+In the naive implementation TLS adds 2 RTTs, one is to exchange details of a crypto algorithms, another to generate symmetric key.
+Validating server identity is done with [Certificates](#Certificates) which are based on asymmetric cryptography.
+Once symmetric key is generated, it's used to encrypt/decrypt messages.
+
+Symmetric key can be generated with RSA method:
+1. Client generates secret key, encrypts it with the server public key
+2. Server decrypts it with its private key
+
+The disadvantage of this method is once private key is compromised, it can be used to decrypt all past exchanges.
+because encrypted symmetric key was put on the wire.
+
+Better method is e.g. Diffie-Hellman. It allows client and server to share symmetric key without putting it on the wire.
+It's based on modulo/power operations on Very Large numbers and function f(x, y, z) = (x ** y) % z.
+1. Client and server agree on numbers g, p.
+2. Client and server generate its own secret numbers C and S.
+3. Client puts on the wire f(g, C, p) = C1, server puts on the wire f(g, S, p) = S1
+4. Client calculates f(S1, C, p), server calculates f(C1, S, p)
+5. Math checks out f(S1, C, p) = f(C1, S, p). Now client and server have a common key, that can be used for symmetric
+   cryptography.
+
+Mitm will know g, p, C1, S1, but it's incredibly computationally expensive (== impossible in any reasonable time using current
+technology) to figure out C and S and corresponding symmetric key.
+
+With Diffie-Hellman even if attacker knows server private key this won't help him to decrypt past exchanges. 
+
+Since TLS adds RTTs, keep-alive becomes even more important in HTTPS.
+TLS adds some computational overhead (because of crypto), but not much (~1% overhead), and it can be done on commodity hardware.
+
+### Handshake optimizations
+We can reduce number of RTTs in TLS handshake:
+1. TLS false start: client can start sending application data (HTTP request in our case) immediately after sending its
+   part of Diffie-Hellman exchange without waiting for server part.
+2. Server can return Session-Id, and client can pass it in the next connections. It requires storing some state
+   on a server (to find it by Session-Id), so another option is: 
+3. Server can return Session Ticket, which is encrypted session info. So client stores session details and can pass it
+   in the next connection. Here server should be careful on how to encrypt session info, how to rotate keys used for 
+   its encryption etc. 
+
+### Certificates
+With TLS you can check that the server e.g. google.com is indeed google.com.
+
+During the TLS handshake client receives server certificate. Certificate contains public key 
+(private key remains, ahem, private to the server), host name and signing information.
+You can't trust any certificate, because you can't be sure that mitm is not faking google.com.
+But you can have a limited number of authorities that you trust. These authorities are bundled with OS/browser/added manually.
+You can look at root CAs in /etc/ssl 
+
+The authorities are called Certificate Authorities (CAs).
+E.g. google.com can ask some CA to sign google.com certificate. If you trust this CA then it's cool.
+If not, then this CA certificate can be signed by another CA. So you'll (hopefully) get to some CA you trust.
+This root CA can self-sign its own certificate.
+
+Signing is done with private key, signing check is done with
+the public key.
+
+This is called chain of trust. You can look at certificate chain, by visiting any https site and clicking on green
+padlock. Or with `openssl`:
+```shell
+openssl s_client -state -connect google.com:443
+```
+
+There's analog of HTTP/1.1 `Host` header in TLS, it's called SNI (Server Name Indication), so you can serve different hosts
+from a single ip address.
+
+Certificates can be revoked (for any number of reason: e.g. if private key is expired). Client can check that with:
+1. Fetching some list of expired certificates (cons: lists can be huge)
+2. Asking CA if certificate is expired (cons: adds latency, CA request can timeout)
+3. Rely on Staple-Record which is sent by the server and contains cryptographically signed (by CA) info about revocation.
+   Server can fetch staple-record data in background.
