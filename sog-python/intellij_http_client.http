@@ -14,6 +14,11 @@ query MessageWithVar($cursor: String!) {
   "cursor": "abc"
 }
 
+### You can make websocket requests
+WEBSOCKET ws://localhost:8000/websockets_stream
+
+{"some": "message"}
+
 ### Imported from cURL
 # You can import cURL requests ("Convert cURL to HTTP request" command)
 # curl -L http://localhost:2379/v3/kv/range -X POST -d '{"key": "dGVzdA=="}'
