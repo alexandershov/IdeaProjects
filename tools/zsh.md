@@ -39,3 +39,6 @@ Match only directories:
 ```shell
 ls *(/)
 ```
+
+### fzf
+Ctrl-T to complete current cmdline with fzf, useful when you want to select some file as an argument.
