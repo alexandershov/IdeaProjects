@@ -12,6 +12,6 @@ Now Alfred can search bookmarks and open them in a browser. Cool stuff.
 
 
 ### Universal actions
-Select something (text, image, url, etc) and press Cmd-Opt-\
+Select something (text, image, url, etc.) and press Cmd-Opt-\
 You'll get universal actions popup, where you can do various stuff with the 
-selection (open in browser, etc)
+selection (open in browser, etc.)
