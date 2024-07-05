@@ -18,7 +18,6 @@ Most interesting Intellij new features since 2020.1
 * You can just change name/signature and then use popup in a gutter or with Opt-Enter
   to make a refactoring out of this change.
 
-
 ### Exploring
 * Opt-Space to show definition of current symbol in a popup.
 * You can search by git commits in "Search everywhere", just paste commit sha in it.
@@ -26,11 +25,12 @@ Most interesting Intellij new features since 2020.1
   By default preview is updated on save. You can update preview as you type, change "Reload page in built-in preview" to "On change"
 * If you create FastAPI project, then you can explore all endpoints via "Endpoints".
   Also HTTP client gets autocomplete for FastAPI projects
+* Type Ctrl-Space when you're in a Cmd-F local search, and it'll give you some suggestions.
 
 ### Editing
 You can insert table of contents in Markdown. Cmd-N and "Table of Contents"
 Cmd-N in Markdown mode can also help with inserting links, images, and tables.
-
+Opt-k to expand selection, Opt-Down to shrink selection
 
 ### Running
 * You can save your running configurations into file.
