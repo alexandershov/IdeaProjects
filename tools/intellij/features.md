@@ -26,16 +26,24 @@ Most interesting Intellij features.
 * If you create FastAPI project, then you can explore all endpoints via "Endpoints".
   Also HTTP client gets autocomplete for FastAPI projects
 * Type Ctrl-Space when you're in a Cmd-F local search, and it'll give you some suggestions.
+* Press Ctrl-Space twice (or once if autocomplete is active) 
+  to search for symbols (methods/constants) inside of the classes/modules. Works pretty bad for Python.
+* Expand selection works nice when you put caret at the block start (e.g. on `def` or on `if`)
+* There's local history of changes that you can use to time-travel, the name is "Local history" in a menu
 
 ### Editing
 You can insert table of contents in Markdown. Cmd-N and "Table of Contents"
 Cmd-N in Markdown mode can also help with inserting links, images, and tables.
 Opt-k to expand selection, Opt-Down to shrink selection
+Cmd-Shift-U to toggle case (uppercase/lowercase)
+
 
 ### Running
 * You can save your running configurations into file.
   Select configuration in "Edit configuration" and enable checkbox "Store as project file"
 * Ctrl-Ctrl to "Run anything" (tests/scripts/etc) 
+* Ctrl-G to select symbol at the caret. Pressing Ctrl-G again will select next occurrence 
+  of the symbol with multiple cursors.
 
 
 ### Debugging
@@ -46,7 +54,10 @@ Opt-k to expand selection, Opt-Down to shrink selection
 ### Navigating
 * There are bookmarks, that you can set and jump to them. Use "Add bookmark" in a gutter.
   Cool thing that bookmark is not just for a file, but for a position in a file.
-
+* F2 navigates to next highlighted error in a file
+* Cmd-E open recent files. You can delete files from history with backspace
+* Shift-Cmd-E will allow you to search in recent locations
+* Cmd-G and Cmd-Shift-G go to the next/previous occurrence of the search
 
 ### Testing
 You can drop into debugger on failed tests:
