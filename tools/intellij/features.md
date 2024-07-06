@@ -1,7 +1,7 @@
-## IntelliJ New Features
+## IntelliJ Features
 
 <!-- TOC -->
-  * [IntelliJ New Features](#intellij-new-features)
+  * [IntelliJ Features](#intellij-features)
     * [Refactoring](#refactoring)
     * [Exploring](#exploring)
     * [Editing](#editing)
@@ -12,7 +12,7 @@
     * [Misc](#misc)
 <!-- TOC -->
 
-Most interesting Intellij new features since 2020.1
+Most interesting Intellij features.
 
 ### Refactoring
 * You can just change name/signature and then use popup in a gutter or with Opt-Enter
