@@ -43,7 +43,9 @@ ls *(/)
 ```
 
 ## fzf
-Ctrl-T to complete current cmdline with fzf, useful when you want to select some file as an argument.
+Ctrl-t to complete current cmdline with fzf, useful when you want to select some file as an argument.
+Opt-c to jump to a child directory
+<command> **<tab> to use `fzf` to expand **
 
 ## iterm
 

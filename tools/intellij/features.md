@@ -44,6 +44,7 @@ Cmd-Shift-U to toggle case (uppercase/lowercase)
 * Ctrl-Ctrl to "Run anything" (tests/scripts/etc) 
 * Ctrl-G to select symbol at the caret. Pressing Ctrl-G again will select next occurrence 
   of the symbol with multiple cursors.
+* Cmd-Ctrl-G will select all occurrences of the symbol at the caret with multiple cursors
 
 
 ### Debugging
@@ -55,6 +56,7 @@ Cmd-Shift-U to toggle case (uppercase/lowercase)
 * There are bookmarks, that you can set and jump to them. Use "Add bookmark" in a gutter.
   Cool thing that bookmark is not just for a file, but for a position in a file.
 * F2 navigates to next highlighted error in a file
+* Cmd-6 will show all problems in the current file
 * Cmd-E open recent files. You can delete files from history with backspace
 * Shift-Cmd-E will allow you to search in recent locations
 * Cmd-G and Cmd-Shift-G go to the next/previous occurrence of the search
