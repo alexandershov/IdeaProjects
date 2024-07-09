@@ -1,0 +1,24 @@
+# pyproject.toml is a new way to describe a python project
+
+# you can specify tool settings in a tool.* subtable
+# here we are using poetry, see poetry.md for more details
+[tool.poetry]
+name = "packaging"
+version = "0.1.0"
+description = ""
+authors = ["alexandershov <codumentary.com@gmail.com>"]
+readme = "poetry.md"
+
+[tool.poetry.scripts]
+my-script = "packaging.script:main"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+flask = "^3.0.3"
+
+# other choices for build-system are hatch, setuptools, etc.
+# essentially it's a tool that can build stuff
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
