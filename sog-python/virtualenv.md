@@ -8,7 +8,7 @@ python -m venv /path/to/venv
 E.g. you can create `.venv` dir in your project dir.
 Or use `~/.virtualenvs` as a root for all virtualenvs.
 
-Script creating virtualenv will create a file `pyvenv.cfg` in this virtualenv.
+`venv` will create a file `pyvenv.cfg` in this virtualenv.
 This file is crucial in making virtualenv work.
 
 `site.py` sets `sys.prefix` to a path to your virtualenv if it 
