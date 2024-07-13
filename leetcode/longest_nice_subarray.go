@@ -1,5 +1,3 @@
-package leetcode
-
 /*
 
 21:22 started reading
@@ -10,6 +8,7 @@ package leetcode
 21:53 TLE, >= instead >
 21:54 wrong answer
 22:21 forgot to update counts when adding current element
+12:50 rewritten without counts
 
 
 ideas:
@@ -21,52 +20,19 @@ ideas:
 */
 
 func longestNiceSubarray(nums []int) int {
-	var counts = [64]int{}
-	prevStart := -1
-	prevEnd := 0
+	if len(nums) == 0 {
+		return 0
+	}
+	end := 0
 	longest := 0
+	bitMask := 0
 	for i, _ := range nums {
-		// pop previous
-		if prevStart >= 0 {
-			prevNum := nums[i-1]
-			bit := 0
-			for prevNum > 0 {
-				if (prevNum & 1) == 1 {
-					counts[bit] -= 1
-				}
-				prevNum = prevNum >> 1
-				bit++
-			}
+		for end < len(nums) && (bitMask&nums[end]) == 0 {
+			bitMask |= nums[end]
+			end++
 		}
-		bitMask := countsToBitMask(counts)
-		prevEnd = max(i, prevEnd)
-		for (prevEnd < len(nums)) && ((nums[prevEnd] & bitMask) == 0) {
-			bitMask = bitMask | nums[prevEnd]
-			v := nums[prevEnd]
-			bit := 0
-			for v > 0 {
-				if (v & 1) == 1 {
-					counts[bit] += 1
-				}
-				v = v >> 1
-				bit++
-			}
-			prevEnd++
-		}
-		prevStart = i
-		longest = max(longest, prevEnd-prevStart)
+		longest = max(longest, end-i)
+		bitMask ^= nums[i]
 	}
 	return longest
-}
-
-func countsToBitMask(counts [64]int) int {
-	bitMask := 0
-	cur := 1
-	for _, c := range counts {
-		if c > 0 {
-			bitMask = bitMask | cur
-		}
-		cur = cur << 1
-	}
-	return bitMask
 }
