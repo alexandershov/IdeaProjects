@@ -2,9 +2,10 @@
 # run this file (python fastapi_app.py) and go to http://127.0.0.1:8000/graphql
 # graphql is just a query language independent of data source
 # you add data sources (e.g. database, microservice, etc) using resolvers
-
+import argparse
 import datetime as dt
 import os
+import sys
 from typing import Annotated, List, Optional
 
 import asyncpg
@@ -148,5 +149,14 @@ async def htmx_edit_message(request: fastapi.Request, message_id: str, body: str
     return templates.TemplateResponse('htmx_message.html', {'request': request, 'message': messages[0]})
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--audit', action='store_true')
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
+    args = parse_args()
+    if args.audit:
+        sys.addaudithook(print)
     uvicorn.run("fastapi_app:app", reload=True, host='0.0.0.0')

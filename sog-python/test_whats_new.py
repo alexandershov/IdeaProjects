@@ -27,6 +27,7 @@ def test_dict_merge():
     assert (x | y | y) == (x | y)
     # `|=` modifies dicts
     x |= y
+    time.sleep(90)
     assert x == {'a': 1, 'b': 3, 'd': 4}
 
 
