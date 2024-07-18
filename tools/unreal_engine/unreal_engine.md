@@ -25,3 +25,10 @@ You can rotate it with the usual "Select and Rotate"
 
 Unreal Engine is a great way to really heat up your macbook. 
 Disable Realtime with Cmd-R, it makes things better.
+
+You can change object parameters even when you're playing the level. Press "Shift-F1" and use cursor as usual.
+
+If interface pesters you with "unbuilt lighting", then use "Build" -> "Build Lighting Only" in a menu.
+
+You can project settings with "Edit" -> "Project settings", "Cmd"-comma are not for the project settings, but
+for the editor settings.
