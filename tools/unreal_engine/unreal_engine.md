@@ -6,6 +6,8 @@ You need to download Epic Games Launcher and download Unreal Engine 5 (UE5) from
 
 UE5 is ~15GB download (150GB with debug symbols). You'll also need Xcode.
 
+
+### Tutorial
 I tried following the tutorial "Your first hour in Unreal Engine 5": https://dev.epicgames.com/community/learning/courses/ZpX/your-first-hour-in-unreal-engine-5-0/
 It's messed up, because a current version is 5.4 and tutorial uses assets from Online Learning Kit that's 
 requires version <= 5.1
@@ -32,3 +34,16 @@ If interface pesters you with "unbuilt lighting", then use "Build" -> "Build Lig
 
 You can project settings with "Edit" -> "Project settings", "Cmd"-comma are not for the project settings, but
 for the editor settings.
+
+
+### Blueprint
+Blueprint is a visual programming language. 
+Essentially, you build a graph of nodes. Node can be event (e.g. collision) or action (e.g. "Print String")
+
+For collision you can use event ActorBeginOverlap, for printing you can use action "Print String" 
+
+You can blueprint to existing items: "Add" -> "New blueprint script component" and then edit blueprint.
+
+You can see logs in "Output Logs" tab, it's in the bottom left corner of the screen.
+
+
