@@ -46,4 +46,13 @@ You can blueprint to existing items: "Add" -> "New blueprint script component" a
 
 You can see logs in "Output Logs" tab, it's in the bottom left corner of the screen.
 
+### C++
+
+You can write your code in C++.
+Create new project and pick C++ instead of Blueprint.
+
+Then "Tools" -> "New C++ class" 
+
+After creating a class it'll open Xcode with the code. There'll be no autocomplete for UE-related stuff.
+
 
