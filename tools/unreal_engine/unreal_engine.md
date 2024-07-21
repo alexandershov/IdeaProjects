@@ -53,6 +53,13 @@ Create new project and pick C++ instead of Blueprint.
 
 Then "Tools" -> "New C++ class" 
 
-After creating a class it'll open Xcode with the code. There'll be no autocomplete for UE-related stuff.
+After creating a class, it'll open Xcode with the code. 
+For some reason there'll be no autocomplete for UE-related stuff.
+I had "Indexing | Processing Files" in Xcode hanging for a long time.
 
+You can call your C++ class from blueprint scripts.
 
+After you implement your class (decorate properties with PROPERTY and functions with FUNCTION to 
+make them visible in an editor), you'll see it in a Content Drawer under "C++ Classes".
+
+You can also create a new Blueprint class based on your class.
