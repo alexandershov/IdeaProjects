@@ -6,6 +6,9 @@ Think of a commit as an immutable snapshot of your repo.
 Commit has different fields (commit message, files/directories, author, parent commit). 
 We can calculate hash (sha-1) of these fields and use this hash as a commit id.
 
+sha-1 is a hash function that produces hash with the size of 160 bits 
+(40 hex digits, as each digit represents 4 bits of information)
+
 Essentially hash identifies every object (commit, file, directory) in git.
 
 You can see hashes of commits in `git log` output.
@@ -43,7 +46,7 @@ $ git cat-file -p a35aa934b1a329d53ea5a2b197d319a887e00c91
 040000 tree d3a656ea29055b7f900c7ff9aa610c9f595ab61e	tools
 ```
 
-It contains directory data at a given snapshot.
+It contains directory data (including permissions like 0644) at a given snapshot.
 
 `.gitignore` is a file (blob) and `cat-file` prints a content for it: 
 ```shell
@@ -71,11 +74,29 @@ d4b0c5a438082d5d997cc064844fc90917d9bac0  -
 git is essentially CAS (content addressable storage): if file doesn't change during the commit,
 then its content will be stored only once as a blob.
 
+Blobs are stored in `.git/objects`. Blobs are compressed with zlib.
+```pycon
+>>> import zlib
+>>> import pathlib
+>>> b = pathlib.Path('.git/objects/d4/b0c5a438082d5d997cc064844fc90917d9bac0').read_bytes()
+>>> zlib.decompress
+<built-in function decompress>
+>>> zlib.decompress(b)
+b'blob 11\x00*.iml\n.idea'
+>>>
+```
+
 Since snapshots are primary data structure in git, this means that git needs to calculate diffs
 dynamically when you want to see a diff.
 
 So there are no "moves" of file in git, it's just delete and add. But diff can try to guess
 that it was a move (if e.g. file content of deleted and added files match)
+
+Git can optimize blob representation. Let's say you have a file of 1M lines, and you change just 1 line.
+Storing 2 complete blobs for this change is expensive. So git can have smart blobs that store only deltas.
+They are stored in `.git/objects/pack` directory. `git gc` can create these deltas (along with gc'ing old unreachable commits)
+
+You can view unreachable objects with `git fsck`
 
 
 ### Branch
@@ -97,3 +118,37 @@ You can see the history of the branch with
 ```shell
 git reflog <branch>
 ```
+
+If you skip the `<branch>`, then you'll reflog of HEAD.
+
+
+### .git directory
+Git stores its data in a `.git` directory.
+
+`.git/HEAD` contains a reference to the current commit you're on.
+It can be either a reference to a branch (e.g. `ref: refs/heads/main`) or a commit.
+When it's a commit, then you get an infamous "detached HEAD state".
+
+`.git/config` contains local config for the current repo. Global config is in `~/.gitconfig` 
+`.git/config` contains config for remotes (e.g. uri for remote "origin").
+
+Also, it can contain sections for branch tracking. E.g.
+```text
+[branch "main"]
+remote = origin
+merge = refs/heads/main
+```
+
+This means that branch `main` is set up to track remote `origin`.
+So if you `git push` then git will be able to figure out that you want to push to `origin`.
+
+Git also creates a remote tracking branch named `origin/main` 
+that is automatically updated when you do `push|pull|fetch`.
+
+Otherwise, it's just a normal branch.
+
+Info on remote tracking branch is located at `.git/refs/remotes/{remoteName}/{branchName}`.
+It's just a pointer to commit the same as e.g. `.git/refs/heads/main`.
+
+Tags are stored in `.git/refs/tags` or `.git/packed-refs`.
+Tag allows you to reference commit by human-readable name instead of a hash.
