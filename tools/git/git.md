@@ -163,6 +163,10 @@ that is automatically updated when you do `push|pull|fetch`.
 
 Otherwise, it's just a normal branch.
 
+When you do `git st` and see `Your branch is behind 'origin/main' by 1 commit, and can be fast-forwarded` 
+git makes no network access to the remote `main`.
+It just compares the current branch with the tracking branch.
+
 Info on remote tracking branch is located at `.git/refs/remotes/{remoteName}/{branchName}`.
 It's just a pointer to commit the same as e.g. `.git/refs/heads/main`.
 
