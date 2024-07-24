@@ -189,3 +189,10 @@ g ls-files --stage
 ```
 
 Index is stored in `.git/index`
+
+### Merge
+Usually commit has a single parent. But when you do merge, then you'll have 2 parents.
+E.g. when you're on a branch `main` at commit `X` and do `git merge branch-y`, it creates a new commit with 2 parents.
+First parent will be `X` (the commit you were on when you started merge)
+Second parent will be `branch-y`.
+Order of parents is important, because `HEAD^` returns the first parent.
