@@ -121,6 +121,22 @@ git reflog <branch>
 
 If you skip the `<branch>`, then you'll reflog of HEAD.
 
+You can change the current branch pointer with `git reset`:
+```shell
+$ git reset 75b3ed9
+$ cat .git/refs/heads/main
+75b3ed9aed61fdbdce3d472d3531923dd8004466
+```
+
+Even without `--hard` `reset` updates branch pointer to the specified commit.
+You can `reset` in any direction (backward/forward)
+Let's restore `main` to the latest commit with 
+```shell
+$ g reset 46535b1
+$ cat .git/refs/heads/main
+46535b12ee21d715e47bb8c94b3b69129e2e9018
+```
+
 
 ### .git directory
 Git stores its data in a `.git` directory.
