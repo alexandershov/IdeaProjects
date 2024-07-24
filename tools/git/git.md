@@ -172,3 +172,20 @@ It's just a pointer to commit the same as e.g. `.git/refs/heads/main`.
 
 Tags are stored in `.git/refs/tags` or `.git/packed-refs`.
 Tag allows you to reference commit by human-readable name instead of a hash.
+
+
+### Staging
+When you do `git add` or `git remove` etc. you add files to a staging area (aka index).
+Staging area a purgatory before commit.
+Git index is essentially a sorted list of filenames with their hashes. Hashes point to `.git/objects` in the usual way.
+Since git index contains only filenames and not directories, that's the reason why you can't 
+commit an empty directory to git.
+
+When you do `git add`, it creates a new object in `.git/objects` and updates index entry for that filename.
+
+You can view index with
+```shell
+g ls-files --stage
+```
+
+Index is stored in `.git/index`
