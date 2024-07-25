@@ -63,10 +63,15 @@ def cat_file_command(args) -> None:
     if kind == b"tree":
         print_tree(body)
     else:
+        # blob and commit stores their content in body
         print(bytes_to_ascii(body))
 
 
 def print_tree(content):
+    # tree's content is
+    # <mode> <name>\x00<binary-sha-1>
+    # <mode> <name>\x00<binary-sha-1>
+    # ...
     while content:
         mode_and_name, content = content.split(b"\x00", maxsplit=1)
         mode, name = mode_and_name.split(b" ", maxsplit=1)
