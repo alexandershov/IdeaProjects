@@ -1,5 +1,6 @@
 import argparse
 import os
+import zlib
 from pathlib import Path
 
 
@@ -40,12 +41,39 @@ def branch_command(args):
         print(f"{prefix}{b}")
 
 
+def cat_file_command(args) -> None:
+    git_dir = find_git_dir(Path.cwd())
+    object_id = args.object_id
+    prefix = object_id[:2]
+    suffix = object_id[2:]
+    object_dir = git_dir / "objects" / prefix
+    if not object_dir.exists():
+        raise PyGitError(f"object {object_id} does not exist")
+    matches = [path for path in object_dir.iterdir() if path.name.startswith(suffix)]
+    if not matches:
+        raise PyGitError(f"object {object_id} does not exist")
+    if len(matches) > 1:
+        conflicts = [m.name for m in matches]
+        raise PyGitError(f"ambiguous object id {object_id}: {conflicts}")
+    compressed_content = matches[0].read_bytes()
+    content = zlib.decompress(compressed_content)
+    assert content.startswith(b"blob "), "only blobs are supported"
+    length_part, content_part = content.removeprefix(b"blob ").split(b"\x00", maxsplit=1)
+    assert int(length_part) == len(content_part)
+    print(content_part.decode("ascii"))
+
+
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(required=True)
 
-    parser_branch = subparsers.add_parser('branch')
-    parser_branch.set_defaults(func=branch_command)
+    branch_parser = subparsers.add_parser('branch')
+    branch_parser.set_defaults(func=branch_command)
+
+    cat_file_parser = subparsers.add_parser('cat-file')
+    cat_file_parser.add_argument('-p', action='store_true', required=True)
+    cat_file_parser.add_argument('object_id')
+    cat_file_parser.set_defaults(func=cat_file_command)
 
     args = parser.parse_args()
     args.func(args)
