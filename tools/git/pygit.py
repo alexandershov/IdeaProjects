@@ -60,8 +60,24 @@ def cat_file_command(args) -> None:
     header, body = content.split(b"\x00", maxsplit=1)
     kind, size_str = header.split()
     assert int(size_str) == len(body)
-    print(body.decode("ascii"))
+    if kind == b"tree":
+        print_tree(body)
+    else:
+        print(bytes_to_ascii(body))
 
+
+def print_tree(content):
+    while content:
+        mode_and_name, content = content.split(b"\x00", maxsplit=1)
+        mode, name = mode_and_name.split(b" ", maxsplit=1)
+        sha_1_len = 20
+        sha_1 = content[:sha_1_len].hex()
+        content = content[sha_1_len:]
+        print(f"{bytes_to_ascii(mode)} {sha_1} {bytes_to_ascii(name)}")
+
+
+def bytes_to_ascii(b):
+    return b.decode("ascii", errors="ignore")
 
 def main():
     parser = argparse.ArgumentParser()
