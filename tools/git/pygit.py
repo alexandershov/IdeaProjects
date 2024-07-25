@@ -57,10 +57,10 @@ def cat_file_command(args) -> None:
         raise PyGitError(f"ambiguous object id {object_id}: {conflicts}")
     compressed_content = matches[0].read_bytes()
     content = zlib.decompress(compressed_content)
-    assert content.startswith(b"blob "), "only blobs are supported"
-    length_part, content_part = content.removeprefix(b"blob ").split(b"\x00", maxsplit=1)
-    assert int(length_part) == len(content_part)
-    print(content_part.decode("ascii"))
+    header, body = content.split(b"\x00", maxsplit=1)
+    kind, size_str = header.split()
+    assert int(size_str) == len(body)
+    print(body.decode("ascii"))
 
 
 def main():
