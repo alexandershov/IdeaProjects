@@ -84,6 +84,7 @@ def print_tree(content):
 def bytes_to_ascii(b):
     return b.decode("ascii", errors="ignore")
 
+
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(required=True)
