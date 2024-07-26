@@ -1,7 +1,38 @@
 import argparse
 import os
 import zlib
+from dataclasses import dataclass
 from pathlib import Path
+
+
+@dataclass(frozen=True)
+class Commit:
+    tree: str
+    parents: list[str]
+    author: str
+    committer: str
+    message: str
+
+    @staticmethod
+    def parse(body):
+        i = 0
+        lines = bytes_to_ascii(body).splitlines()
+        tree = lines[i].split()[-1]
+        i += 1
+        parents = []
+        while lines[i].startswith("parent"):
+            parents.append(lines[i].split()[-1])
+            i += 1
+        author = lines[i].split()[1]
+        committer = lines[i + 1].split()[1]
+        message = "\n".join(lines[i + 3:])
+        return Commit(
+            tree=tree,
+            parents=parents,
+            author=author,
+            committer=committer,
+            message=message,
+        )
 
 
 class PyGitError(Exception):
@@ -44,6 +75,17 @@ def branch_command(args):
 def cat_file_command(args) -> None:
     git_dir = find_git_dir(Path.cwd())
     object_id = args.object_id
+    header, body = get_object(git_dir, object_id)
+    kind, size_str = header.split()
+    assert int(size_str) == len(body)
+    if kind == b"tree":
+        print_tree(body)
+    else:
+        # blob and commit stores their content in body
+        print(bytes_to_ascii(body))
+
+
+def get_object(git_dir, object_id):
     prefix = object_id[:2]
     suffix = object_id[2:]
     object_dir = git_dir / "objects" / prefix
@@ -58,13 +100,7 @@ def cat_file_command(args) -> None:
     compressed_content = matches[0].read_bytes()
     content = zlib.decompress(compressed_content)
     header, body = content.split(b"\x00", maxsplit=1)
-    kind, size_str = header.split()
-    assert int(size_str) == len(body)
-    if kind == b"tree":
-        print_tree(body)
-    else:
-        # blob and commit stores their content in body
-        print(bytes_to_ascii(body))
+    return header, body
 
 
 def print_tree(content):
@@ -85,6 +121,44 @@ def bytes_to_ascii(b):
     return b.decode("ascii", errors="ignore")
 
 
+def find_head_sha(git_dir: Path) -> str:
+    cur_branch = get_head(git_dir)
+    heads_dir = git_dir / "refs" / "heads"
+    branches = os.listdir(heads_dir)
+    branches.sort(key=lambda br: br == cur_branch, reverse=True)
+    if not branches:
+        raise PyGitError(f"repository has no branches")
+    b = branches[0]
+    for b in branches:
+        if b == cur_branch:
+            return (heads_dir / b).read_text().rstrip("\n")
+    raise PyGitError(f"can't log {b}")
+
+
+def log_command(args):
+    git_dir = find_git_dir(Path.cwd())
+    head_sha = find_head_sha(git_dir)
+    header, body = get_object(git_dir, head_sha)
+    kind, size_str = header.split()
+    assert kind == b"commit", kind
+    commit = Commit.parse(body)
+    while commit.parents:
+        object_id = commit.parents[0]
+        header, body = get_object(git_dir, object_id)
+        commit = Commit.parse(body)
+        print_commit(commit, object_id)
+
+
+def print_commit(commit: Commit, object_id: str):
+    print(f"""{"=" * (len(object_id) + len("commit "))}
+commit {object_id}
+Author: {commit.author}
+
+{commit.message}
+{"=" * len(commit.message)}
+""")
+
+
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(required=True)
@@ -96,6 +170,9 @@ def main():
     cat_file_parser.add_argument('-p', action='store_true', required=True)
     cat_file_parser.add_argument('object_id')
     cat_file_parser.set_defaults(func=cat_file_command)
+
+    log_parser = subparsers.add_parser('log')
+    log_parser.set_defaults(func=log_command)
 
     args = parser.parse_args()
     args.func(args)
