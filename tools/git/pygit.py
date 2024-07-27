@@ -1,8 +1,12 @@
 import argparse
+import dataclasses
+import hashlib
 import os
+import struct
 import zlib
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Iterable
 
 
 @dataclass(frozen=True)
@@ -159,6 +163,106 @@ Author: {commit.author}
 """)
 
 
+@dataclass(frozen=True)
+class Entry:
+    path: Path
+    object_id: str
+
+
+def read_index_entry(index: bytes, entry_start: int) -> (Entry, int):
+    # format is described here
+    # https://git-scm.com/docs/index-format
+    # maybe I'm calculating it wrong, but I used reverse engineering to get offsets
+    # docs/index-format didn't help me
+    index = index[entry_start:]
+    object_id = index[40:60].hex()
+    with_path_length, = struct.unpack(">h", index[60:62])
+    path_length = with_path_length & ((1 << 12) - 1)
+    path = bytes_to_ascii(index[62:62 + path_length])
+    entry_length = 62 + path_length
+    # padding is at least 1 byte, total length with padding should be a multiple of 8
+    padding_length = 1
+    while (entry_length + padding_length) % 8:
+        padding_length += 1
+    return Entry(path=Path(path), object_id=object_id), entry_length + padding_length
+
+
+def status_command(args):
+    git_dir = find_git_dir(Path.cwd())
+    index_path = git_dir / "index"
+    index = index_path.read_bytes()
+
+    signature = index[0:4]
+    assert signature == b"DIRC"
+    version, = struct.unpack(">I", index[4:8])
+    assert version == 2
+    index_size, = struct.unpack(">I", index[8:12])
+    entry_start = 12
+    index_entries = []
+    for i in range(index_size):
+        entry, entry_size = read_index_entry(index, entry_start)
+        index_entries.append(entry)
+        entry_start += entry_size
+
+    working_copy_entries = [
+        dataclasses.replace(an_entry, path=an_entry.path.relative_to(git_dir.parent))
+        for an_entry in
+        read_working_copy_entries(git_dir.parent)
+    ]
+    index_entries_by_path = {entry.path: entry for entry in index_entries}
+    working_copy_entries_by_path = {entry.path: entry for entry in working_copy_entries}
+
+    # we actually should compare working_copy_entries with the tree of HEAD, and not with index_entries
+    # we should use index to determine if change is staged
+    # what follows is just a quick hack that directly compares working_copy with index
+    untracked_paths = working_copy_entries_by_path.keys() - index_entries_by_path.keys()
+    common_paths = working_copy_entries_by_path.keys() & index_entries_by_path.keys()
+    modified_paths = {path for path in common_paths if
+                      index_entries_by_path[path].object_id != working_copy_entries_by_path[path].object_id}
+    deleted_paths = index_entries_by_path.keys() - working_copy_entries_by_path.keys()
+
+    # breakpoint()
+
+    print_paths("Untracked", untracked_paths)
+    print_paths("Modified", modified_paths)
+    print_paths("Deleted", deleted_paths)
+
+
+def print_paths(title, paths: Iterable[Path]):
+    if not paths:
+        return
+    print(title)
+    for path in paths:
+        print(path)
+    print()
+
+
+def read_working_copy_entries(path: Path) -> list[Entry]:
+    # real git also lists all files in working copy in `git status`
+    # it doesn't read file content though, at least tries real hard to not open file for reading
+    entries = []
+    # hack to emulate .gitignore
+    ignores = ["node_modules", "venv/", "build/", "deps/", "out/",
+               "/venv", "/_build", "rust/target", "/build", "/__pycache",
+               "sog-kotlin/lib/"
+               ]
+    for s in ignores:
+        if s in str(path):
+            return []
+
+    for child in path.iterdir():
+        if child.is_dir():
+            if str(child.parts[-1])[0] != ".":
+                entries.extend(read_working_copy_entries(child))
+        elif child.is_file() and ".iml" not in str(child):
+            content = child.read_bytes()
+            blob_content = (b"blob %d\0" % (len(content))) + content
+            object_id = hashlib.sha1(blob_content).hexdigest()
+            entry = Entry(path=child, object_id=object_id)
+            entries.append(entry)
+    return entries
+
+
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(required=True)
@@ -173,6 +277,9 @@ def main():
 
     log_parser = subparsers.add_parser('log')
     log_parser.set_defaults(func=log_command)
+
+    status_parser = subparsers.add_parser('status')
+    status_parser.set_defaults(func=status_command)
 
     args = parser.parse_args()
     args.func(args)
