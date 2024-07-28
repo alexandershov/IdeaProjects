@@ -213,18 +213,18 @@ Unstage everything:
 ```shell
 git reset HEAD
 ```
-After reset, index == HEAD, working_copy is unchanged.
+After reset, index == HEAD, working copy is unchanged.
 
-Unstage one file:
+Remove file from git, but keep it in a working copy:
 ```shell
-git rm --cached --path/to/file
+git rm --cached -- path/to/file
 ```
 
-Unstage everything and update working_copy:
+Unstage everything and update working copy:
 ```shell
 git reset --hard HEAD
 ```
-After hard reset, index == HEAD, working_copy == HEAD.
+After hard reset, index == HEAD, working copy == HEAD.
 
 Remove untracked files (-d traverses directories)
 ```shell
