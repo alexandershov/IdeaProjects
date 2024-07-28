@@ -190,9 +190,75 @@ g ls-files --stage
 
 Index is stored in `.git/index`
 
+So you have a trinity of:
+* Current HEAD
+* Your working copy
+* Index (aka staging area)
+
+Git CLI allows you to move data between these areas.
+
+When you make a commit, you add changes from your working copy to the index, 
+and index is used to create commit.
+
 ### Merge
 Usually commit has a single parent. But when you do merge, then you'll have 2 parents.
 E.g. when you're on a branch `main` at commit `X` and do `git merge branch-y`, it creates a new commit with 2 parents.
 First parent will be `X` (the commit you were on when you started merge)
 Second parent will be `branch-y`.
 Order of parents is important, because `HEAD^` returns the first parent.
+
+
+### Useful commands
+Unstage everything:
+```shell
+git reset HEAD
+```
+After reset, index == HEAD, working_copy is unchanged.
+
+Unstage one file:
+```shell
+git rm --cached --path/to/file
+```
+
+Unstage everything and update working_copy:
+```shell
+git reset --hard HEAD
+```
+After hard reset, index == HEAD, working_copy == HEAD.
+
+Remove untracked files (-d traverses directories)
+```shell
+git clean -fd
+```
+
+Short log
+```shell
+git log --oneline
+```
+
+Make a zip archive out of a revision
+```shell
+git archive ddc3eadb1c60d8165091e3c6ea0655d2c0e7677e > archive.zip
+```
+
+List branches with extra information (with latest commit sha and message)
+```shell
+git branch -vv
+```
+
+Show diff between HEAD and working copy
+```shell
+git diff HEAD
+```
+We need to specify HEAD, otherwise git would ignore staged changes.
+
+
+Grep repo at every revision
+```shell
+git grep TODO $(git rev-list --all)
+```
+
+View recent logs
+```shell
+git log --since '10 days ago'
+```

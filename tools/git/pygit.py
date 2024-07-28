@@ -238,8 +238,10 @@ def print_paths(title, paths: Iterable[Path]):
 
 
 def read_working_copy_entries(path: Path) -> list[Entry]:
-    # real git also lists all files in working copy in `git status`
-    # it doesn't read file content though, at least tries real hard to not open file for reading
+    # Real git also lists all files in working copy in `git status`
+    # it doesn't read file content though, at least tries real hard to not open file for reading.
+    # With fsmonitor https://git-scm.com/docs/git-fsmonitor--daemon git
+    # can listen to dir changes and avoid full fs traversal on `git st`
     entries = []
     # hack to emulate .gitignore
     ignores = ["node_modules", "venv/", "build/", "deps/", "out/",
