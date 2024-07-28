@@ -226,7 +226,7 @@ git reset --hard HEAD
 ```
 After hard reset, index == HEAD, working copy == HEAD.
 
-Remove untracked files (-d traverses directories)
+Remove untracked files (-d traverses untracked directories)
 ```shell
 git clean -fd
 ```
