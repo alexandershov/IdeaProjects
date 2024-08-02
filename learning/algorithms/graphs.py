@@ -67,6 +67,7 @@ def test_bfs(graph, start, expected, bfs_algorithm):
 
 def dfs(graph, start, visit):
     visited = set()
+    # compared to bfs we're using stack instead of a queue
     stack = [start]
     while stack:
         node = stack.pop()
@@ -76,6 +77,8 @@ def dfs(graph, start, visit):
         visited.add(node)
         stack.append(node)
         for child in reversed(graph.get(node, [])):
+            # compared to bfs, we don't add `child` to `visited` here,
+            # because we can reach child with another path
             stack.append(child)
 
 
