@@ -5,7 +5,7 @@ import pytest
 GRAPH = {
     'a': ['b', 'c'],
     'b': ['a', 'c', 'd'],
-    'd': ['e', 'a'],
+    'd': ['a', 'e'],
 }
 
 
@@ -27,9 +27,9 @@ def bfs(graph, start, visit):
 # the way to think about bfs is that we have a current level,
 # and we generate the next level based on current level
 # it's essentially corecursion, kinda like when we start with 1, 1 and generated fibonachi numbers from here
-def bfs_recursive(graph, start, visit, visited=None):
-    if visited is None:
-        visited = {start}
+def bfs_recursive(graph, start, visit, enqueued=None):
+    if enqueued is None:
+        enqueued = {start}
     if isinstance(start, str):
         level = [start]
     else:
@@ -39,16 +39,16 @@ def bfs_recursive(graph, start, visit, visited=None):
     for node in level:
         visit(node)
         for child in graph.get(node, []):
-            if child in visited:
+            if child in enqueued:
                 continue
-            visited.add(child)
+            enqueued.add(child)
             next_level.append(child)
     if next_level:
-        bfs_recursive(graph, next_level, visit, visited)
+        bfs_recursive(graph, next_level, visit, enqueued)
 
 
 @pytest.fixture(params=[bfs, bfs_recursive])
-def algorithm(request):
+def bfs_algorithm(request):
     return request.param
 
 
@@ -56,10 +56,54 @@ def algorithm(request):
     (GRAPH, 'a', ['a', 'b', 'c', 'd', 'e']),
     (GRAPH, 'b', ['b', 'a', 'c', 'd', 'e']),
     (GRAPH, 'c', ['c']),
-    (GRAPH, 'd', ['d', 'e', 'a', 'b', 'c']),
+    (GRAPH, 'd', ['d', 'a', 'e', 'b', 'c']),
     (GRAPH, 'e', ['e']),
 ])
-def test_bfs(graph, start, expected, algorithm):
+def test_bfs(graph, start, expected, bfs_algorithm):
     visited = []
-    algorithm(graph, start, visited.append)
+    bfs_algorithm(graph, start, visited.append)
+    assert visited == expected
+
+
+def dfs(graph, start, visit):
+    visited = set()
+    queue = [start]
+    while queue:
+        node = queue.pop()
+        if node in visited:
+            continue
+        visit(node)
+        visited.add(node)
+        queue.append(node)
+        for child in reversed(graph.get(node, [])):
+            queue.append(child)
+
+
+def dfs_recursive(graph, start, visit, visited=None):
+    if visited is None:
+        visited = set()
+
+    if start in visited:
+        return
+    visit(start)
+    visited.add(start)
+    for child in graph.get(start, []):
+        dfs_recursive(graph, child, visit, visited)
+
+
+@pytest.fixture(params=[dfs, dfs_recursive])
+def dfs_algorithm(request):
+    return request.param
+
+
+@pytest.mark.parametrize("graph,start,expected", [
+    (GRAPH, 'a', ['a', 'b', 'c', 'd', 'e']),
+    (GRAPH, 'b', ['b', 'a', 'c', 'd', 'e']),
+    (GRAPH, 'c', ['c']),
+    (GRAPH, 'd', ['d', 'a', 'b', 'c', 'e']),
+    (GRAPH, 'e', ['e']),
+])
+def test_dfs(graph, start, expected, dfs_algorithm):
+    visited = []
+    dfs_algorithm(graph, start, visited.append)
     assert visited == expected
