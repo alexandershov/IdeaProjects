@@ -75,7 +75,6 @@ def dfs(graph, start, visit):
             continue
         visit(node)
         visited.add(node)
-        stack.append(node)
         for child in reversed(graph.get(node, [])):
             # compared to bfs, we don't add `child` to `visited` here,
             # because we can reach child with another path
