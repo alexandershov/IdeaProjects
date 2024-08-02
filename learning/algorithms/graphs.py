@@ -67,16 +67,16 @@ def test_bfs(graph, start, expected, bfs_algorithm):
 
 def dfs(graph, start, visit):
     visited = set()
-    queue = [start]
-    while queue:
-        node = queue.pop()
+    stack = [start]
+    while stack:
+        node = stack.pop()
         if node in visited:
             continue
         visit(node)
         visited.add(node)
-        queue.append(node)
+        stack.append(node)
         for child in reversed(graph.get(node, [])):
-            queue.append(child)
+            stack.append(child)
 
 
 def dfs_recursive(graph, start, visit, visited=None):
