@@ -1,0 +1,79 @@
+# the idea of union find is this:
+# we store disjoint sets
+# each element belongs to a set. Set can be a singleton
+# each set has a leader
+# each element has a parent
+# leader's parent is itself
+# when we union two sets, we attach leader of the smaller set to the leader of the larger set
+# this is optimization that allows O(log) find operations
+# TODO: prove log property
+# TODO: add a practical example where union find is useful
+
+class UnionFind:
+    def __init__(self):
+        self._parents = {}
+        self._sizes = {}
+
+    def add(self, key):
+        try:
+            leader = self.find(key)
+        except KeyError:
+            self._parents[key] = key
+            self._sizes[key] = 1
+            return key
+        else:
+            return leader
+
+    def find(self, key):
+        if key not in self._parents:
+            raise KeyError(f"{key} not found")
+        while self._parents[key] != key:
+            key = self._parents[key]
+        return key
+
+    def union(self, a, b):
+        a_leader = self.find(a)
+        b_leader = self.find(b)
+        if a_leader == b_leader:
+            return a_leader
+        a_size = self._sizes[a_leader]
+        b_size = self._sizes[b_leader]
+        # we always attach small to large
+        if a_size < b_size:
+            self._parents[a_leader] = b_leader
+            self._sizes[b_leader] += self._sizes[a_leader]
+            return b_leader
+        else:
+            self._parents[b_leader] = a_leader
+            self._sizes[a_leader] += self._sizes[b_leader]
+            return a_leader
+
+
+def test_union_find():
+    uf = UnionFind()
+    for i in range(10):
+        uf.add(i)
+    leader_01 = uf.union(0, 1)
+    leader_012 = uf.union(leader_01, 2)
+    leader_34 = uf.union(3, 4)
+    leader_345 = uf.union(leader_34, 5)
+    leader_3456 = uf.union(leader_345, 6)
+    leader_0123456 = uf.union(leader_01, leader_3456)
+
+    assert leader_01 == 0
+    assert leader_012 == 0
+    assert leader_34 == 3
+    assert leader_345 == 3
+    assert leader_3456 == 3
+    assert leader_0123456 == 3
+
+    # 3 is a leader of 0123456
+    assert uf.find(0) == 3
+    assert uf.find(1) == 3
+    assert uf.find(2) == 3
+    assert uf.find(3) == 3
+    assert uf.find(4) == 3
+    assert uf.find(5) == 3
+    assert uf.find(6) == 3
+
+    assert uf.find(7) == 7
