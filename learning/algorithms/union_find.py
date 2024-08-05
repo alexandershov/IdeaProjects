@@ -6,6 +6,10 @@
 # leader's parent is itself
 # when we union two sets, we attach leader of the smaller set to the leader of the larger set
 # this is optimization that allows O(log) find operations
+# there's another optimization where we compress path (when we traverse path from element to its leader
+# then we can point each element on the way directly to its leader
+# we can do it during find, it leads O(reverse_ackerman(n)) complexities, but good luck proving this.
+# reverse_ackerman is very slow growing functions, for practical purposes we can consider it constant
 # TODO: add a practical example where union find is useful
 
 class UnionFind:
