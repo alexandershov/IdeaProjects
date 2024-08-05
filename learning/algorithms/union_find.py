@@ -6,7 +6,6 @@
 # leader's parent is itself
 # when we union two sets, we attach leader of the smaller set to the leader of the larger set
 # this is optimization that allows O(log) find operations
-# TODO: prove log property
 # TODO: add a practical example where union find is useful
 
 class UnionFind:
@@ -39,6 +38,15 @@ class UnionFind:
         a_size = self._sizes[a_leader]
         b_size = self._sizes[b_leader]
         # we always attach small to large
+        # this allows for paths that are max log(N)
+        # proof:
+        # let's take the longest path, it has X edges
+        # each edge connects small to large, this means
+        # let small size to be N, then the size of large + small is at least 2 * N
+        # each edge doubles size, after X edges we'll have the total size of all related sets to be
+        # 2^X, so X is log(total_size).
+        # Would we attach large to small instead, then each edge could increase size by just 1,
+        # since small size can be 1
         if a_size < b_size:
             self._parents[a_leader] = b_leader
             self._sizes[b_leader] += self._sizes[a_leader]
