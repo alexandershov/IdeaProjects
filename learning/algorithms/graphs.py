@@ -1,4 +1,6 @@
 import collections
+import heapq
+import math
 
 import pytest
 
@@ -6,6 +8,12 @@ GRAPH = {
     'a': ['b', 'c'],
     'b': ['a', 'c', 'd'],
     'd': ['a', 'e'],
+}
+
+WEIGHTED_GRAPH = {
+    'a': [('b', 1), ('c', 8), ('d', 9)],
+    'b': [('c', 4)],
+    'c': [('a', 2), ('d', 3)],
 }
 
 
@@ -109,3 +117,32 @@ def test_dfs(graph, start, expected, dfs_algorithm):
     visited = []
     dfs_algorithm(graph, start, visited.append)
     assert visited == expected
+
+
+def dijkstra(graph, start, goal):
+    # dijkstra is essentially bfs, but with a heap instead of queue
+    # and a dictionary of distances
+    distances = collections.defaultdict(lambda: math.inf)
+    frontier = [(start, 0)]
+    distances[start] = 0
+    while frontier:
+        node, distance = heapq.heappop(frontier)
+        if node == goal:
+            # dijkstra is a greedy algorithm as soon as we get to goal
+            # we got a shorter distance
+            return distance
+        for neighbour, weight in graph.get(node, []):
+            new_distance = distance + weight
+            if new_distance < distances[neighbour]:
+                distances[neighbour] = new_distance
+                heapq.heappush(frontier, (neighbour, new_distance))
+    return distances[goal]
+
+
+@pytest.mark.parametrize("graph,start,goal,expected_distance", [
+    (WEIGHTED_GRAPH, 'a', 'd', 8),
+    (WEIGHTED_GRAPH, 'a', 'b', 1),
+    (WEIGHTED_GRAPH, 'a', 'c', 5),
+])
+def test_dijkstra(graph, start, goal, expected_distance):
+    assert dijkstra(graph, start, goal) == expected_distance
