@@ -119,6 +119,25 @@ def test_dfs(graph, start, expected, dfs_algorithm):
     assert visited == expected
 
 
+# proof:
+# let v be the node at the top of the heap
+# let's prove that d[v] is the minimum distance from start to v.
+# induction by k, where k is the number of visited nodes
+# it obviously holds for k = 0, since top of the heap at 0 is start itself
+# let it hold for k, and let's prove for k + 1
+# let node v be the top of the heap
+# consider min_path(start, v)
+# let's split this path into two parts: first part contains only visited nodes (it contains at least start)
+# second part starts with not visited nodes.
+# the second part contains at least v. Let the last node of the first part be `p` and `q` be the first node of
+# the second part
+# if a -> b -> c -> d minimum path from a to d, then a -> b -> c minimum path from a to c
+# min_distance(start, q) == d[q]
+# since we visited p and did relaxation, this means that d[q] == min_distance(start, q)
+# since v is top of the heap, this means that d[v] <= d[q]
+# d[v] <= d[q] = min_distance(start, q) <= min_distance(start, v)
+# d[v] <= min_distance(start, v), since our algorithm can't find distance that is less than min_distance, then
+# d[v] == min_distance(start, v)
 def dijkstra(graph, start, goal):
     # dijkstra is essentially bfs, but with a heap instead of queue
     # and a dictionary of distances
