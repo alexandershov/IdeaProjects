@@ -138,6 +138,9 @@ def test_dfs(graph, start, expected, dfs_algorithm):
 # d[v] <= d[q] = min_distance(start, q) <= min_distance(start, v)
 # d[v] <= min_distance(start, v), since our algorithm can't find distance that is less than min_distance, then
 # d[v] == min_distance(start, v)
+# QED
+
+# dijkstra is greedy algorithm, we always visit nodes that are closest to the start
 def dijkstra(graph, start, goal):
     # dijkstra is essentially bfs, but with a heap instead of queue
     # and a dictionary of distances
