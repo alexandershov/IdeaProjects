@@ -168,3 +168,13 @@ def dijkstra(graph, start, goal):
 ])
 def test_dijkstra(graph, start, goal, expected_distance):
     assert dijkstra(graph, start, goal) == expected_distance
+
+
+# A* extends on dijkstra by adding heuristic (estimation) on the distance from the node till the goal
+# if heuristic is less than or equal than the real distance, then A* will find the shortest path
+# if heuristic is always zero than A* == dijkstra, and it will visit the same nodes as dijkstra
+# if heuristic is perfect, then A* will follow the shortest path, and it will visit just the nodes on the shortest path
+# if heuristic is in between, then A* will be somewhere in between dijkstra and perfect algorithm
+# since we can choose heuristic, this means we can choose the properties of our algorithm
+def a_star():
+    pass
