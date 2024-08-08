@@ -137,6 +137,24 @@ class Solution:
         return result
 
 
+# we can still keep things close to DP, trick is to always apply right, and then compensate at left
+class Solution:
+    def lengthOfLongestSubstringTwoDistinct(self, s: str) -> int:
+        # (longest length, counts) ending at index
+        counts = {}
+        left = 0
+        result = 0
+
+        for right, ch in enumerate(s):
+            counts.setdefault(ch, 0)
+            counts[ch] += 1
+            while len(counts) > 2:
+                pop(counts, s[left])
+                left += 1
+            result = max(result, right - left + 1)
+        return result
+
+
 def can_extend(counts, ch):
     return ch in counts or len(counts) <= 1
 
