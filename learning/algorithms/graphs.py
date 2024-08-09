@@ -1,6 +1,7 @@
 import collections
 import heapq
 import math
+from dataclasses import dataclass
 
 import pytest
 
@@ -170,11 +171,55 @@ def test_dijkstra(graph, start, goal, expected_distance):
     assert dijkstra(graph, start, goal) == expected_distance
 
 
+@dataclass(frozen=True, order=True)
+class Point:
+    x: int
+    y: int
+
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
+
 # A* extends on dijkstra by adding heuristic (estimation) on the distance from the node till the goal
 # if heuristic is less than or equal than the real distance, then A* will find the shortest path
 # if heuristic is always zero than A* == dijkstra, and it will visit the same nodes as dijkstra
 # if heuristic is perfect, then A* will follow the shortest path, and it will visit just the nodes on the shortest path
 # if heuristic is in between, then A* will be somewhere in between dijkstra and perfect algorithm
 # since we can choose heuristic, this means we can choose the properties of our algorithm
-def a_star():
-    pass
+# advantage of A* over dijkstra:
+# imagine simple 2d-grid without obstacles
+# at each node in a short path we should get closer to the target
+# but we dijkstra we can make moves that are going further from the target
+# and dijkstra would still consider them good moves even if we move in a wrong direction
+# because dijkstra is not aware of the distance from the current node to the target
+# A* is aware of that, so it prefer making moves in the right direction
+def a_star(start, goal):
+    frontier = [(heuristic(start, goal), 0, start)]
+    costs = collections.defaultdict(lambda: math.inf)
+    costs[start] = heuristic(start, goal)
+    while frontier:
+        cost, distance, node = heapq.heappop(frontier)
+        print(f"visiting {node}")
+        if node == goal:
+            return distance
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            neighbour = Point(node.x + dx, node.y + dy)
+            new_cost = distance + 1 + heuristic(neighbour, goal)
+            if new_cost < costs[neighbour]:
+                costs[neighbour] = new_cost
+                heapq.heappush(frontier, (new_cost, distance + 1, neighbour))
+
+
+def heuristic(start, goal):
+    # manhattan distance
+    dx = abs(start.x - goal.x)
+    dy = abs(start.y - goal.y)
+    return dx + dy
+
+
+@pytest.mark.parametrize("start,goal,expected_distance", [
+    (Point(1, 2), Point(3, 4), 4),
+    (Point(1, 2), Point(8, 5), 10),
+])
+def test_a_star(start, goal, expected_distance):
+    assert a_star(start, goal) == expected_distance
