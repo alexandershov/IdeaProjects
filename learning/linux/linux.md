@@ -27,5 +27,10 @@ So `-rwxr-xr-x` means that it's a file, owner can do everything, group and other
 
 So permission 0644 means (underscores are just for readability) `110_100_100` or `rw-r--r--`.
 
+### Proc filesystem
 
+In `/proc/{pid}` you can see a bunch of useful info about the process with `pid`.
 
+E.g. 
+* `cmdline` that was used to start a process.
+* `environ` contains environment variables
