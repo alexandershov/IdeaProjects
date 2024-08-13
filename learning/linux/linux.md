@@ -1,6 +1,17 @@
 ## Linux
 
 
+### Run Linux on Mac M2
+
+I tried apple-silicon version of virtual box is 7.0.8beta, it didn't work.
+
+[UTM](https://mac.getutm.app) and ubuntu 24.04 for ARM worked with some tweaks:
+* Error "Display Output is not active" is fixed by choosing virtio-ramfb-gl (GPU Supported) option
+* Some parts of keyboard were not working when Ubuntu asked for a username during installation.
+  What worked for me was choosing keyboard setup during ubuntu installation, then
+  ubuntu selected I_dont_remember_WITH_DEAD_KEYS and keyboard started working.
+* After installation was completed, I needed to remove ISO from VM settings and start the VM again. 
+
 ### File permissions
 
 ```shell
