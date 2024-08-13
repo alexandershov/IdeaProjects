@@ -10,7 +10,13 @@ I tried apple-silicon version of virtual box is 7.0.8beta, it didn't work.
 * Some parts of keyboard were not working when Ubuntu asked for a username during installation.
   What worked for me was choosing keyboard setup during ubuntu installation, then
   ubuntu selected I_dont_remember_WITH_DEAD_KEYS and keyboard started working.
-* After installation was completed, I needed to remove ISO from VM settings and start the VM again. 
+* After installation was completed, I needed to remove ISO from VM settings and start the VM again.
+
+To share a directory, execute this inside of VM:
+```shell
+sudo mkdir [mount point]
+$ sudo mount -t 9p -o trans=virtio share [mount point] -oversion=9p2000.L
+```
 
 ### File permissions
 
