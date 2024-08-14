@@ -60,3 +60,47 @@ E.g.
 
 * `cmdline` that was used to start a process.
 * `environ` contains environment variables
+
+### Debugging
+
+`dstat` shows you disk & network usage.
+
+`strace` prints every syscall that your program uses.
+
+
+Run example of using strace with `make strace-run`:
+```shell
+make strace-run
+<bunch of syscalls>
+brk(NULL)                               = 0xadeaa4902000
+brk(0xadeaa4923000)                     = 0xadeaa4923000
+write(1, "hello world\n", 12)           = 12
+exit_group(0)                           = ?
+```
+
+`strace -e brk` will show you only `brk` syscalls
+`strace -f` will also trace child subprocesses.
+`strace -p <pid>` can attach to an existing pid.
+`strace -y` will resolve file descriptors to file names.
+
+strace significantly slows down your program.
+
+ebpf allows you to run user code in the kernel. 
+
+E.g. `opensnoop` can show you all open files of a process without a significant performance penalty.
+Install it with `sudo apt install libbpf-tools`
+
+And then just run `opensnoop` and it will show you which processes open which files.
+
+There is bunch of similar programs [here](https://github.com/iovisor/bcc?tab=readme-ov-file)
+E.g. there is `exitsnoop` that shows all processes that exit.
+
+`perf` allows you to profile programs.
+
+`sudo perf record <your_program>` and `sudo perf report perf.dat` to show the report. 
+Report is not working on my VM, I got some menu with no data.
+
+`sudo perf top` shows you TOP for all C functions running on your machine. Very cool.
+
+You can also show generic information about a run with e.g. `sudo perf stat ls`.
+You'll get number of context switches, page faults, etc.
