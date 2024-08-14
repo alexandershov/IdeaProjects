@@ -78,10 +78,12 @@ write(1, "hello world\n", 12)           = 12
 exit_group(0)                           = ?
 ```
 
-`strace -e brk` will show you only `brk` syscalls
+`strace -e brk,open` will show you only `brk` and `open` syscalls
 `strace -f` will also trace child subprocesses.
 `strace -p <pid>` can attach to an existing pid.
 `strace -y` will resolve file descriptors to file names.
+`strace -s <size>` sets a limit to string size in output. It's 32 by default. So if you need more, then specify
+e.g. `-s 1000`.
 
 strace significantly slows down your program.
 
