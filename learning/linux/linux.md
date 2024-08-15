@@ -93,6 +93,85 @@ E.g.
 * `cmdline` that was used to start a process.
 * `environ` contains environment variables
 
+### Virtual memory
+Each process has its own memory address space. This is called virtual memory.
+CPU expects its memory operands to be a in a real physical memory.
+This means that virtual memory addresses need to be converted to physical memory addresses.
+
+This is done with page tables.
+The following page table example uses 32-bit architecture for simplicity. 64-bit is a bit more complicated, but the 
+main principles are similar.
+There's a piece of hardware called MMU (Memory Management Unit) that can translate virtual addresses to physical addresses.
+Both virtual and physical memory are split in 4KB chunks. These chunks are called pages.
+Since we're on a 32-bit architecture, this means we have 2^32 memory addresses.
+4KB = 4096 = 2^12
+2^32 = 2^12 * 2^20. We have 2^20 pages.
+
+Logically page table is a mapping of each virtual page (2^20 in total) to a physical page (2^20 in total).
+Naive implementation of it would be an array of 2^20 integers. This is 2^20 * 4 = ~4MB.
+It's pretty rare for a process to use all of its pages, so creating this array is wasteful.
+So a tree-like structure is used. 
+
+We have a root array of 2^10 integers. Each element points to a leaf (possibly non-existing) array of 2^10 elements.
+Each element in a leaf array points to a physical page.
+
+Given 32-bit virtual address `[10 bit][10 bit][12 bit]` we take first 10 bits and locate entry in the root array.
+Entry in a root array points to a leaf array. We can locate entry in a leaf array using second 10 bits of the virtual bit address.
+Now we have a physical page, and we just append last 12 bit of virtual address to it getting physical address.
+Each leaf array is conveniently 4KB, so root array elements can use just first 20 bits to point to it.
+Since we have just 2^20 pages, leaf array elements also can use just first 20 bits to point to it.
+The rest 12 bits are used for flags (read-only, etc).
+This approach although is more complicated then naive array of 2^20 elements is way more efficient in memory usage.
+Virtual memory often has a bunch of large unused intervals 
+(e.g. interval between heap and stack will be unused for not memory-hungry programs).
+Each leaf array can represent 2^10 pages = 2^10 * 2^12 bytes == 2^22 bytes. That's about 4MB of memory that is
+represented by 2^10 * 4 bytes = 4KB of page table data.
+We always pay 4KB for a root array, that's pretty small price.
+E.g. if we use only first 30 and last 30 root array entries then we can represent
+4MB * (30 + 30) = 240 MB of data.
+We pay the price of 4KB (root array) + (30 + 30) * 4KB = 61 * 4KB = 240KB. That's pretty small. 
+
+When process tries to access unmapped virtual address, then page fault is generated and we're getting
+infamous "Segmentation Fault" and crash.
+
+When we fork process we can just copy its page tables (maybe we can even share them) and don't touch physical memory. 
+Then when child modifies its memory we can copy only affected pages. This is called copy on write.
+
+When we have context switch between process, we also switch their page tables.
+
+### Process memory layout
+From lower to higher addresses:
+* Text segment (contains code)
+* Static & global variables
+* Heap
+* Stack (grows downwards on most architectures)
+* Environ
+* Kernel
+
+
+Empirical proof:
+```shell
+$ make memory-run
+0xbc9b667f08d4 = code address
+0xbc9b66810014 = static address
+0xbc9b6d9872a0 = heap address
+0xffffececdd9c = stack address depth 1
+0xffffececdd74 = stack address depth 2
+0xffffececdf48 = environ address
+```
+
+As we can see different between heap and stack is (0xffffececdd9c - 0xbc9b6d9872a0 == 74098912029436 =~ 69TB)
+Also interesting fact that maximum address is ~2^48, so not all the 64 bits are available by default.
+
+There's a syscall named `brk` that can increase available heap memory (essentially it sets an end of heap).
+When you do `brk` you only increase virtual memory. Physical memory is not increased. Only when you write
+something to this virtual memory then you'll use physical memory (RSS in `top`).
+On a C level you use malloc and free to get a new memory, malloc uses brk under the hood.
+malloc and free are ordinary functions, not syscalls!
+
+When you `free` memory then you'll rarely see decrease in RSS/virtual memory usage, because most freed block
+will be somewhere in the middle of the heap. And free can reduce brk only when the freed block is the last one.
+
 ### Debugging
 
 `dstat` shows you disk & network usage.

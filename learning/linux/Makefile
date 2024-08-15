@@ -1,2 +1,5 @@
 strace-run:
-	gcc -o hello hello.c && strace ./hello
+	gcc -o src/hello src/hello.c && strace ./src/hello
+
+memory-run:
+	gcc -o src/memory src/memory.c && ./src/memory
