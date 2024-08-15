@@ -44,6 +44,11 @@ Syscalls have overhead compared to a simple function call,
 because we have to interrupt, copy registers, and switch to kernel mode.
 
 
+### File system
+Symlinks are special kind of file, symlink target is actually the content of symlink file.
+There's a syscall readlink that resolves symlink.
+Also, you can see that size of `symlink_to_linux.md` is 8 bytes, because `len('linux.md') == 8`
+
 ### File permissions
 
 ```shell
