@@ -54,13 +54,13 @@ total 20284
 ```
 
 first `root` is file owner.
-second `root` is file owner's group.
+second `root` is group that owns a file.
 
 `r` stands for Read permissions
 `w` stands for Write permissions
 `x` stands for eXecute permissions.
 
-Permissions are split into 3 groups: owner, owner group, and everybody else.
+Permissions are split into 3 groups: owner, group, and everybody else.
 `-` is overloaded. `-` as a first character means that it's a file.
 But `-` in other places means that someone don't have this permission.
 
