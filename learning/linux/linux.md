@@ -48,6 +48,14 @@ because we have to interrupt, copy registers, and switch to kernel mode.
 Symlinks are special kind of file, symlink target is actually the content of symlink file.
 There's a syscall readlink that resolves symlink.
 Also, you can see that size of `symlink_to_linux.md` is 8 bytes, because `len('linux.md') == 8`
+Unfortunately regular open/read can't directly read symlink content. You'll need to use readlink for that.
+See [read_symlink.py](src/read_symlink.py) for an example.
+
+
+Directories are a special kind of file, unfortunately there's no easy way to read a raw (binary) directory content containing a list of files.
+For a failed attempt to do that, see [read_raw_dir.py](src/read_raw_dir.py) script.
+
+So you'll need to use opendir/readdir instead of regular open/read
 
 ### File permissions
 
