@@ -25,6 +25,25 @@ Or add this line to `/etc/fstab` and reboot VM:
 share	[mount point]	9p	trans=virtio,version=9p2000.L,rw,_netdev,nofail	0	0
 ```
 
+
+### System calls
+User programs interact with kernel using system calls (aka syscalls). System calls is essentially an API provided by OS.
+Each syscall has a number (id). E.g., mmap has number [9](https://github.com/torvalds/linux/blob/6b0f8db921abf0520081d779876d3a41069dab95/arch/x86/entry/syscalls/syscall_64.tbl#L21).
+Kernel stores syscalls in a table (I guess it's an array indexable by syscall number).
+
+When you call e.g. `read` from you code, you don't call kernel code directly. You're calling C wrapper.
+Syscalls in the kernel expect their arguments in registers not in a stack. Wrapper sets these registers and also sets
+syscall number in a register, and then calls interrupt (or SYSCALL instruction on linux 2.5+). This interrupt is handled by the kernel which then
+finds syscall by its number, does some validation 
+(e.g. that process provided valid memory pointers, that are not accessing memory that process shouldn't access)
+and then runs the code. Syscall executes in a kernel mode. 
+Syscall returns an integer. If it's negative (there are some exceptions to this rule), then syscall finished with an error.
+C wrapper then sets negated syscall_return_value in errno. This makes errno positive.
+
+Syscalls have overhead compared to a simple function call,
+because we have to interrupt, copy registers, and switch to kernel mode.
+
+
 ### File permissions
 
 ```shell
