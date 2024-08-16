@@ -198,6 +198,33 @@ you'll implicitly call some memory-changing code, because it's Python, not C.
 and you'll get threads this way. In linux there's actually very little differences between threads and processes.
 Both threads and processes are just some schedulable entities with different degrees of sharing.
 
+
+### Process scheduling
+Simplest possible scheduling algorithm is:
+* Select some process to run
+* Give it timeslice (say, 10ms) and run it
+* When timeslice is finished or process yields CPU (whatever comes first) because of e.g. IO, select another process to run etc ...
+
+This is the most naive and simple approach and the problem with this if you have CPU-intensive application and
+IO-bound (interactive) application, then CPU-intensive application can hog CPU for the whole timeslice and
+your interactive application will have latency.
+
+So CFS (Completely Fair Scheduler) was added to Linux. 
+If you have N runnable (runnable == process is ready to run, it's not waiting on anything) processes, then it's expected that each process will get 1/N share of CPU.
+There are still time slices (1ms), because it's inefficient to run process for an infinitely small amount of time
+(because of context switching overhead).
+
+Example:
+* We have two processes.
+* Each is expected to get 50% of CPU.
+* Interactive process runs and almost immediately waits for some IO (network/keyboard/etc). It used almost 0% of CPU.
+* CPU intensive process runs for some time
+* IO happened, interactive process is runnable, since it used almost 0% of CPU and was promised 50% it runs as soon as 
+  timeslice of CPU process ends.
+* Rinse/repeat.
+* This way everyone is happy: CPU intensive process actually gets almost all the CPU, but interactive process
+  runs with minimal latency (1ms) then some events occur.
+
 ### Virtual memory
 Each process has its own memory address space. This is called virtual memory.
 CPU expects its memory operands to be a in a real physical memory.
