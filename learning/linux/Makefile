@@ -3,3 +3,8 @@ strace-run:
 
 memory-run:
 	gcc -o src/memory src/memory.c && ./src/memory
+
+fork-run-10000-times:
+	for i in $$(seq 1 10000); do \
+		python3 src/fork.py | head -3 | head -2 | tail -1; \
+	done

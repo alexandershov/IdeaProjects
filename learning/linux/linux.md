@@ -136,8 +136,18 @@ before fork in parent pid=2882
 after fork in parent child_pid=2883
 before fork in parent pid=2882
 after fork in child child_pid=2883
-
 ```
+
+There's no 100% guarantee which process (original process or child) will run first after fork.
+In vast majority of cases (> 99.5%) it will be parent, but if parent timeslice is finished exactly after fork,
+then child will run first.
+
+Check it with
+```shell
+make fork-run-10000-times | grep 'in child'
+```
+
+You'll need some IPC if you need guarantees on who runs first.
 
 ### Virtual memory
 Each process has its own memory address space. This is called virtual memory.
