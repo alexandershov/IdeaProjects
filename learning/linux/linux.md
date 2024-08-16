@@ -185,7 +185,13 @@ symlink_to_linux.md
 ```
 
 After execve a new process gets the same file descriptors as the original process. So if you redirected stdin/stdout/stderr,
-then a new process will see these changes. That's how shell redirects work. 
+then a new process will see these changes. That's how shell redirects work.
+
+There's `vfork` that's a dangerous alternative to `fork`. 
+`vfork` doesn't copy page tables, so they're shared.
+Child runs first after `vfork` and it should call `exec*` immediately.
+There's no safe way of calling `vfork` in Python, since you can't call only `exec*` in Python with `os.execve`
+you'll implicitly call some memory-changing code, because it's Python, not C.
 
 ### Virtual memory
 Each process has its own memory address space. This is called virtual memory.
