@@ -45,7 +45,35 @@ because we have to interrupt, copy registers, and switch to kernel mode.
 
 
 ### File system
-Symlinks are special kind of file, symlink target is actually the content of symlink file.
+Inode is a metadata for a file (permissions, etc).
+Inode doesn't contain file name.
+Directories store mapping from a filename to its inode. 
+
+How directory is stored exactly - that's the job of a file system implementation.
+It can be just a list.
+
+Two entries from different directories can point to the same inode.
+This inode will have its attribute link_count == 2.
+These are called hardlinks.
+Hardlinks can't cross filesystem boundary, because inode is specific to a filesystem.
+Also hardlinks can't point to a directory.
+Symlinks don't have these limitation.
+
+When link_count == 0 and file is not open, then the physical file gets deleted.
+If file is open somewhere then even with `link_count == 0` it won't get deleted immediately.
+When you close it, then it'll be deleted.
+This behaviour is used by `tmpfile`-like functions: they can create file, open it, and immediately
+call `unlink` to it, setting link_count == 0. But the file won't get deleted, because it's open.
+Only when you explicitly close this file, or it's closed implicitly (when program exits), then the file will be
+deleted.
+
+What `rm` does is:
+* deleting path entry from directory
+* decrementing link_count for the corresponding inode.
+
+
+
+Symlinks are a special kind of file, symlink target is actually the content of a symlink file.
 There's a syscall readlink that resolves symlink.
 Also, you can see that size of `symlink_to_linux.md` is 8 bytes, because `len('linux.md') == 8`
 Unfortunately regular open/read can't directly read symlink content. You'll need to use readlink for that.
