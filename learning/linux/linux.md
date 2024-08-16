@@ -147,7 +147,19 @@ Check it with
 make fork-run-10000-times | grep 'in child'
 ```
 
-You'll need some IPC if you need guarantees on who runs first.
+You'll need some form of IPC (e.g. signals) if you need strict guarantees on who runs first.
+
+If parent terminates before child, then child becomes orphan: `init` becomes child's parent.
+If we call `os.getppid()` from child after parent terminated, then `os.getppid()` will be == 1.
+
+Check it with 
+```shell
+$ python3 src/orphan.py
+in parent pid=53461
+in parent pid=53461
+in child child_pid=53462 parent_pid=53461
+in child child_pid=53462 parent_pid=1
+```
 
 ### Virtual memory
 Each process has its own memory address space. This is called virtual memory.
