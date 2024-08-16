@@ -193,6 +193,11 @@ Child runs first after `vfork` and it should call `exec*` immediately.
 There's no safe way of calling `vfork` in Python, since you can't call only `exec*` in Python with `os.execve`
 you'll implicitly call some memory-changing code, because it's Python, not C.
 
+`fork` and `vfork` are actually implemented with `clone` system call. 
+`clone` allows you to specify what you want to share between processes. You can share virtual memory and pids,
+and you'll get threads this way. In linux there's actually very little differences between threads and processes.
+Both threads and processes are just some schedulable entities with different degrees of sharing.
+
 ### Virtual memory
 Each process has its own memory address space. This is called virtual memory.
 CPU expects its memory operands to be a in a real physical memory.
