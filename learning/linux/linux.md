@@ -167,6 +167,26 @@ information on it. You can't kill zombie with kill.
 When parent calls `wait` on it, then kernel will remove this bookkeeping information.
 If parent terminates without calling `wait`, then `init` process will take care of it.
 
+Just having fork is not enough, since with fork you can only create a copy of the process.
+You can start a new program with one of the `exec*` functions family. It replaces current program text and memory
+and runs specified binary. `exec*` functions support shebang (`#!`).
+When you run `exec*` it doesn't return, because your program text is getting replaced by a new program.
+
+So a common idiom of running a new subprocess is first running `fork` and then running `execve` in a child branch.
+Run example of it with (notice that there's no line "execve result .*" in the output, because `execve` never returns)
+```shell
+$ python3 src/fork_execve.py
+parent exits
+Makefile
+execve.txt
+linux.md
+src
+symlink_to_linux.md
+```
+
+After execve a new process gets the same file descriptors as the original process. So if you redirected stdin/stdout/stderr,
+then a new process will see these changes. That's how shell redirects work. 
+
 ### Virtual memory
 Each process has its own memory address space. This is called virtual memory.
 CPU expects its memory operands to be a in a real physical memory.
