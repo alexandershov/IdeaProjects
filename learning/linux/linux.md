@@ -121,6 +121,24 @@ E.g.
 * `cmdline` that was used to start a process.
 * `environ` contains environment variables
 
+### Processes & threads
+You can copy a current process with `fork` system call. 
+It will create a full copy of the current process. 
+From now on you'll have 2 process running the same program.
+In the current process `fork` will return pid of the child.
+In the child `fork` will return 0.
+
+Run example with
+```shell
+$ python3 src/fork.py
+
+before fork in parent pid=2882
+after fork in parent child_pid=2883
+before fork in parent pid=2882
+after fork in child child_pid=2883
+
+```
+
 ### Virtual memory
 Each process has its own memory address space. This is called virtual memory.
 CPU expects its memory operands to be a in a real physical memory.
@@ -162,7 +180,8 @@ We pay the price of 4KB (root array) + (30 + 30) * 4KB = 61 * 4KB = 240KB. That'
 When process tries to access unmapped virtual address, then page fault is generated and we're getting
 infamous "Segmentation Fault" and crash.
 
-When we fork process we can just copy its page tables (maybe we can even share them) and don't touch physical memory. 
+When we fork process we can just copy its page tables (maybe we can even share them, but looks like linux doesn't do this)
+and don't touch physical memory. 
 Then when child modifies its memory we can copy only affected pages. This is called copy on write.
 
 When we have context switch between process, we also switch their page tables.
