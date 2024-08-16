@@ -161,6 +161,12 @@ in child child_pid=53462 parent_pid=53461
 in child child_pid=53462 parent_pid=1
 ```
 
+If child terminates and parent doesn't call `wait` on it, then child becomes a zombie.
+Zombie isn't running (because there's nothing left to run, the child terminated after all), but kernel keeps bookkeeping
+information on it. You can't kill zombie with kill.
+When parent calls `wait` on it, then kernel will remove this bookkeeping information.
+If parent terminates without calling `wait`, then `init` process will take care of it.
+
 ### Virtual memory
 Each process has its own memory address space. This is called virtual memory.
 CPU expects its memory operands to be a in a real physical memory.
