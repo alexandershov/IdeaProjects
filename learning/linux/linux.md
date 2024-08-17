@@ -341,6 +341,31 @@ Systemd is a:
 * syslog replacement (with journald/journalctl)
 * everything else replacement
 
+### Apt
+There are `apt-get`, `apt-cache`, and `apt` commands.
+
+`apt` kinda replaces `apt-get` and `apt-cache`. E.g. you can't search with `apt-get`, you need `apt-cache` for that.
+`apt` can install packages as well as search for them:
+```shell
+apt search sbcl
+apt show sbcl
+apt install sbcl
+```
+
+List installed packages:
+```shell
+apt list --installed
+```
+
+List packages that can be upgraded:
+```shell
+apt list --upgradable
+```
+
+Overall `apt` provides a nicer interface that `apt-get` + `apt-cache`.
+There's a limitation though: output of `apt` is not guaranteed 
+to be stable, so if you need to parse output of `apt`, then you should use `apt-get`.
+
 ### Debugging
 
 `dstat` shows you disk & network usage.
