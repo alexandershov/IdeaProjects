@@ -334,6 +334,35 @@ malloc and free are ordinary functions, not syscalls!
 When you `free` memory then you'll rarely see decrease in RSS/virtual memory usage, because most freed block
 will be somewhere in the middle of the heap. And free can reduce brk only when the freed block is the last one.
 
+### Linking
+You can have dynamic and static linking.
+With static linking, you add all library dependencies inline to your binary.
+With dynamic linking, you use shared libraries.
+With shared libraries, you essentially say: "I want to use library X at the runtime".
+OS will look for library X at runtime at some predefined paths.
+
+With shared libraries you can save disk space, RAM (because one shared library can be used by a bunch of programs
+and you can load it into physical RAM only once and then let virtual memory do the job, similar to program text).
+But you start depending on the presence of the library in a system. 
+So it's a tradeoff.
+
+You can see which shared libraries a binary uses with `ldd`.
+
+Static linking example:
+```shell
+$ make static-linking-run
+go build -o src/static src/static.go && (ldd src/static || true)
+  not a dynamic executable
+```
+
+Dynamic linking example:
+```shell
+$ make dynamic-linking-run
+gcc -o src/hello src/hello.c && ldd src/hello
+	linux-vdso.so.1 (0x0000fc4c80ca0000)
+	libc.so.6 => /lib/aarch64-linux-gnu/libc.so.6 (0x0000fc4c80a80000)
+	/lib/ld-linux-aarch64.so.1 (0x0000fc4c80c63000)
+```
 
 ### Systemd
 Systemd is a:
