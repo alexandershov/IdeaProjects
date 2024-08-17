@@ -45,8 +45,9 @@ because we have to interrupt, copy registers, and switch to kernel mode.
 
 
 ### File system
-Inode is a metadata for a file (permissions, etc).
+Inode is a metadata for a file (type, owner, group, permissions, pointers to data blocks of the file etc).
 Inode doesn't contain file name.
+You can see inode number with `ls -li`
 Directories store mapping from a filename to its inode. 
 
 How directory is stored exactly - that's the job of a file system implementation.
