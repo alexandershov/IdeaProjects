@@ -112,6 +112,30 @@ So `-rwxr-xr-x` means that it's a file, owner can do everything, group and other
 
 So permission 0644 means (underscores are just for readability) `110_100_100` or `rw-r--r--`.
 
+There's also `setuid` permission bit, when you run a binary with setuid, then it'll run as if a file owner
+runs it.
+
+For example `sudo` command has `setuid` bit set (`s` in permissions):
+```shell
+ls -l /usr/bin/sudo
+-rwsr-xr-x 1 root root 335120 Apr  8 14:50 /usr/bin/sudo
+```
+
+In older versions of Linux `ping` also required `setuid` to use raw sockets, now it replaced with capabilities:
+
+No suid:
+```shell
+ls -l /usr/bin/ping
+-rwxr-xr-x 1 root root 146984 Apr 23 09:52 /usr/bin/ping
+```
+
+Capabilities:
+```shell
+getcap /usr/bin/ping
+/usr/bin/ping cap_net_raw=ep
+```
+
+
 ### Proc filesystem
 
 In `/proc/{pid}` you can see a bunch of useful info about the process with `pid`.
