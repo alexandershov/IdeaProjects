@@ -250,6 +250,10 @@ Example:
 * This way everyone is happy: CPU intensive process actually gets almost all the CPU, but interactive process
   runs with minimal latency (1ms) then some events occur.
 
+CFS was replaced in 2023 by [EEVDF scheduler](https://en.wikipedia.org/wiki/Earliest_eligible_virtual_deadline_first_scheduling).
+EEVFD improves on latency for latency-sensitive processes. 
+There's a [lwn article](https://lwn.net/Articles/925371/) explaining how EEVFD works.
+
 ### Virtual memory
 Each process has its own memory address space. This is called virtual memory.
 CPU expects its memory operands to be a in a real physical memory.
