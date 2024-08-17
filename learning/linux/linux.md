@@ -223,6 +223,35 @@ you'll implicitly call some memory-changing code, because it's Python, not C.
 and you'll get threads this way. In linux there's actually very little differences between threads and processes.
 Both threads and processes are just some schedulable entities with different degrees of sharing.
 
+There are two types of time for a process:
+* real time: wall clock time of a process
+* cpu time: how much time cpu was working, cpu time further divided into
+  * system time: how much time cpu was working in kernel
+  * user time: how time cpu was working in user mode
+
+If we just sleep, then only real time will be >> zero
+```shell
+time sleep 1
+real = 1s
+user ~ 0s
+sys ~ 0s
+```
+
+If we just crunch numbers, then real time will be == user time. system time will be ~ 0
+```shell
+time python3 -c 'sum(range(100_000_000))'
+real = 1.14s
+user = 1.13s
+sys = 0.007s 
+```
+
+If we add memory allocations (with `list`), then system time will increase, because you need some syscalls to allocate memory.
+```shell
+time python3 -c 'sum(list(range(10_000_000)))'
+real = 0.252s
+user = 0.182s
+sys =  0.069s
+```
 
 ### Process scheduling
 Simplest possible scheduling algorithm is:
