@@ -334,6 +334,13 @@ malloc and free are ordinary functions, not syscalls!
 When you `free` memory then you'll rarely see decrease in RSS/virtual memory usage, because most freed block
 will be somewhere in the middle of the heap. And free can reduce brk only when the freed block is the last one.
 
+
+### Systemd
+Systemd is a:
+* `init` process replacement: it has pid == 1, and manages other processes
+* syslog replacement (with journald/journalctl)
+* everything else replacement
+
 ### Debugging
 
 `dstat` shows you disk & network usage.
