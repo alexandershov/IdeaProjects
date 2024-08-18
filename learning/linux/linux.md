@@ -47,6 +47,12 @@ because we have to interrupt, copy registers, and switch to kernel mode.
 ### File system
 Inode is a metadata for a file (type, owner, group, permissions, pointers to data blocks of the file etc).
 Inode doesn't contain file name.
+
+File is a stream of bytes.
+
+Work with file system inside of the kernel is done in OOP fashion: there are interfaces (done via function pointers), that
+a new file system implementation should provide.
+
 You can see inode number with `ls -li`
 Directories store mapping from a filename to its inode. 
 
@@ -72,8 +78,6 @@ What `rm` does is:
 * deleting path entry from directory
 * decrementing link_count for the corresponding inode.
 
-
-
 Symlinks are a special kind of file, symlink target is actually the content of a symlink file.
 There's a syscall readlink that resolves symlink.
 Also, you can see that size of `symlink_to_linux.md` is 8 bytes, because `len('linux.md') == 8`
@@ -85,6 +89,39 @@ Directories are a special kind of file, unfortunately there's no easy way to rea
 For a failed attempt to do that, see [read_raw_dir.py](src/read_raw_dir.py) script.
 
 So you'll need to use opendir/readdir instead of regular open/read
+
+`readdir` returns directory entries. 
+
+Main linux syscalls that operate on file descriptors are:
+* open (returns fd)
+* read/write/close (obvious names)
+
+Example of syscalls in action:
+```shell
+python3 src/io_syscall.py
+```
+
+`dup` clones a file descriptor.
+It'll return a new file descriptor number (with `dup2` you can control the return value)
+There's a table of open files in kernel, after dup both file descriptors will share the same kernel entry.
+So reading from one fd will affect what you'll see reading from the second fd.
+See `src/io_syscall.py` for an example.
+
+There are kernel buffer caches, so when you just call write, nothing actually gets written to a physical file,
+kernel uses all available memory for buffer caches. To write stuff to disk you need `fsync` it.
+
+`read` will read from a buffer cache, if there's something in it.
+Obviously, buffer cache won't survive reboot.
+
+C stdlib provides its own buffering scheme to save on number of syscalls. You can call fflush to flush
+all C stdio buffers to kernel.
+
+You can view process open files with `lsof`:
+```shell
+lsof -p <pid>
+```
+
+You can also see fds of the process in a `/proc/<pid>/fd`
 
 ### File permissions
 
