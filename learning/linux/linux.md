@@ -140,6 +140,16 @@ You can also see fds of the process in a `/proc/<pid>/fd`
 
 You can access proc file system of the current process with `/proc/self`.
 
+There's a special file `/dev/stdin` that refers to stdin of the current process
+(it's actually a symlink to `/proc/self/fd/0` which is a symlink to `/proc/<pid>/fd/0`)
+With `/dev/stdin` you don't need `-` trick to specify stdin as a file name, you can just pass `/dev/stdin`.
+
+This will compare stdin to some file
+```shell
+diff /dev/stdin linux.md
+```
+
+
 ### File permissions
 
 ```shell
