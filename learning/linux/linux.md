@@ -424,6 +424,16 @@ Overall `apt` provides a nicer interface that `apt-get` + `apt-cache`.
 There's a limitation though: output of `apt` is not guaranteed 
 to be stable, so if you need to parse output of `apt`, then you should use `apt-get`.
 
+
+### Terminals
+Terminals were real physical devices used to communicate with computers.
+Nowadays there are no more physical terminals. 
+There are terminal emulators that emulate these physical devices.
+Terminal can work in canonical mode (line-oriented with line editing, like shell) or in non-canonical mode (character-oriented, like vi)
+
+There's also special file `/dev/tty` that represents current process terminal.
+This terminal is not affected by e.g. stdin/stdout redirects.
+
 ### Debugging
 
 `dstat` shows you disk & network usage.
