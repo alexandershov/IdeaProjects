@@ -151,6 +151,29 @@ diff /dev/stdin linux.md
 
 There's `inotify` API in a kernel, that allows you to watch changes in files/directories.
 
+Pipe IO is buffered, newlines don't flush, so you need a manual flush.
+
+If reader is too slow, then writing to a pipe will block. 
+Pipe has a buffer of 65kb.
+When a reading process terminates, and you have an open pipe, then you'll get SIGPIPE in a writing process.
+
+Check it all with
+```shell
+python3 src/pipe_writer.py | python3 src/pipe_reader.py
+```
+
+You can also create named pipes in a filesystem, they work as the normal pipes, they just have a name in fs,
+so you can use it for IPC of two processes that were started in different shells.
+
+Example:
+```shell
+mkfifo /tmp/my_pipe
+python3 src/pipe_writer.py --output /tmp/my_pipe
+
+# in another shell
+python3 src/pipe_reader.py --input /tmp/my_pipe
+```
+
 ### File permissions
 
 ```shell
