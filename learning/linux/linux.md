@@ -149,6 +149,7 @@ This will compare stdin to some file
 diff /dev/stdin linux.md
 ```
 
+There's `inotify` API in a kernel, that allows you to watch changes in files/directories.
 
 ### File permissions
 
