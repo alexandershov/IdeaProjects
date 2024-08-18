@@ -78,6 +78,8 @@ What `rm` does is:
 * deleting path entry from directory
 * decrementing link_count for the corresponding inode.
 
+With `mv` you don't move files content, you just update directory content. So it's fast.
+
 Symlinks are a special kind of file, symlink target is actually the content of a symlink file.
 There's a syscall readlink that resolves symlink.
 Also, you can see that size of `symlink_to_linux.md` is 8 bytes, because `len('linux.md') == 8`
@@ -105,7 +107,8 @@ python3 src/io_syscall.py
 It'll return a new file descriptor number (with `dup2` you can control the return value)
 There's a table of open files in kernel, after dup both file descriptors will share the same kernel entry.
 So reading from one fd will affect what you'll see reading from the second fd.
-See `src/io_syscall.py` for an example.
+See `src/io_syscall.py` for an example. Also after `fork` you'll get essentially duplicated file descriptors of your parent
+in a child process.
 
 There are kernel buffer caches, so when you just call write, nothing actually gets written to a physical file,
 kernel uses all available memory for buffer caches. To write stuff to disk you need `fsync` it.
@@ -116,12 +119,26 @@ Obviously, buffer cache won't survive reboot.
 C stdlib provides its own buffering scheme to save on number of syscalls. You can call fflush to flush
 all C stdio buffers to kernel.
 
+If you write to a terminal, then everything is flushed after a newline.
+stderr (in C, not in Python!) is always flushed after write.
+In python 3.7+ stderr is also line-buffered.
+Other than that, you need a manual flush.
+
+You can inspect this behavior in Python with: 
+```shell
+python3 src/user_space_buffering.py
+```
+
+You can make stdout/stderr unbuffered with `-u` in python.
+
 You can view process open files with `lsof`:
 ```shell
 lsof -p <pid>
 ```
 
 You can also see fds of the process in a `/proc/<pid>/fd`
+
+You can access proc file system of the current process with `/proc/self`.
 
 ### File permissions
 
