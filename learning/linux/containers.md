@@ -1,5 +1,12 @@
 ## Containers
 
+### TLDR
+When you run a process in a "container", it's just a process running in separate pid/network/etc namespaces,
+in a separate root, with an overlayfs, and possibly with cpu/memory limitation based on cgroups.
+
+For each process running in a "container" there's a real process in Linux. Containers are not magic.
+They just use linux features.
+
 ### Setup
 
 Install:
