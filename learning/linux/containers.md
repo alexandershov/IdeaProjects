@@ -55,3 +55,37 @@ starting with the top layer.
 Writes are going to the temporary layer, that is getting deleted after container exits.
 overlayfs actually takes upperdir - directory where the writes go.
 
+Here's how to create overlayfs:
+```shell
+mkdir first second writedir workdir merged
+echo from_first > first/file.txt
+echo from_second > second/file.txt
+echo 2nd > second/only.txt
+# translation: lowerdir - readonly dirs
+# first takes priority over second, because it comes before second in lowerdir lists
+# upperdir - writes go here
+# workdir - needs for renames/deletes to work, managed by fs
+sudo mount -t overlay overlay -o lowerdir=first:second,upperdir=writedir,workdir=workdir merged
+```
+
+Now let's use overlayfs:
+```shell
+# first wins
+$ cat merged/file.txt
+from_first
+
+# if there's nothing in first, then second wins
+$ cat merged/only.txt
+2nd
+
+$ echo from_merged > merged/file.txt
+# writes go to writedir
+$ cat writedir/file.txt
+from_merged
+
+# writes don't affect lowerdirs
+$ cat first/file.txt
+from_first
+$ cat second/file.txt
+from_second
+```
