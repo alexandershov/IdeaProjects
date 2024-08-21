@@ -276,9 +276,17 @@ in child child_pid=53462 parent_pid=1
 
 If child terminates and parent doesn't call `wait` on it, then child becomes a zombie.
 Zombie isn't running (because there's nothing left to run, the child terminated after all), but kernel keeps bookkeeping
-information on it. You can't kill zombie with kill.
+information on it. You can't kill zombie with `kill`.
 When parent calls `wait` on it, then kernel will remove this bookkeeping information.
 If parent terminates without calling `wait`, then `init` process will take care of it.
+
+Zombie demo:
+```shell
+python3 src/zombie.py
+```
+Then do `ps aux | grep <child_pid>`. You'll that although child has exited, it's still in the output of ps.
+And it has status `Z` (for zombie). When a parent finishes its wait for a child, then child is not in ps output anymore.
+If you kill parent before it has waited for a child, then `init` will take over zombie.
 
 Just having fork is not enough, since with fork you can only create a copy of the process.
 You can start a new program with one of the `exec*` functions family. It replaces current program text and memory
