@@ -459,6 +459,23 @@ malloc and free are ordinary functions, not syscalls!
 When you `free` memory then you'll rarely see decrease in RSS/virtual memory usage, because most freed block
 will be somewhere in the middle of the heap. And free can reduce brk only when the freed block is the last one.
 
+
+### Mmap
+You can use `mmap` system call. It gives you an illusion that file is a block of memory.
+You can access `mmap` object as if it is a bytearray fully loaded in memory , and kernel will load it from the disk
+on demand. You can open huge files with mmap, and only memory that you accessed will be resident.
+If bunch of processes `mmap` the same file, then kernel will share physical memory representing the file between processes.
+
+mmap demo:
+```shell
+python3 src/mmap_example.py
+```
+
+Dynamic linking uses mmap, so a popular shared library is loaded into physical memory only once.
+
+Instead of a file descriptor can pass -1 to `mmap`, and it will create anonymous mmap, that you can share
+with a child.
+
 ### Linking
 You can have dynamic and static linking.
 With static linking, you add all library dependencies inline to your binary.
