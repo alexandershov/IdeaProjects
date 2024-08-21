@@ -43,6 +43,13 @@ C wrapper then sets negated syscall_return_value in errno. This makes errno posi
 Syscalls have overhead compared to a simple function call,
 because we have to interrupt, copy registers, and switch to kernel mode.
 
+There's `syscall` function in standard C library. You can call any syscall with it.
+It takes a `syscall` number. You can call it from python using `ctypes`:
+
+```shell
+python3 src/ctypes_syscall.py
+```
+
 
 ### File system
 Inode is a metadata for a file (type, owner, group, permissions, pointers to data blocks of the file etc).
