@@ -37,6 +37,9 @@ private var isFirst = true
             var accData: CMAccelerometerData? = nil
             if motionManager.isAccelerometerAvailable {
                 // Start the accelerometer (optional to configure update interval)
+                // we need start accelerometer only once
+                // we can't do it on every iteration, because accelerometer data
+                // is not available immediately
                 if isFirst {
                     motionManager.startAccelerometerUpdates()
                 }
