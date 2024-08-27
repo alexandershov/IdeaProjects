@@ -8,7 +8,7 @@ Use SwiftUI; it's a nice way to describe user interface.
 
 ### Accelerometer
 
-This code will show some raw accelerometer data:
+This code will show some raw accelerometer data (unit of acceleration is G):
 ```swift
 //
 //  ContentView.swift
