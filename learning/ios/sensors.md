@@ -94,6 +94,7 @@ Gyroscope data in rotation speed in radians/s for every axis.
 //  Created by Alexander Ershov on 26.08.2024.
 //
 
+import AudioToolbox
 import CoreMotion
 import SwiftUI
 
@@ -161,6 +162,10 @@ struct ContentView: View {
                 print("gyroscope is not available")
             }
             
+            if isFirst {
+                AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            }
+            
             isFirst = false
             
             let formatter = DateFormatter()
@@ -183,5 +188,6 @@ barometer:     pressure \(pressure ?? -666) kPA
 #Preview {
     ContentView()
 }
+
 
 ```
