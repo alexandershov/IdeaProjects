@@ -83,6 +83,9 @@ We also need to add data to Info.plist (Choose your project in left pane -> "Tar
 "+" -> "Privacy Motion Usage Description" and add some description), 
 so app can use DeviceMotion.
 
+We can also get some barometer data and gyroscope.
+Gyroscope data in rotation speed in radians/s for every axis.
+
 ```swift
 //
 //  ContentView.swift
@@ -96,11 +99,14 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var text = "time is ..."
-    private var isFirst = true
+    @State private var isFirst = true
+    @State private var pressure: Double?
+    @State private var gyroscope: CMGyroData?
     
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     let motionManager = CMMotionManager()
+    let altimeter = CMAltimeter()
     
     var body: some View {
         VStack {
@@ -127,16 +133,47 @@ struct ContentView: View {
                 print("Motion is not available")
             }
             
+            if CMAltimeter.isRelativeAltitudeAvailable()  {
+                if isFirst {
+                    altimeter.startRelativeAltitudeUpdates(to: OperationQueue.main) { data, error in
+                        if data != nil {
+                            pressure = data?.pressure.doubleValue
+                        } else {
+                            print("nil!")
+                        }
+                    }
+                }
+            } else {
+                print("altimeter not available")
+            }
+            
+            if motionManager.isGyroAvailable {
+                if isFirst {
+                    motionManager.gyroUpdateInterval = 0.1
+                    motionManager.startGyroUpdates(to: OperationQueue.main) { gyroData, error in
+                        if gyroData != nil {
+                            gyroscope = gyroData
+                        }
+                        
+                    }
+                }
+            } else {
+                print("gyroscope is not available")
+            }
+            
+            isFirst = false
+            
             let formatter = DateFormatter()
             formatter.timeStyle = .medium
             text = """
 time is \(formatter.string(from: Date()))
-gyro:
+gyroscope: x = \(gyroscope?.rotationRate.x ?? -666)
+           y = \(gyroscope?.rotationRate.y ?? -666)
+           z = \(gyroscope?.rotationRate.z ?? -666)
 accelerometer: x = \(accData?.userAcceleration.x ?? -666)
                y = \(accData?.userAcceleration.y ?? -666)
                z = \(accData?.userAcceleration.z ?? -666)
-barometer:
-ambient light:
+barometer:     pressure \(pressure ?? -666) kPA
 """
         }
     }
@@ -148,4 +185,3 @@ ambient light:
 }
 
 ```
-
