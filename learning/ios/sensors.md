@@ -79,6 +79,9 @@ ContentView()
 
 Accelerometer data is actually acceleration compared to a acceleration of object in a free fall.
 We can use DeviceMotion to exclude gravity and just get an intuitive acceleration.
+We also need to add data to Info.plist (Choose your project in left pane -> "Targets" -> "Info" -> 
+"+" -> "Privacy Motion Usage Description" and add some description), 
+so app can use DeviceMotion.
 
 ```swift
 //
