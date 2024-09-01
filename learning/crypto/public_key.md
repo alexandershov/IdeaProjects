@@ -59,6 +59,26 @@ Let's use property of modular product (A * B) mod N = ((A mod N) * (B mod N)) mo
 = S^D mod N
 QED.
 
+`N` is a product of two Very Large numbers: `p` and `q`.
+Useful definition #1: numbers `a` and `b` are coprime if `gcd(a, b) == 1`.
+Useful definition #2: Euler totient function Totient(x) is a number of integers < x that are comprime with `x`
+
+Original math behind RSA used used Euler totient function and Euler theorem: for any two coprime numbers M^(Totient(N)) = 1 mod N.
+Nowadays, RSA uses Carmichael totient function instead of Euler totient function.
+
+There's `(p - 1)(q - 1)` numbers coprime with `n`.
+Proof: the only numbers not coprime with `n` are `p, 2p, ..., qp` and `q, 2q, ..., pq`.
+That's `q + p - 1` numbers (-1 because we counted `pq` twice).
+There are total `pq` numbers between 1 and `pq`, so we got `pq - (q + p - 1) == (p - 1)(q - 1)` coprime numbers.
+Then we pick `E` and find `D` such that `E * D = 1 mod (p-1)(q-1)`.
+Math checks out and at the end of the day thanks to Euler theorem `E * D = 1 mod N`.
+Very accessible proof/description is here https://ventral.digital/posts/2023/3/23/why-does-rsa-actually-work/.
+Actually original RSA paper is also accessible.
+Since it's computationally hard to find `p` and `q` knowing just n, this makes it also hard to find
+`D`. 
+If practical fast algorithm for finding prime factors (e.g. quantum Shor algorithm) appeared in the wild,
+then RSA would be broken instantly.
+
 
 ### Using OpenSSL to encrypt/decrypt
 
