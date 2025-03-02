@@ -1,3 +1,5 @@
+import contextlib
+import datetime as dt
 import itertools
 from typing import Generator
 
@@ -57,8 +59,22 @@ def primes() -> Generator[int, None, None]:
             yield x
 
 
+@contextlib.contextmanager
+def timing(message: str):
+    started_at = dt.datetime.now(dt.timezone.utc)
+    try:
+        yield
+    finally:
+        finished_at = dt.datetime.now(dt.timezone.utc)
+        duration = finished_at - started_at
+        print(f"{message} took {duration.total_seconds():.3f}")
+
+
 @pytest.mark.parametrize('n', [1000])
 def test_primes(n):
-    expected = list(itertools.islice(naive_primes(), n))
-    actual = list(itertools.islice(primes(), n))
+    with timing("naive_primes()"):
+        expected = list(itertools.islice(naive_primes(), n))
+
+    with timing("primes()"):
+        actual = list(itertools.islice(primes(), n))
     assert actual == expected
