@@ -1,6 +1,8 @@
 import itertools
 from typing import Generator
 
+import pytest
+
 
 def naive_primes() -> Generator[int, None, None]:
     for x in itertools.count(2):
@@ -11,10 +13,13 @@ def naive_primes() -> Generator[int, None, None]:
             yield x
 
 
-def main():
-    for prime in itertools.islice(naive_primes(), 10):
-        print(prime)
+def primes() -> Generator[int, None, None]:
+    generated = [2]
+    yield from generated
 
 
-if __name__ == '__main__':
-    main()
+@pytest.mark.parametrize('n', [10])
+def test_primes(n):
+    expected = list(itertools.islice(naive_primes(), n))
+    actual = list(itertools.islice(primes(), n))
+    assert actual == expected
