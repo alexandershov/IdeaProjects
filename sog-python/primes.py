@@ -14,15 +14,26 @@ def naive_primes() -> Generator[int, None, None]:
 
 
 def primes() -> Generator[int, None, None]:
+    # `generated` contains all primes generated so far
     generated = [2]
-    divisor_end = len(generated)
     yield from generated
+
+    # we consider each odd `x` as a candidate to a prime
+    # if x is not prime then it has some prime divisor
+    # the smallest prime divisor of `x` is <= sqrt(x)
+    # so we need to consider only primes p <= sqrt(x)
+    # this is equivalent to p**2 <= x
+    # `divisors_end` is the first index in `generated` such that p**2 > x
+    # if there's no such an element, then divisors_end == len(generated)
+    divisors_end = len(generated)
+    # consider only odd numbers as possible primes
     for x in itertools.count(3, step=2):
 
-        while divisor_end < len(generated) and generated[divisor_end] ** 2 <= x:
-            divisor_end += 1
+        while divisors_end < len(generated) and generated[divisors_end] ** 2 <= x:
+            divisors_end += 1
 
-        for prime_divisor in itertools.islice(generated, 1, divisor_end):
+        # consider only odd primes as possible divisors, because x is odd
+        for prime_divisor in itertools.islice(generated, 1, divisors_end):
             if x % prime_divisor == 0:
                 break
         else:
