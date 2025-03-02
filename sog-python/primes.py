@@ -35,8 +35,10 @@ def primes() -> Generator[int, None, None]:
         # consider only odd primes as possible divisors, because x is odd
         for prime_divisor in itertools.islice(generated, 1, divisors_end):
             if x % prime_divisor == 0:
+                # x is not a prime, because it has prime_divisor
                 break
         else:
+            # x is a prime, because it has no prime divisors
             generated.append(x)
             yield x
 
