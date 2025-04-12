@@ -1,3 +1,58 @@
+"""
+Results:
+
+AMD 2 dedicated CPU
+NPS stats by threads:
+1 threads -> NPS: 1201141.0
+2 threads -> NPS: 1633865.0
+3 threads -> NPS: 1735324.0
+4 threads -> NPS: 1871773.0
+
+AMD 16 vCPU
+1 threads -> NPS: 971579.0
+2 threads -> NPS: 2033657.0
+3 threads -> NPS: 3205828.0
+4 threads -> NPS: 4343024.0
+5 threads -> NPS: 5549367.0
+6 threads -> NPS: 6713037.0
+7 threads -> NPS: 7844927.0
+8 threads -> NPS: 9271082.0
+9 threads -> NPS: 10400672.0
+10 threads -> NPS: 11755303.0
+11 threads -> NPS: 13182423.0
+12 threads -> NPS: 13810703.0
+13 threads -> NPS: 19312880.0
+14 threads -> NPS: 16853868.0
+15 threads -> NPS: 18112470.0
+16 threads -> NPS: 19441329.0
+17 threads -> NPS: 19086644.0
+18 threads -> NPS: 21894412.0
+19 threads -> NPS: 18269879.0
+20 threads -> NPS: 19949198.0
+
+Amper 16 CPU
+Threads: 1, NPS: 440270.0
+Threads: 2, NPS: 893484.0
+Threads: 3, NPS: 1401836.0
+Threads: 4, NPS: 1946871.0
+Threads: 5, NPS: 2446928.0
+Threads: 6, NPS: 2908824.0
+Threads: 7, NPS: 3671277.0
+Threads: 8, NPS: 3886874.0
+Threads: 9, NPS: 4594095.0
+Threads: 10, NPS: 5499162.0
+Threads: 11, NPS: 5352778.0
+Threads: 12, NPS: 6308980.0
+Threads: 13, NPS: 6514097.0
+Threads: 14, NPS: 7292153.0
+Threads: 15, NPS: 7916275.0
+Threads: 16, NPS: 8199009.0
+Threads: 17, NPS: 9625661.0
+Threads: 18, NPS: 8343695.0
+Threads: 19, NPS: 7817520.0
+Threads: 20, NPS: 8193022.0
+"""
+
 import argparse
 import subprocess
 
