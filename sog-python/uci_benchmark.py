@@ -51,6 +51,14 @@ Threads: 17, NPS: 9625661.0
 Threads: 18, NPS: 8343695.0
 Threads: 19, NPS: 7817520.0
 Threads: 20, NPS: 8193022.0
+
+Intel 4 CPU
+Threads: 1, NPS: 402515.0
+Threads: 2, NPS: 1004552.0
+Threads: 3, NPS: 1511071.0
+Threads: 4, NPS: 2131307.0
+Threads: 5, NPS: 2190455.0
+Threads: 6, NPS: 2085084.0
 """
 
 import argparse
