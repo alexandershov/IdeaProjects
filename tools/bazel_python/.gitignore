@@ -1,0 +1,2 @@
+# ignore all internal bazel dirs (bazel-bin/bazel-out/etc)
+bazel-*
