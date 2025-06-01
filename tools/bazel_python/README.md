@@ -1,4 +1,4 @@
-# Bazel & Python
+# Bazel & Aspect
 
 ## Install
 ```shell
@@ -46,4 +46,10 @@ to regenerate BUILD files and run the test
 
 ```shell
 bazel test //app:test_add
+```
+
+Aspect CLI also adds formatters and linters:
+```shell
+bazel run format
+bazel lint app/...
 ```
