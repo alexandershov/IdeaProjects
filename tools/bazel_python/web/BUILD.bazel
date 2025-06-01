@@ -1,0 +1,40 @@
+load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
+
+# TODO: deep-dive into py_binary, py_library, and py_test in rules_py (bootstrap_template etc)
+py_binary(
+    name = "app",
+    srcs = ["app.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":web",
+        "@pypi//fastapi",
+        "@pypi//uvicorn",
+    ],
+)
+
+py_library(
+    name = "web",
+    srcs = [
+        "add.py",
+        "app.py",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "@pypi//fastapi",
+        "@pypi//uvicorn",
+    ],
+)
+
+py_test(
+    name = "test_app",
+    srcs = ["test_app.py"],
+    # TODO: understand pytest_main
+    # TODO: how to make gazelle to generate pytest_main?
+    pytest_main = True,  # keep
+    # TODO: how to make gazelle to add pytest automatically?
+    # TODO: what's the proper way to add labels for third-party dependencies?
+    deps = [
+        ":web",
+        "@pypi//pytest",
+    ],  # keep
+)

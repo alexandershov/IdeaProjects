@@ -8,4 +8,5 @@
   doc: create empty requirements.txt and run `bazel run //:generate_requirements_txt`
 * ✅ use rules_py
 * ✅ add py_binary, py_library, and py_test
-* use gazelle
+* ✅ use gazelle
+  doc: create empty gazelle_python.yaml and run `bazel run //:gazelle_python_manifest.update`

@@ -2,7 +2,8 @@ import fastapi
 import uvicorn
 
 # TODO: understand why this import works (why `app` directory is in path)?
-from app import add
+# TODO: understand how to add a file web.py (that "conflicts" with the package name) so we won't have gazelle complaints on duplicate imports
+from web import add
 
 app = fastapi.FastAPI()
 

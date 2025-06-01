@@ -1,5 +1,11 @@
 bazel_dep(name = "aspect_rules_py", version = "1.5.2")
+
+# TODO: deep-dive into gazelle
+# TODO: do we need repo_name "bazel_gazelle"?
+# TODO: do we need dev_dependency = True for gazelle?
+bazel_dep(name = "gazelle", version = "0.43.0", repo_name = "bazel_gazelle")
 bazel_dep(name = "rules_python", version = "1.4.1")
+bazel_dep(name = "rules_python_gazelle_plugin", version = "1.4.1")
 bazel_dep(name = "rules_uv", version = "0.71.0")
 
 # TODO: deep-dive into bazel module extensions
@@ -27,3 +33,9 @@ python.toolchain(
     configure_coverage_tool = True,
     python_version = "3.13",
 )
+
+# TODO: is it legal to put gazelle directives in MODULE.bazel instead of BUILD.bazel?
+# TODO: understand specified and the most useful gazelle directives (both python and not-python specific, e.g. python_root)
+# gazelle:map_kind py_library py_library @aspect_rules_py//py:defs.bzl
+# gazelle:map_kind py_binary py_binary @aspect_rules_py//py:defs.bzl
+# gazelle:map_kind py_test py_test @aspect_rules_py//py:defs.bzl
