@@ -36,3 +36,14 @@ bazel run //app:app_bin.venv
 ```
 
 and point your IDE to it, so you'll get autocomplete etc.
+
+After you add a test (you can use pytest) you need to run
+```shell
+aspect configure
+```
+
+to regenerate BUILD files and run the test
+
+```shell
+bazel test //app:test_add
+```
