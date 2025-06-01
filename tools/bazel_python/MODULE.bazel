@@ -1,15 +1,20 @@
+bazel_dep(name = "aspect_rules_py", version = "1.5.2")
 bazel_dep(name = "rules_python", version = "1.4.1")
 bazel_dep(name = "rules_uv", version = "0.71.0")
 
 # TODO: deep-dive into bazel module extensions
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 
-# TODO: deep-dive into `pip` extension
+# TODO: deep-dive into `pip` extension (how does it materialize repositories etc)
 pip.parse(
-    hub_name = "main",
+    # TODO: should hub_name match the argument in use_repo?
+    hub_name = "pypi",
     python_version = "3.13",
     requirements_lock = "//:requirements.txt",
 )
+
+# TODO: how to query this repo with `bazel query`? `bazel mod show_repo` doesn't work
+# TODO: deep-dive into `bazel mod` cmd
 use_repo(pip, "pypi")
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")

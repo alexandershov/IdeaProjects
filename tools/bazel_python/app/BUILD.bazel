@@ -1,0 +1,30 @@
+load("@aspect_rules_py//py:defs.bzl", "py_test")
+
+# TODO: deep-dive into py_binary, py_library, and py_test in rules_py (bootstrap_template etc)
+
+py_library(
+    name = "lib",
+    srcs = ["add.py"],
+)
+
+py_binary(
+    name = "app",
+    srcs = ["app.py"],
+    deps = [
+        ":lib",
+        "@pypi//fastapi",
+        "@pypi//uvicorn",
+    ],
+)
+
+py_test(
+    name = "app_test",
+    srcs = ["test_app.py"],
+    # TODO: understand pytest_main
+    pytest_main = True,
+    deps = [
+        ":lib",
+        # TODO: what's the proper way to add labels for third-party dependencies?
+        "@pypi//pytest",
+    ],
+)
