@@ -1,4 +1,4 @@
-load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
+load("@aspect_rules_py//py:defs.bzl", "py_binary", "py_library", "py_test")
 
 # TODO: deep-dive into py_binary, py_library, and py_test in rules_py (bootstrap_template etc)
 py_binary(
@@ -27,8 +27,8 @@ py_library(
 )
 
 py_test(
-    name = "test_app",
-    srcs = ["test_app.py"],
+    name = "app_test",
+    srcs = ["app_test.py"],
     # TODO: understand pytest_main
     # TODO: how to make gazelle to generate pytest_main?
     pytest_main = True,  # keep

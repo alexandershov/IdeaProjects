@@ -33,9 +33,3 @@ python.toolchain(
     configure_coverage_tool = True,
     python_version = "3.13",
 )
-
-# TODO: is it legal to put gazelle directives in MODULE.bazel instead of BUILD.bazel?
-# TODO: understand specified and the most useful gazelle directives (both python and not-python specific, e.g. python_root)
-# gazelle:map_kind py_library py_library @aspect_rules_py//py:defs.bzl
-# gazelle:map_kind py_binary py_binary @aspect_rules_py//py:defs.bzl
-# gazelle:map_kind py_test py_test @aspect_rules_py//py:defs.bzl
