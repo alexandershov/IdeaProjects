@@ -8,6 +8,16 @@ bazel_dep(name = "rules_python", version = "1.4.1")
 bazel_dep(name = "rules_python_gazelle_plugin", version = "1.4.1")
 bazel_dep(name = "rules_uv", version = "0.71.0")
 
+# cd third_party
+# g clone https://github.com/bazel-contrib/rules_python.git
+# cd rules_python
+# g co 1.4.1
+# rm -rf .git
+local_path_override(
+    module_name = "rules_python",
+    path = "third_party/rules_python",
+)
+
 # TODO: deep-dive into bazel module extensions
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 
