@@ -12,6 +12,7 @@ bazel_dep(name = "rules_uv", version = "0.71.0")
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 
 # TODO: deep-dive into `pip` extension (how does it materialize repositories etc)
+# TODO: how do rules_python++internal_deps work? (they're located in $output_base/external)
 pip.parse(
     # TODO: should hub_name match the argument in use_repo?
     hub_name = "pypi",
