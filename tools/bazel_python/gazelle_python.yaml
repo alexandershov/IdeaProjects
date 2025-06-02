@@ -16,8 +16,10 @@ manifest:
     packaging: packaging
     pluggy: pluggy
     py: pytest
+    py4j: py4j
     pydantic: pydantic
     pydantic_core: pydantic_core
+    pyspark: pyspark
     pytest: pytest
     sniffio: sniffio
     starlette: starlette
@@ -26,4 +28,4 @@ manifest:
     uvicorn: uvicorn
   pip_repository:
     name: pypi
-integrity: 62d31e2986a79f68dddc64763da09c184df206e70f5ea1f6d757aa7123b5e67a
+integrity: cf1be3fa16437d76459811da6208e112719c17ae0e35b234b7eeb2992f5644ac

@@ -1,6 +1,6 @@
 # Bazel & Python
 
-## Basics
+## Setup
 
 There are two rulesets for python: rules_python & rules_py.
 rules_py uses rules_python internally and provides its own versions of py_binary, py_library, and py_test.
@@ -35,3 +35,6 @@ To add gazelle you need add rules `modules_mapping`, `gazelle_python_manifest`, 
 run `bazel run //:gazelle_python_manifest.update` to create gazelle manifest.
 And then you can regenerate BUILD files with bazel run //:gazelle
 
+## rules_python
+
+### wheel generation
