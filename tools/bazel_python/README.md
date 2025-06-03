@@ -36,24 +36,25 @@ run `bazel run //:gazelle_python_manifest.update` to create gazelle manifest.
 And then you can regenerate BUILD files with bazel run //:gazelle
 
 ## rules_python
-The best way to explore rules_python internals is to check out rules_python source, use it with local_path_override and
-add study/debug source code (e.g. print in starlark files)
+The best way to explore rules_python internals is to check out rules_python source, use it with local_path_override and study/debug source code (e.g. print in starlark files)
 
 ### wheel generation
 "Calls" (they are not actually calls, it's tagging) to `pip.parse` are handled [here](https://github.com/bazel-contrib/rules_python/blob/9429ae6446935059e79047654d3fe53d60aadc31/python/private/pypi/extension.bzl#L437)
+
 We'll get to [_create_whl_repos](https://github.com/bazel-contrib/rules_python/blob/9429ae6446935059e79047654d3fe53d60aadc31/python/private/pypi/extension.bzl#L501)
 
-Then we'll create whl_library & hub repositories [here](https://github.com/bazel-contrib/rules_python/blob/9429ae6446935059e79047654d3fe53d60aadc31/python/private/pypi/extension.bzl#L631-L634)
+Then we'll create whl_library & hub repositories [here](https://github.com/bazel-contrib/rules_python/blob/9429ae6446935059e79047654d3fe53d60aadc31/python/private/pypi/extension.bzl#L631-L634).
 
-whl_library is implemented [here](https://github.com/bazel-contrib/rules_python/blob/9429ae6446935059e79047654d3fe53d60aadc31/python/private/pypi/whl_library.bzl#L590)
+whl_library is implemented [here](https://github.com/bazel-contrib/rules_python/blob/9429ae6446935059e79047654d3fe53d60aadc31/python/private/pypi/whl_library.bzl#L590).
+
 It's a repo rule.
 
-hub_repository is also a repo rule and it's implemented [here](https://github.com/bazel-contrib/rules_python/blob/9429ae6446935059e79047654d3fe53d60aadc31/python/private/pypi/hub_repository.bzl#L71)
+hub_repository is also a repo rule and it's implemented [here](https://github.com/bazel-contrib/rules_python/blob/9429ae6446935059e79047654d3fe53d60aadc31/python/private/pypi/hub_repository.bzl#L71).
 
-At the end of the day whl_library will generate a repo with BUILD.bazel [here](https://github.com/bazel-contrib/rules_python/blob/9429ae6446935059e79047654d3fe53d60aadc31/python/private/pypi/whl_library.bzl#L474)
-This BUILD.bazel is materialized in $(bazel info output_base)/external/{whl_repo_name}/BUILD.bazel.
+At the end of the day whl_library will generate a repo with BUILD.bazel [here](https://github.com/bazel-contrib/rules_python/blob/9429ae6446935059e79047654d3fe53d60aadc31/python/private/pypi/whl_library.bzl#L474).
+This BUILD.bazel is materialized in `$(bazel info output_base)/external/{whl_repo_name}/BUILD.bazel`.
 
-Here's an example of how it looks like:
+Here's an example of how this BUILD.bazel looks like:
 ```starlark
 load("@rules_python//python/private/pypi:whl_library_targets.bzl", "whl_library_targets")
 
@@ -147,12 +148,12 @@ filegroup(
 Two most interesting targets are `:pkg` and `:whl`. `:pkg` is a py_library with the package itself.
 `:whl` is a wheel file with all dependencies (note that starlette depends on anyio in `data = `).
 
-To build wheels (if only sdist is available) it'll [call pip](https://github.com/bazel-contrib/rules_python/blob/9429ae6446935059e79047654d3fe53d60aadc31/python/private/pypi/whl_installer/wheel_installer.py#L146-L152) 
+To build wheels (if only sdist is available) it'll [call pip](https://github.com/bazel-contrib/rules_python/blob/9429ae6446935059e79047654d3fe53d60aadc31/python/private/pypi/whl_installer/wheel_installer.py#L146-L152). 
 
-whl repos are available via name e.g. `@@rules_python++pip+pypi_313_starlette`
+whl repos are available via name e.g. `@@rules_python++pip+pypi_313_starlette`.
 pypi_313_starlette is a value of `name` argument to `whl_library`.
 
-Good way to explore all available repos (after you've materialized them) is to look at dir names in 
+Good way to explore all available repos (after you've materialized them) is to look at the dir names in 
 `$(bazel info output_base)/external`.
 
 hub_repository is available via name `@{hub_name}` or `@@rules_python++pip+{hub_name}`
