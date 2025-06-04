@@ -150,6 +150,11 @@ Two most interesting targets are `:pkg` and `:whl`. `:pkg` is a py_library with 
 
 To build wheels (if only sdist is available) it'll [call pip](https://github.com/bazel-contrib/rules_python/blob/9429ae6446935059e79047654d3fe53d60aadc31/python/private/pypi/whl_installer/wheel_installer.py#L146-L152). 
 
+wheel_installer executes code with the [host_toolchain](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/toolchains_repo.bzl#L290)
+interpreter. And this interpreter contains only pip as a third-party dependency in site-packages.
+
+This host interpreter symlinks `python` binary to a binary in e.g. rules_python++python+python_3_13_aarch64-apple-darwin repository.
+
 whl repos are available via name e.g. `@@rules_python++pip+pypi_313_starlette`.
 pypi_313_starlette is a value of `name` argument to `whl_library`.
 
@@ -247,7 +252,6 @@ alias(
 # Rule whl instantiated at (most recent call last):
 #   /private/var/tmp/_bazel_aershov/a7594f89b7e68f13499b9e23d7a54d78/external/rules_python++pip+pypi/starlette/BUILD.bazel:5:12        in <toplevel>
 #   /private/var/tmp/_bazel_aershov/a7594f89b7e68f13499b9e23d7a54d78/external/rules_python+/python/private/pypi/pkg_aliases.bzl:204:14 in pkg_aliases
-
 ```
 
-It's just aliases to a repo created by whl_library. 
+It's just aliases to a repo created by whl_library.
