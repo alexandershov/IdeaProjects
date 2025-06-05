@@ -1,3 +1,4 @@
+bazel-runfiles
 fastapi
 pyspark
 pytest

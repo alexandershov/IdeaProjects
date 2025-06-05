@@ -21,6 +21,7 @@ manifest:
     pydantic_core: pydantic_core
     pyspark: pyspark
     pytest: pytest
+    runfiles: bazel_runfiles
     sniffio: sniffio
     starlette: starlette
     typing_extensions: typing_extensions
@@ -28,4 +29,4 @@ manifest:
     uvicorn: uvicorn
   pip_repository:
     name: pypi
-integrity: cf1be3fa16437d76459811da6208e112719c17ae0e35b234b7eeb2992f5644ac
+integrity: 8718f7a4ed1c7b5820e8b127755a909b053147835e944eccb36521eaa3d9354d
