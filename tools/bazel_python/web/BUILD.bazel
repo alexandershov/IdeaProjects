@@ -18,6 +18,7 @@ py_library(
     srcs = [
         "add.py",
         "app.py",
+        "cmd.py",
     ],
     visibility = ["//:__subpackages__"],
     deps = [
@@ -38,4 +39,11 @@ py_test(
         ":web",
         "@pypi//pytest",
     ],  # keep
+)
+
+py_binary(
+    name = "cmd",
+    srcs = ["cmd.py"],
+    data = ["files/data.txt"],
+    visibility = ["//:__subpackages__"],
 )
