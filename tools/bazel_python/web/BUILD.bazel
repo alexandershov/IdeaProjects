@@ -22,6 +22,7 @@ py_library(
     ],
     visibility = ["//:__subpackages__"],
     deps = [
+        "@pypi//bazel_runfiles",
         "@pypi//fastapi",
         "@pypi//uvicorn",
     ],
@@ -46,4 +47,5 @@ py_binary(
     srcs = ["cmd.py"],
     data = ["files/data.txt"],
     visibility = ["//:__subpackages__"],
+    deps = ["@pypi//bazel_runfiles"],
 )
