@@ -146,6 +146,7 @@ filegroup(
 ```
 
 Two most interesting targets are `:pkg` and `:whl`. `:pkg` is a py_library with the package itself.
+package has its own `site-packages/` that contains source files. 
 `:whl` is a wheel file with all dependencies (note that starlette depends on anyio in `data = `).
 
 To build wheels (if only sdist is available) it'll [call pip](https://github.com/bazel-contrib/rules_python/blob/9429ae6446935059e79047654d3fe53d60aadc31/python/private/pypi/whl_installer/wheel_installer.py#L146-L152). 
@@ -255,3 +256,39 @@ alias(
 ```
 
 It's just aliases to a repo created by whl_library.
+
+## rules_py
+
+### py_binary
+
+`py_binary` rule is implemented in [py/private/py_binary.bzl](https://github.com/aspect-build/rules_py/blob/8a38744d51110a506b783000ba0f0913bb189f09/py/private/py_binary.bzl#L17)
+
+```shell
+$ bazel query 'deps(//web:cmd)'
+<redacted>
+@@rules_python++pip+pypi_313_fastapi//:pkg
+@@rules_python++pip+pypi_313_pydantic//:pkg
+<redacted>
+```
+py_binary depends on py_library targets that are specified as `deps`. Duh.
+
+```shell
+$ bazel cquery --output=files //web:cmd
+bazel-out/darwin_arm64-fastbuild/bin/web/cmd
+web/cmd.py
+bazel-out/darwin_arm64-fastbuild/bin/web/cmd.venv.pth
+```
+
+One of the output files of py_binary is a cmd.venv.pth file that contains paths to all dependencies:
+
+```shell
+$ cat bazel-out/darwin_arm64-fastbuild/bin/web/cmd.venv.pth
+../../../..
+../../../../rules_python++pip+pypi_313_bazel_runfiles/site-packages
+../../../../rules_python++pip+pypi_313_annotated_types/site-packages
+../../../../rules_python++pip+pypi_313_typing_extensions/site-packages
+../../../../rules_python++pip+pypi_313_pydantic_core/site-packages
+<redacted>
+```
+
+TODO: why `../../../..` prefix?

@@ -1,5 +1,6 @@
 import os
 
+import fastapi
 import runfiles
 
 def main():
