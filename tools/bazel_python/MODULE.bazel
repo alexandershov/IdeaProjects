@@ -42,5 +42,9 @@ python.defaults(python_version = "3.13")
 # TODO: deep-dive into bazel toolchains
 python.toolchain(
     configure_coverage_tool = True,
+    python_version = "3.11",
+)
+python.toolchain(
+    configure_coverage_tool = True,
     python_version = "3.13",
 )
