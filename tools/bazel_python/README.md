@@ -311,6 +311,34 @@ that links to the files in this generated repository.
 
 Then we [create](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/python.bzl#L302) pythons_hub repo
 The most interesting part of this repo is a call to [py_toolchain_suite](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/toolchains_repo.bzl#L58)
+It'll finally [make a call](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/py_toolchain_suite.bzl#L102) to `toolchain` and will define
+a toolchain, e.g. (taken from `bazel query --output=build 'attr(@@rules_python++python+pythons_hub//...)`):
+
+```starlark
+toolchain(
+  name = "_0005_python_3_13_aarch64-apple-darwin_toolchain",
+  generator_name = "_0005_python_3_13_aarch64-apple-darwin_toolchain",
+  generator_function = "py_toolchain_suite",
+  generator_location = "/private/var/tmp/_bazel_aershov/a7594f89b7e68f13499b9e23d7a54d78/external/rules_python++python+pythons_hub/BUILD.bazel:611:19",
+  toolchain_type = "@rules_python//python:toolchain_type",
+  target_compatible_with = ["@@platforms//os:macos", "@@platforms//cpu:aarch64"],
+  target_settings = ["@@rules_python++python+pythons_hub//:_0005_python_3_13_aarch64-apple-darwin_version_setting_3.13.2"],
+  toolchain = "@@rules_python++python+python_3_13_aarch64-apple-darwin//:python_runtimes",
+)
+```
+
+Note that `target_compatible_with` and `target_settings` specify that this toolchain will be resolved only on
+darwin+arm64+python3.13.
+
+So rule `@@rules_python++python+python_3_13_aarch64-apple-darwin//:python_runtimes` will be used on darwin+arm64 as part
+of toolchain resolution.
+
+`:python_runtimes` is defined by [py_runtime_pair](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/hermetic_runtime_repo_setup.bzl#L220)
+which [returns](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/py_runtime_pair_rule.bzl#L48-L52) a ToolchainInfo satisfying the
+[Holy Trinity](https://bazel.build/extending/toolchains) of bazel toolchains:
+1. [py_runtime_pair](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/py_runtime_pair_rule.bzl#L75) is a rule returning ToolchainInfo
+2. Each python_repository for each platform+versions contains a [target](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/hermetic_runtime_repo_setup.bzl#L219-L223) of the py_runtime_pair
+3. python_hubs repo [contains calls](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/py_toolchain_suite.bzl#L101) to `toolchain` function
 
 
 ## rules_py
