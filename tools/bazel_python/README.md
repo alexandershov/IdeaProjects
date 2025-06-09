@@ -327,6 +327,12 @@ toolchain(
 )
 ```
 
+toolchain_type `@rules_python//python:toolchain_type` is actually an [alias](https://github.com/bazel-contrib/rules_python/blob/049866442fee7bb54fcb1a09e920953a0666e4b3/python/BUILD.bazel#L324-L327) to
+`@bazel_tools//tools/python:toolchain_type`.
+`rules_py` [reuses](https://github.com/aspect-build/rules_py/blob/8a38744d51110a506b783000ba0f0913bb189f09/py/private/toolchain/types.bzl#L3C31-L3C58) the same toolchain 
+and [adds](https://github.com/aspect-build/rules_py/blob/8a38744d51110a506b783000ba0f0913bb189f09/py/private/py_binary.bzl#L96)
+toolchain files (i.e. stdlib, python_interpreter) to the runfiles. 
+
 Note that `target_compatible_with` and `target_settings` specify that this toolchain will be resolved only on
 darwin+arm64+python3.13.
 
@@ -340,6 +346,7 @@ which [returns](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324c
 2. Each python_repository for each platform+versions contains a [target](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/hermetic_runtime_repo_setup.bzl#L219-L223) of the py_runtime_pair
 3. python_hubs repo [contains calls](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/py_toolchain_suite.bzl#L101) to `toolchain` function
 
+TODO: how default python version is selected?
 
 ## rules_py
 
