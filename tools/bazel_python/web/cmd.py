@@ -1,4 +1,5 @@
 import os
+import time
 
 import fastapi
 import runfiles
@@ -13,13 +14,20 @@ def main():
     with open(path) as fileobj:
         print(fileobj.read())
 
+    # force runfiles to use directory strategy
+    del os.environ["RUNFILES_MANIFEST_FILE"]
+
     # runfiles libraries can resolve runfiles paths
     r = runfiles.Runfiles.Create()
+    # there are two strategies: directory (runfiles tree of symlinks) & manifest
+    print(f"{r._strategy=}")
     # we pass _main/{path in a repo} to Rlocation
     rlocation = r.Rlocation("_main/web/files/data.txt")
-    print(rlocation)
+    print(f"{rlocation=}")
     with open(rlocation) as fileobj:
         print(fileobj.read())
+    print("sleeping")
+    time.sleep(900)
 
 
 if __name__ == '__main__':
