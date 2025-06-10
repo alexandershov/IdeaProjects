@@ -346,7 +346,12 @@ which [returns](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324c
 2. Each python_repository for each platform+versions contains a [target](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/hermetic_runtime_repo_setup.bzl#L219-L223) of the py_runtime_pair
 3. python_hubs repo [contains calls](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/py_toolchain_suite.bzl#L101) to `toolchain` function
 
-TODO: how default python version is selected?
+Default toolchain [passes](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/py_toolchain_suite.bzl#L55-L56) 
+set_python_version_constraint = False and uses python_version = "", which [leads to using](https://github.com/bazel-contrib/rules_python/blob/4f5a693bb324cce5f4a1a4c240b300ec8b10057b/python/private/py_toolchain_suite.bzl#L68-L70)
+`@rules_python//python/config_settings:python_version` == "" in a toolchain resolution.
+So if you don't pass `@rules_python//python/config_settings:python_version`, then default toolchain wins.
+Other toolchain lose when you don't pass `@rules_python//python/config_settings:python_version`, because
+they specify not empty constraints on `@rules_python//python/config_settings:python_version`.
 
 ## rules_py
 
