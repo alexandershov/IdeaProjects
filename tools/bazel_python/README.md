@@ -388,7 +388,8 @@ $ cat bazel-out/darwin_arm64-fastbuild/bin/web/cmd.venv.pth
 ```
 
 TODO: why `../../../..` prefix?
-TODO: what is bazel-bin/
+
+bazel-bin/ is a symlink to `bazel-out/{architecture}-fastbuild/bin`
 
 `bazel-out/darwin_arm64-fastbuild/bin/web/cmd` is another output of a `py_binary, it's a bash script
 that is built from a [template](https://github.com/aspect-build/rules_py/blob/main/py/private/run.tmpl.sh)
