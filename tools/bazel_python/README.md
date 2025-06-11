@@ -394,11 +394,44 @@ bazel-bin/ is a symlink to `bazel-out/{architecture}-fastbuild/bin`
 `bazel-out/darwin_arm64-fastbuild/bin/web/cmd` is another output of a `py_binary, it's a bash script
 that is built from a [template](https://github.com/aspect-build/rules_py/blob/main/py/private/run.tmpl.sh)
 
+### venv
+For each py_binary & py_test rules_py also [creates](https://github.com/aspect-build/rules_py/blob/5f6c518ba1340a8a9096f040f493415a463f2a7c/py/defs.bzl#L94) a target `{name}.venv`
+`py_venv_link` is defined in [py_venv.bzl](https://github.com/aspect-build/rules_py/blob/5f6c518ba1340a8a9096f040f493415a463f2a7c/py/private/py_venv/py_venv.bzl#L381)
+You can create virtual env by 
+```
+$ bazel run //web:cmd.venv
+Linking: /private/var/tmp/_bazel_aershov/a7594f89b7e68f13499b9e23d7a54d78/execroot/_main/bazel-out/darwin_arm64-fastbuild/bin/web/.cmd.venv -> /Users/aershov/IdeaProjects/tools/bazel_python/.cmd.venv
+
+To activate the virtualenv run:
+    source /Users/aershov/IdeaProjects/tools/bazel_python/.cmd.venv/bin/activate
+
+Link created!
+```
+This target essentially runs [link.py](https://github.com/aspect-build/rules_py/blob/5f6c518ba1340a8a9096f040f493415a463f2a7c/py/private/py_venv/link.py), which
+creates a simple symlink `.{name}.venv` in cwd. It reuses py_binary venv machinery.
+
+The real work is done by [venv_tool](https://github.com/aspect-build/rules_py/tree/main/py/tools/venv_bin), which is implemented in rust.
+It's a [rust file](https://github.com/aspect-build/rules_py/blob/main/py/tools/venv_bin/src/main.rs).
+Heavy lifting is done by [venv.rs](https://github.com/aspect-build/rules_py/blob/5f6c518ba1340a8a9096f040f493415a463f2a7c/py/tools/py/src/venv.rs).
+Entry point is [create_venv](https://github.com/aspect-build/rules_py/blob/5f6c518ba1340a8a9096f040f493415a463f2a7c/py/tools/py/src/venv.rs#L18)
+
+Here's how it's called in a launcher template:
+```shell
+"${VENV_TOOL}" \
+    --location "${VIRTUAL_ENV}" \
+    --python "$(python_location)" \
+    --pth-file "$(rlocation _main/web/cmd.venv.pth)" \
+    --collision-strategy "error" \
+    --venv-name ".cmd.venv"
+```
+source code of this template is [here](https://github.com/aspect-build/rules_py/blob/5f6c518ba1340a8a9096f040f493415a463f2a7c/py/private/run.tmpl.sh#L41-L46).
+
 ## runfiles
 
 Good (although incomplete) description: https://github.com/laszlocsomor/bazel/commit/21989926c1a002709ec3eba9ee7a992506f2d50a
 Another good description for Fuchsia: https://fuchsia.googlesource.com/fuchsia/+/HEAD/build/bazel/BAZEL_RUNFILES.md?format%2F%2F
 Description for bazel contributors: https://bazel.build/contribute/codebase#runfiles
+Good description on how to implement ruleset with runfiles: https://jayconrod.com/posts/108/writing-bazel-rules--data-and-runfiles
 
 ```shell
 bazel clean
@@ -412,3 +445,5 @@ bazel run --nobuild_runfile_links //web:cmd
 # then although `bazel build` won't create .runfiles tree, run will materialize tree during run
 # although if you're running built binary without `bazel run`, then .runfiles tree won't get created
 ```
+
+TODO: rules_py runfiles (in py_library & py_binary)
