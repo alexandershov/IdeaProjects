@@ -37,3 +37,7 @@ uv run --with fastapi main.py
 This will create venv containing extra dependency of fastapi.
 
 
+You can specify python version when creating a project:
+```shell
+uv init myproject --python 3.14
+```
