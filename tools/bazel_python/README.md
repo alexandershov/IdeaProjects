@@ -412,9 +412,6 @@ creates a simple symlink `.{name}.venv` in cwd. It reuses py_binary venv machine
 
 The real work is done by [venv_tool](https://github.com/aspect-build/rules_py/tree/main/py/tools/venv_bin), which is implemented in rust.
 It's a [rust file](https://github.com/aspect-build/rules_py/blob/main/py/tools/venv_bin/src/main.rs).
-Heavy lifting is done by [venv.rs](https://github.com/aspect-build/rules_py/blob/5f6c518ba1340a8a9096f040f493415a463f2a7c/py/tools/py/src/venv.rs).
-Entry point is [create_venv](https://github.com/aspect-build/rules_py/blob/5f6c518ba1340a8a9096f040f493415a463f2a7c/py/tools/py/src/venv.rs#L18)
-
 Here's how it's called in a launcher template:
 ```shell
 "${VENV_TOOL}" \
@@ -424,6 +421,10 @@ Here's how it's called in a launcher template:
     --collision-strategy "error" \
     --venv-name ".cmd.venv"
 ```
+
+Heavy lifting is done by [venv.rs](https://github.com/aspect-build/rules_py/blob/5f6c518ba1340a8a9096f040f493415a463f2a7c/py/tools/py/src/venv.rs).
+Entry point is [create_venv](https://github.com/aspect-build/rules_py/blob/5f6c518ba1340a8a9096f040f493415a463f2a7c/py/tools/py/src/venv.rs#L18)
+It's actually [calling](https://github.com/aspect-build/rules_py/blob/5f6c518ba1340a8a9096f040f493415a463f2a7c/py/tools/py/src/venv.rs#L48) uv rust crate to create virtual env
 source code of this template is [here](https://github.com/aspect-build/rules_py/blob/5f6c518ba1340a8a9096f040f493415a463f2a7c/py/private/run.tmpl.sh#L41-L46).
 
 ## runfiles
