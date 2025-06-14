@@ -100,6 +100,7 @@ This phase is strictly deterministic. No IO actually takes place.
 When you do `ctx.actions.write_file` in a rule implementation it doesn't actually write to file.
 It just registers this action in an Execution Graph.
 Output of analysis phase is Execution Graph: actions (e.g. write a file) and their dependencies.
+Each action is a subprocess call (with some inputs & outputs)
 
 You can trigger the analysis phase with 
 ```shell
@@ -132,6 +133,21 @@ DEBUG: /Users/aershov/IdeaProjects/tools/bazel/rules.bzl:3:10: analyzing //:my_r
 Execution graph is, well, executed. 
 Output of execution phase is a build: build files etc in bazel-out/ dir
 Actions are executed only if their output is requested.
+There are several execution strategies: https://bazel.build/docs/user-manual#execution-strategy
+Default is sandboxed. Strategy can be configured with the `--spawn-strategy` 
+E.g:
+```shell
+# fails because tries to write to a file outside of sandbox
+bazel build :sandbox
+
+# succeeds, because runs without a sandbox (local is just a subprocess without sandboxing)
+bazel build --spawn_strategy=local :sandbox
+```
+
+When using sandbox, bazel creates a sandbox directory and executes code in it. 
+When build finishes sandbox directory is cleaned.
+You can pass `--sandbox_debug` to print extra debugging info (including path to sandbox directory), and
+sandbox directory won't be cleaned.
 
 ## Modules
 bzlmod is a new system for managing bazel dependencies. See [MODULE.bazel](./MODULE.bazel) for a description of bzlmod.
