@@ -1,8 +1,7 @@
 import os
-import time
 
-import fastapi
 import runfiles
+
 
 def main():
     # bazel-bin/web/cmd is a bash binary
@@ -26,8 +25,6 @@ def main():
     print(f"{rlocation=}")
     with open(rlocation) as fileobj:
         print(fileobj.read())
-    print("sleeping")
-    time.sleep(900)
 
 
 if __name__ == '__main__':
