@@ -142,6 +142,34 @@
   },
   "selectedYankedVersions": {},
   "moduleExtensions": {
+    "//:extensions.bzl%download": {
+      "general": {
+        "bzlTransitiveDigest": "vWXmJQnrm8OZV0yg8S4e3wAJh6wFRjzg8WgBcpPpO2s=",
+        "usagesDigest": "JJlfduyHXncwULbMHoCzfeB0Wg3ZjmFsAWm24H2K92E=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "leetcode_problem": {
+            "repoRuleId": "@@//:extensions.bzl%_download",
+            "attributes": {
+              "url": "https://raw.githubusercontent.com/alexandershov/IdeaProjects/main/leetcode/coin_change_ii.py",
+              "sha256": "a37d6e58a856a34936401efe279a629e58abd5441faff3985261359b4ea1e0d1",
+              "deps_file": "@@//:dynamic_deps.txt"
+            }
+          },
+          "second_leetcode_problem": {
+            "repoRuleId": "@@//:extensions.bzl%_download",
+            "attributes": {
+              "url": "bad_unknown_url",
+              "sha256": "bad_sha256",
+              "deps_file": "@@//:dynamic_deps.txt"
+            }
+          }
+        },
+        "recordedRepoMappingEntries": []
+      }
+    },
     "@@aspect_bazel_lib+//lib:extensions.bzl%toolchains": {
       "general": {
         "bzlTransitiveDigest": "Xb6wVQSWtrfH+iV7fE8I411P/USvWjDsEGEoe7J6epg=",
