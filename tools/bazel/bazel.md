@@ -44,6 +44,21 @@ Yes, bazel knows dependencies of targets even without executing rule implementat
 It can (not 100% sure, but very probably) infer dependencies based on rule definitions:
 if rule has an attribute of type `attr.label` then it's a dependency of the current rule.
 
+`load` statements are also executed during the loading phase, this means that if you reference third-party repo in
+a load statement, it will be eagerly fetched. So you need to be on a watchout for the eager load.
+E.g. if `BUILD.bazel` contains a `load("@python_main_hub//:requirements.bzl", "requirement")` and target
+`:my_rule_name_1` doesn't actually depend on `@python_main_hub`, then doing
+```shell
+bazel clean --expunge
+bazel query :my_rule_name_1
+```
+will cause a fetch & materialization of `python_main_hub`:
+```shell
+ls $(bazel info output_base)/external/ | rg python_main_hub
+@rules_python++pip+python_main_hub.marker
+rules_python++pip+python_main_hub
+```
+
 You can prefetch all third-party stuff needed for a build:
 ```shell
 bazel fetch //subpackage/...
