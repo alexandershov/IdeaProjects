@@ -601,3 +601,58 @@ bazel test --profile=subpackage_passing_test.json //subpackage:passing_test
 ```
 This will generate profile data in Chrome Trace Event Format, you can visualize it
 on https://ui.perfetto.dev
+
+Actually bazel creates a profile on _every_ run. `--profile` just overrides the profile location.
+By default profile is created in `$(bazel info output_base)/command.profile.gz`:
+```shell
+bazel test //subpackage:passing_test
+file $(bazel info output_base)/command.profile.gz 
+/private/var/tmp/_bazel_aershov/aa113e5d9cb7e4bbe0353cfbd569ece8/command.profile.gz: gzip compressed data, original size modulo 2^32 205069
+```
+
+You can also inspect profile with `bazel analyze-profile $(bazel info output_base)/command.profile.gz`:
+
+```shell
+bazel clean
+bazel test //subpackage:passing_test
+bazel analyze-profile $(bazel info output_base)/command.profile.gz
+=== PHASE SUMMARY INFORMATION ===
+
+Total launch phase time                              0.027 s    0.50%
+Total init phase time                                0.027 s    0.51%
+Total target pattern evaluation phase time           0.013 s    0.24%
+Total interleaved loading, analysis and execution phase time    5.384 s   98.74%
+Total finish phase time                              0.000 s    0.01%
+---------------------------------------------------------------------
+Total run time                                       5.453 s  100.00%
+
+Critical path (5.348 s):
+       Time Percentage   Description
+    1.99 ms    0.04%   action 'Creating source manifest for //subpackage passing_test'
+    0.14 ms    0.00%   action 'Creating runfiles tree bazel-out/darwin_arm64-fastbuild/bin/subpackage/passing_test.runfiles'
+    1.21 ms    0.02%   runfiles for //subpackage passing_test
+    5.345 s   99.94%   action 'Testing //subpackage passing_test'
+     
+# now let's see a cached run (I've commented out `external` tag for a //subpackage:passing_test 
+bazel test //subpackage:passing_test
+bazel analyze-profile $(bazel info output_base)/command.profile.gz
+
+=== PHASE SUMMARY INFORMATION ===
+
+Total launch phase time                              0.027 s   25.30%
+Total init phase time                                0.028 s   26.64%
+Total target pattern evaluation phase time           0.012 s   12.01%
+Total interleaved loading, analysis and execution phase time    0.038 s   35.64%
+Total finish phase time                              0.000 s    0.41%
+---------------------------------------------------------------------
+Total run time                                       0.106 s  100.00%
+
+Critical path (4.05 ms):
+       Time Percentage   Description
+    1.72 ms   42.47%   action 'Creating source manifest for //subpackage passing_test'
+    0.15 ms    3.71%   action 'Creating runfiles tree bazel-out/darwin_arm64-fastbuild/bin/subpackage/passing_test.runfiles'
+    1.42 ms   35.01%   runfiles for //subpackage passing_test
+    0.76 ms   18.81%   action 'Testing //subpackage passing_test'
+```
+
+Note that `Testing` action in a second (cached) run is very fast.
