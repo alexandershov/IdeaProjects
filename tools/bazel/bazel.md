@@ -38,21 +38,85 @@ Bazel does stuff in three phases, which are (mostly terribly) named Loading, Ana
 Bazel reads BUILD files. 
 Repo rules are executed. During this phase you can do non-hermetic stuff: read files, access network, etc.
 E.g. you can read a file and dynamically construct a repo based on this file content.
+Macros are expanded.
 Output of loading phase is a Build Graph: targets and their dependencies.
 Yes, bazel knows dependencies of targets even without executing rule implementations.
 It can (not 100% sure, but very probably) infer dependencies based on rule definitions:
 if rule has an attribute of type `attr.label` then it's a dependency of the current rule.
 
+You can prefetch all third-party stuff needed for a build:
+```shell
+bazel fetch //subpackage/...
+```
+This will fetch all out of source dependencies that are referenced by `//subpackage/...`
+`--nofetch` option disables fetching, so after you've prefetched everything with `bazel fetch` you
+can specify `--nofetch` and build will succeed without accessing network:
+```
+bazel run --nofetch //subpackage:check_runfiles
+```
+
+If something was not fetched before, you'll get an error:
+```shell
+bazel clean --expunge
+bazel run --nofetch //subpackage:check_runfiles
+Starting local Bazel server (8.2.1) and connecting to it...
+ERROR: Error computing the main repository mapping: error during computation of main repo mapping: to fix, run
+	bazel fetch //...
+```
+
+You can fetch dependencies of any repository, even third-party ones.
+E.g. this will fetch all dependencies in third-party python hub:
+```shell
+ bazel fetch '@@rules_python++pip+python_main_hub//...'
+```
+
+You can trigger the loading phase with `bazel query`, e.g.:
+```shell
+bazel clean --expunge
+# it won't execute rule implementation, there'll be no output from `print("analyzing", ctx.label)` in rule implementation
+bazel query :my_rule_name_1 2>&1 | rg analyzing
+<NOTHING>
+```
+
 ### Analysis Phase
-Ordinary rules are executed. `select` calls are resolved. 
+Ordinary rules are executed. Essentially implementation function of each rule is executed.
+`select` calls are resolved. 
 This phase is strictly deterministic. No IO actually takes place.
 When you do `ctx.actions.write_file` in a rule implementation it doesn't actually write to file.
 It just registers this action in an Execution Graph.
 Output of analysis phase is Execution Graph: actions (e.g. write a file) and their dependencies.
 
+You can trigger the analysis phase with 
+```shell
+bazel build --nobuild //...
+```
+`--nobuild` stops after analysis phase and doesn't actually execute actions.
+
+Proof:
+```shell
+bazel clean --expunge
+# --nobuild doesn't create an actual build 
+bazel build --nobuild //subpackage:check_runfiles
+ls bazel-bin/subpackage/
+bazel-bin: No such file or directory
+
+# without --nobuild we create a actual build
+bazel build //subpackage:check_runfiles
+ls bazel-bin/subpackage/ | wc -l
+4
+```
+
+You can also trigger analysis with cquery, it executes rule implementation function:
+```shell
+bazel clean --expunge
+bazel cquery :my_rule_name_1 2>&1 | rg analyzing
+DEBUG: /Users/aershov/IdeaProjects/tools/bazel/rules.bzl:3:10: analyzing //:my_rule_name_1
+```
+
 ### Execution Phase
 Execution graph is, well, executed. 
 Output of execution phase is a build: build files etc in bazel-out/ dir
+Actions are executed only if their output is requested.
 
 ## Modules
 bzlmod is a new system for managing bazel dependencies. See [MODULE.bazel](./MODULE.bazel) for a description of bzlmod.
@@ -422,7 +486,7 @@ You can explore bazel action  graph with the `bazel aquery <...>`
 
 ### Repository Cache
 There's also (terribly named) repository cache. Repository cache doesn't cache the whole repositories,
-it just caches downloads.
+it just caches downloads (there are [plans](https://docs.google.com/document/d/1ZScqiIQi9l7_8eikbsGI-rjupdbCI7wgm1RYD76FJfM/edit?tab=t.0) to make a "true" repository cache. See you in 10 years.)
 When you use some repository_rule (e.g. http_archive), then
 it uses `ctx.download` or `ctx.download_and_extract` which uses repository cache under the hood.
 You pass sha256 to these repo_rules and bazel don't download anything if given sha256 is already in cache. 
