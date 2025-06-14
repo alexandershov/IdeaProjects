@@ -485,13 +485,21 @@ All source files are in CAS. All target outputs are in CAS.
 
 ### Action Cache (AC)
 Bazel builds action graph. It has Action Cache (AC). 
-AC key is hash of action inputs (input files, envvars, command being executed). 
+AC key (digestKey in `bazel dump --action_cache` output) is hash of action inputs (input files, envvars, command being executed). 
 AC value are hashes of outputs.
 AC is located in `$(bazel info output_base)/action_cache
 Action cache is represented as binary files in a filesystem.
 We can explore it with 
 ```shell
 bazel dump --action_cache
+<REDACTED>
+4, bazel-out/darwin_arm64-fastbuild/bin/subpackage/check_runfiles.runfiles/MANIFEST:
+      actionKey = 42fe00a77a7d0342400eff2e6835e4493f6fbb75e5817faf94532d2d4ba74340
+      usedClientEnvKey = c5b0a5291dd76968098af9b86d3f7150f8f642e85ba6c5ec6070689cb9019082
+      digestKey = 58f70aa79411ec1f3c7c273da469b17efa177e93fdf07e9816bb188b368a1344
+
+      packed_len = 138
+<REDACTED>
 ```
 Since bazel expects all actions to be hermetic (i.e. each action should be a pure function from its inputs to its outputs), this
 means that given inputs, bazel can look up if outputs are already in cache and skip actually
