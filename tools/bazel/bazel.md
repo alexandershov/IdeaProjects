@@ -656,3 +656,11 @@ Critical path (4.05 ms):
 ```
 
 Note that `Testing` action in a second (cached) run is very fast.
+
+`command.profile.gz` is just a compressed json:
+```shell
+cat $(bazel info output_base)/command.profile.gz | zcat | head -3
+{"otherData":{"bazel_version":"release 8.2.1","build_id":"a35541f3-47e2-4797-8378-1b6987f00f53","output_base":"/private/var/tmp/_bazel_aershov/aa113e5d9cb7e4bbe0353cfbd569ece8","date":"2025-06-14T17:38:43.886276Z","profile_start_ts":1749922723886},"traceEvents":[
+    {"name":"thread_name","ph":"M","pid":1,"tid":0,"args":{"name":"Critical Path"}},
+    {"name":"thread_sort_index","ph":"M","pid":1,"tid":0,"args":{"sort_index":0}},
+```
