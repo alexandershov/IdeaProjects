@@ -264,4 +264,14 @@ play_with_depsets("postorder")
 
 play_with_depsets("topological")
 
+# `name` is an alias for `actual`
+# `actual` can be a select expression
+alias(
+    name = "my_alias",
+    actual = select({
+        "@platforms//os:osx": ":check_runfiles",
+        "//conditions:default": ":does_not_exist",
+    }),
+)
+
 print("BUILD file")
