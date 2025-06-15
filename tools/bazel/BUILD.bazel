@@ -3,6 +3,7 @@ load(":rules_test.bzl", "rules_test_suite")
 load(":depsets.bzl", "play_with_depsets")
 load(":aspects.bzl", "deps_count_aspect", "deps_count_rule")
 load("@python_versions//3.11:defs.bzl", "compile_pip_requirements")
+load("@bazel_skylib//rules:run_binary.bzl", "run_binary")
 
 # @python_main_hub was specified in MODULE.bazel in pip.parse
 load("@python_main_hub//:requirements.bzl", "requirement")
@@ -232,6 +233,24 @@ genrule(
     outs = ["check_execpath.txt"],
     # execpath expands label into path, that you can read during execution phase
     cmd = "cat $(execpath bazel.md) > $@",
+)
+
+# genrule has couple of problems:
+# 1. it depends on bash
+# 2. it's not hermetic (e.g. :check_execpath target calls `cat` and `cat` was not specified as a dependency of :check_execpath)
+# run_binary from @bazel-skylib doesn't require bash and is hermetic
+run_binary(
+    name = "check_execpath_with_bazel_skylib_run_binary",
+    srcs = ["bazel.md"],
+    outs = ["check_execpath_with_bazel_skylib_run_binary.txt"],
+    args = [
+        "--input",
+        "$(execpath bazel.md)",
+        "--output",
+        "$(execpath check_execpath_with_bazel_skylib_run_binary.txt)",
+    ],
+    # tool can be `*_binary` rule or some executable file (e.g. smth coming from http_archive)
+    tool = "//subpackage:py_cat",
 )
 
 # compile_pip_requirements creates requirements lock file with pinned versions

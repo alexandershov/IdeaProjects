@@ -13,6 +13,12 @@ py_binary(
     ],
 )
 
+py_binary(
+    name = "py_cat",
+    srcs = [":py_cat.py"],
+    visibility = ["//visibility:public"],
+)
+
 py_library(
     name = "adder",
     srcs = ["adder.py"],
