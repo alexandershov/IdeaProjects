@@ -19,10 +19,17 @@
   * providers
   * etc
 * https://bazel.build/start (look at "Build concepts")
+* starlark
+  * https://bazel.build/reference/be/functions
+  * https://bazel.build/rules/bzl-style
+  * etc
 * https://bazel.build/configure/best-practices
 * https://bazel.build/contribute/codebase  
 * configurations
 * apparent/canonical repo names
+* gazelle
+  * general
+  * python
 * coverage deep-dive
   * what does --experimental_use_llvm_covmap do? 
   * etc
@@ -32,17 +39,10 @@
 * rule transitions
 * rules_oci
 * rules_proto for python deep-dive
-* starlark
-  * https://bazel.build/reference/be/functions
-  * https://bazel.build/rules/bzl-style
-  * etc
 * sandboxing
 * bazel & envvars
 * integration testing & bazel from dropbox: https://www.youtube.com/watch?v=muvU1DYrY0w
 * CTC https://www.youtube.com/watch?v=9Dk7mtIm7_A
-* gazelle
-  * general
-  * python
 * ecosystem
   * skylib: https://github.com/bazelbuild/bazel-skylib
   * aspect skylib: https://github.com/bazel-contrib/bazel-lib
