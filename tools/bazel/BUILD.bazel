@@ -4,6 +4,7 @@ load(":depsets.bzl", "play_with_depsets")
 load(":aspects.bzl", "deps_count_aspect", "deps_count_rule")
 load("@python_versions//3.11:defs.bzl", "compile_pip_requirements")
 load("@bazel_skylib//rules:run_binary.bzl", "run_binary")
+load("@aspect_bazel_lib//lib:run_binary.bzl", aspect_run_binary = "run_binary")
 
 # @python_main_hub was specified in MODULE.bazel in pip.parse
 load("@python_main_hub//:requirements.bzl", "requirement")
@@ -249,9 +250,35 @@ run_binary(
         "--output",
         "$(execpath check_execpath_with_bazel_skylib_run_binary.txt)",
         "--string-to-append",
-        "string to append: $(execpath check_execpath_with_bazel_skylib_run_binary.txt)",
+        "string to append: $(GENDIR)",
     ],
     # tool can be `*_binary` rule or some executable file (e.g. smth coming from http_archive)
+    tool = "//subpackage:py_cat",
+)
+
+# the problem with @bazel_skylib/run_binary is that it only expands location make variables:
+# $execpath, $location, $rootpath, $rlocationpath (run_binary documentation is wrong when it says it only expands $location & $execpath)
+# it doesn't expand the rest of make variables: https://bazel.build/reference/be/make-variables#predefined_variables
+# let's say you want to append $(GENDIR) in --string-to-append, @bazel_skylib/run_binary will not expand it
+# and it will just insert it into output file verbatim.
+
+# @aspect_bazel_lib to the resque, it provides an improved version of run_binary:
+# 1. make variables are expanded
+# 2. something something with out_dirs, but I don't understand it. TODO: understand out_dirs.
+# as a side-effect it handles arguments totally different from @bazel_skylib/run_binary, e.g. if you have a space
+# then it's considered a new argument, that's why single quotes in a --string-to-append value
+aspect_run_binary(
+    name = "check_execpath_with_aspect_bazel_lib_run_binary",
+    srcs = ["bazel.md"],
+    outs = ["check_execpath_with_aspect_bazel_lib_run_binary.txt"],
+    args = [
+        "--input",
+        "$(execpath bazel.md)",
+        "--output",
+        "$(execpath check_execpath_with_aspect_bazel_lib_run_binary.txt)",
+        "--string-to-append",
+        "'string to append: $(GENDIR)'",
+    ],
     tool = "//subpackage:py_cat",
 )
 
@@ -265,7 +292,7 @@ compile_pip_requirements(
 )
 
 # we can test it with `bazel test //:double_test`
-rules_test_suite(name = "double_test")
+rules_test_suite(name = "double_test")π
 
 # functions can't be defined in BUILD files, use .bzl files for that
 #def add(x, y):

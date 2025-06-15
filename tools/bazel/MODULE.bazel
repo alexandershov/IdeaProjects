@@ -20,6 +20,7 @@ bazel_dep(name = "aspect_rules_py", version = "0.7.3")
 # needed for unittest to work
 bazel_dep(name = "bazel_skylib", version = "1.6.1")
 bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "aspect_bazel_lib", version = "2.19.3")
 
 # include is upcoming feature in bazel 7.2.0
 # it allows you to split MODULE.bazel into smaller files
