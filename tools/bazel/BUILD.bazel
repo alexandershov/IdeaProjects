@@ -248,6 +248,8 @@ run_binary(
         "$(execpath bazel.md)",
         "--output",
         "$(execpath check_execpath_with_bazel_skylib_run_binary.txt)",
+        "--string-to-append",
+        "string to append: $(execpath check_execpath_with_bazel_skylib_run_binary.txt)",
     ],
     # tool can be `*_binary` rule or some executable file (e.g. smth coming from http_archive)
     tool = "//subpackage:py_cat",
