@@ -292,7 +292,7 @@ compile_pip_requirements(
 )
 
 # we can test it with `bazel test //:double_test`
-rules_test_suite(name = "double_test")π
+rules_test_suite(name = "double_test")
 
 # functions can't be defined in BUILD files, use .bzl files for that
 #def add(x, y):
