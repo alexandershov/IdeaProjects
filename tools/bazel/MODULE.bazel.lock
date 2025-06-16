@@ -160,7 +160,7 @@
   "moduleExtensions": {
     "//:extensions.bzl%download": {
       "general": {
-        "bzlTransitiveDigest": "vWXmJQnrm8OZV0yg8S4e3wAJh6wFRjzg8WgBcpPpO2s=",
+        "bzlTransitiveDigest": "biS/SHTU2rujf5tXDrWY3cjDiEt9JLugnOkJVBnlF7E=",
         "usagesDigest": "JJlfduyHXncwULbMHoCzfeB0Wg3ZjmFsAWm24H2K92E=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},

@@ -26,7 +26,7 @@
 * https://bazel.build/configure/best-practices
 * https://bazel.build/contribute/codebase  
 * configurations
-* apparent/canonical repo names
+* ✅ apparent/canonical repo names
 * gazelle
   * general
   * python

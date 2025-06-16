@@ -164,6 +164,29 @@ They are referred as @@<canonical name>. Main repo has empty canonical name and
 targets in the main repo can be referred as `@@//path/to:target`.
 With @@ even external repos can reference targets in the main repo. 
 
+Also repos have apparent names: essentially a local repo name that only works in the context of some other repo.
+Each repo maintains a repo_mapping: {apparent_name -> canonical_name}.
+So the same (by canonical name) repo can have two different apparent names in repo A and in repo B.
+
+It's not clear how to inspect full repo_mapping for a given repo. One way to take a look at a _part_ of it
+is to build some binary and to inspect `{name}.repo_mapping` in a build output:
+```shell
+bazel build //subpackage:py_cat
+cat bazel-bin/subpackage/py_cat.repo_mapping
+,bazel_tutorial,_main
+rules_python++python+python_3_11_aarch64-apple-darwin,python_3_11_aarch64-apple-darwin,rules_python++python+python_3_11_aarch64-apple-darwin
+```
+
+Format of repo mapping is csv `X,A,C` meaning that in repo X you can refer to a repo with canonical name C 
+using apparent name A.
+If X is empty (like in the first line), then it's a main repo. 
+So `bazel query @bazel_tutorial//...` works (`bazel_tutorial` taken from a module name in `module(name=)` call)
+I'm not sure why `@@_main//...` doesn't work:
+```shell
+bazel query @@_main//...
+ERROR: Target parsing failed due to unexpected exception: Repository '@@_main' is not defined
+```
+
 ## Query
 
 Find all rule names recursively
