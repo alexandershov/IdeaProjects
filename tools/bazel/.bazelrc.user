@@ -1,2 +1,2 @@
-# redefines --unconditional_warning in .bazelrc
-common --unconditional_warning='overridden warning'
+# redefines --unconditional_warning in .bazelrc, commented out because it's too noisy
+# common --unconditional_warning='overridden warning'

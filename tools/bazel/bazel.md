@@ -584,6 +584,37 @@ On the next CLI invocation bazel server will be started again.
 Bazel server can execute only one command at a time. That's why you're getting all
 these "Another Bazel command is running" when trying two execute two bazel commands in parallel.
 
+You can inspect server info:
+```shell
+$ ls $(bazel info output_base)/server
+cmdline              jvm.out              response_cookie      server_info.rawproto
+command_port         request_cookie       server.pid.txt
+```
+
+cmdline is how the server was started, it's a long java invocation:
+```shell
+cat $(bazel info output_base)/server/cmdline
+azel(bazel)--add-opens=java.base/java.lang=ALL-UNNAMED-Xverify:none-Djava.util.logging.config.file=/private/var/tmp/_bazel_aershov/aa113e5d9cb7e4bbe0353cfbd569ece8/javalog.properties-Dcom.google.devtools.build.lib.util.
+<REDACTED>
+```
+
+command_port is host:port pair:
+```shell
+cat $(bazel info output_base)/server/command_port
+[::1]:51919%
+# bazel is started on localhost, ipv6, port 51919
+lsof -i :51919
+COMMAND   PID    USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+java    13763 aershov   53u  IPv6 <REDACTED>      0t0  TCP localhost:51919 (LISTEN)
+```
+
+PID from lsof output checks out:
+```shell
+cat $(bazel info output_base)/server/server.pid.txt
+13763%
+```
+
+
 
 ### Local/Remote Cache
 Cache can be local or remote. Local cache is, ahem, local and lives on a local host machine.
