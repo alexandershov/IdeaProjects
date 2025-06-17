@@ -465,7 +465,6 @@ prefix regex with `-` to exclude mathing targets from instrumentation
  bazel coverage --combined_report=lcov --instrumentation_filter '//subpackage:b.*,-//subpackage:a.*' //subpackage:passing_test
 ```
 
-
 ## Directory structure
 Bazel writes all of its data to a directory called `outputUserRoot`.
 Its exact location differs across OSes.
@@ -481,6 +480,12 @@ For convenience bazel creates symlink to this directory in `{workspace}/bazel-ou
 output_base also contains:
 * `action_cache/` directory. So action cache is per-workspace.
 * `external/` directory containing all fetched external repositories
+
+When running under bzlmod `{outputBase}/execroot` contains a _main/ folder.
+_main is a name of the main repository in bzlmod.
+All actions have cwd set to `{outputBase}/execroot` (a sandbox version of it).
+execroot actually contains the main repo and all external repos in `execroot/_main/external`
+So with execroot you get a "true monorepo" view of bazel where everything is hermetic and downloads of third-party packages are not required.
 
 Show a bunch of information about bazel (output_base, install_base, workspace, etc)
 ```shell
@@ -614,6 +619,14 @@ cat $(bazel info output_base)/server/server.pid.txt
 13763%
 ```
 
+bazel CLI communicates with the server using gRPC. 
+E.g. here's an [implementation](https://github.com/bazelbuild/bazel/blob/master/src/main/java/com/google/devtools/build/lib/runtime/commands/RunCommand.java?utm_source=chatgpt.com) of `bazel run`
+
+Under the hood bazel maintains a DAG of a build, it's called SkyFrame.
+You can inspect it with (warning: huge output):
+```shell
+bazel dump --skyframe=deps
+```
 
 
 ### Local/Remote Cache

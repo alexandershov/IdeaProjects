@@ -25,7 +25,7 @@
   * etc
 * https://bazel.build/configure/best-practices
 * https://bazel.build/contribute/codebase  
-* configurations
+* configurations https://bazel.build/extending/config
 * ✅ apparent/canonical repo names
 * gazelle
   * general
@@ -36,9 +36,11 @@
 * https://blog.engflow.com/2024/05/13/the-many-caches-of-bazel/#in-memory-caches
 * toolchains deep-dive
 * aspects
-* rule transitions
+* rule transitions https://bazel.build/extending/config
 * rules_oci
 * rules_proto for python deep-dive
+  * why do we need proto_library
+  * etc
 * sandboxing
 * bazel & envvars
 * integration testing & bazel from dropbox: https://www.youtube.com/watch?v=muvU1DYrY0w
