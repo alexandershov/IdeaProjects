@@ -21,7 +21,7 @@
 * https://bazel.build/start (look at "Build concepts")
 * starlark
   * https://bazel.build/reference/be/functions
-  * https://bazel.build/rules/bzl-style
+  * ✅ `[nothing interesting]` https://bazel.build/rules/bzl-style
   * etc
 * https://bazel.build/configure/best-practices
 * https://bazel.build/contribute/codebase  
