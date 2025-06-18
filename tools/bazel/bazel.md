@@ -731,3 +731,8 @@ cat $(bazel info output_base)/command.profile.gz | zcat | head -3
     {"name":"thread_name","ph":"M","pid":1,"tid":0,"args":{"name":"Critical Path"}},
     {"name":"thread_sort_index","ph":"M","pid":1,"tid":0,"args":{"sort_index":0}},
 ```
+
+You can generate a more detailed profile (taking a big performance hit) with 
+```shell
+bazel build --record_full_profiler_data //subpackage:py_cat
+```
