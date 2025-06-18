@@ -24,7 +24,7 @@
   * ✅ `[nothing interesting]` https://bazel.build/rules/bzl-style
   * etc
 * https://bazel.build/configure/best-practices
-* https://bazel.build/contribute/codebase  
+* ✅ https://bazel.build/contribute/codebase  
 * configurations https://bazel.build/extending/config
 * ✅ apparent/canonical repo names
 * gazelle
