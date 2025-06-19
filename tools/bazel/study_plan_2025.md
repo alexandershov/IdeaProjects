@@ -20,7 +20,7 @@
   * etc
 * https://bazel.build/start (look at "Build concepts")
 * starlark
-  * https://bazel.build/reference/be/functions
+  * ✅ `[added package_group & subpackages]` https://bazel.build/reference/be/functions
   * ✅ `[nothing interesting]` https://bazel.build/rules/bzl-style
   * etc
 * https://bazel.build/configure/best-practices

@@ -333,4 +333,16 @@ alias(
     }),
 )
 
+# you can use list comprehension in BUILD files, looks hacky, but allows to emulate `for` statement which are not allowed
+# in a BUILD files
+[
+    genrule(
+        name = "comprehension_{}".format(path),
+        outs = ["out_comprehension_{}".format(path)],
+        cmd = "echo {} > $@".format(path),
+    )
+    # subpackages() is like a glob, but, well, for subpackages
+    for path in glob(["**"]) + subpackages(include = ["**"])
+]
+
 print("BUILD file")
