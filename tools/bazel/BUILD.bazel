@@ -213,6 +213,17 @@ py_library(
     srcs = ["check_runfiles.py"],
 )
 
+# defines, ahem, a package group that can be referenced in a visibility or in `includes` argument of package_group
+package_group(
+    name = "root_and_subpackage",
+    # minus means "exclude this package from a group"
+    # ... has the usual meaning
+    packages = [
+        "-//subpackage",
+        "//...",
+    ],
+)
+
 # if it was uncommented, then check_runfiles_library would resolve
 # srcs = ["check_runfiles.py"] to this py_library instead of the source file check_runfiles.py
 #py_library(
