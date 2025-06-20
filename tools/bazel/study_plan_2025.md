@@ -14,7 +14,7 @@
 * writing rules
   * https://www.youtube.com/watch?v=2KUunGBZiiM (jay conrod on writing rules)
   * https://bazel.build/rules/lib/builtins/ctx & dfs for all arguments from there 
-  * https://github.com/bazel-contrib/rules-template
+  * ✅ https://github.com/bazel-contrib/rules-template
   * when bazel builds an action graph, how it can actually understand which actions are in a graph? I.e. what tf does it mean to execute rule implementation, if it's actually hermetic?
   * providers
   * etc
@@ -34,7 +34,12 @@
   * what does --experimental_use_llvm_covmap do? 
   * etc
 * https://blog.engflow.com/2024/05/13/the-many-caches-of-bazel/#in-memory-caches
-* toolchains deep-dive
+* toolchains deep-dive 
+  * https://github.com/bazel-contrib/rules-template/blob/main/mylang/private/toolchains_repo.bzl
+  * https://github.com/bazel-contrib/rules-template/blob/main/mylang/repositories.bzl
+  * https://github.com/bazel-contrib/rules-template/blob/main/mylang/extensions.bzl
+  * https://github.com/bazel-contrib/rules-template/blob/main/mylang/toolchain.bzl
+  * etc
 * aspects
 * rule transitions https://bazel.build/extending/config
 * rules_oci
