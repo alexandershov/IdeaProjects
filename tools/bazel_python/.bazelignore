@@ -1,0 +1,2 @@
+# in .bazelignore you can specify directories that bazel will ignore
+third_party/rules_python
