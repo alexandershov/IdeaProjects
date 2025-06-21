@@ -12,7 +12,7 @@
   * bash, python, and cpp implementations of runfiles lib 
   * etc
 * writing rules
-  * https://www.youtube.com/watch?v=2KUunGBZiiM (jay conrod on writing rules)
+  * ✅ https://www.youtube.com/watch?v=2KUunGBZiiM (jay conrod on writing rules)
   * https://bazel.build/rules/lib/builtins/ctx & dfs for all arguments from there 
   * ✅ https://github.com/bazel-contrib/rules-template
   * when bazel builds an action graph, how it can actually understand which actions are in a graph? I.e. what tf does it mean to execute rule implementation, if it's actually hermetic?
@@ -48,6 +48,7 @@
   * etc
 * sandboxing
 * bazel & envvars
+* https://github.com/bazel-contrib/rules_bazel_integration_test
 * integration testing & bazel from dropbox: https://www.youtube.com/watch?v=muvU1DYrY0w
 * CTC https://www.youtube.com/watch?v=9Dk7mtIm7_A
 * ecosystem

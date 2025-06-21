@@ -4,6 +4,7 @@ def _my_rule_impl(ctx):
     print("workspace", ctx.workspace_name)
     print("deps", ctx.attr.deps)
     outs = []
+    private_out = None
     if ctx.attr.deps:
         # deps[0] is a Target, that has attribute .files
         # which is a depset with this Target output files
@@ -21,6 +22,8 @@ def _my_rule_impl(ctx):
             command = "cat $@ > {}".format(private_out.path),
             outputs = [private_out],
             inputs = ctx.attr.deps[0].files,
+            # use_default_shell_env will add more environment variables to a command (e.g. $PATH)
+            use_default_shell_env = True,
         )
         outs.append(private_out)
 

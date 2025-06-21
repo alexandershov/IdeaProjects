@@ -149,6 +149,10 @@ When build finishes sandbox directory is cleaned.
 You can pass `--sandbox_debug` to print extra debugging info (including path to sandbox directory), and
 sandbox directory won't be cleaned.
 
+You can also specify (`-s` or `--subcommands`, that will print commands that are executed).
+With `--verbose_failures` bazel will print command that has failed. (it's like `--subcommands`, but only for
+failed commands)
+
 ## Modules
 bzlmod is a new system for managing bazel dependencies. See [MODULE.bazel](./MODULE.bazel) for a description of bzlmod.
 
@@ -736,3 +740,22 @@ You can generate a more detailed profile (taking a big performance hit) with
 ```shell
 bazel build --record_full_profiler_data //subpackage:py_cat
 ```
+
+## Starlark
+
+### Standalone interpreter
+You can install standalone starlark interpreter: https://github.com/google/starlark-go
+```shell
+$ go install go.starlark.net/cmd/starlark@latest
+```
+
+and then `starlark` binary will appear on the path:
+```shell
+➜  bazel git:(main) ✗ starlark
+Welcome to Starlark (go.starlark.net)
+>>> fail("error")
+Traceback (most recent call last):
+  <stdin>:1:5: in <expr>
+Error in fail: fail: error
+```
+Disclaimer: this is not the same interpreter that is used by bazel, but it's pretty close.
