@@ -711,7 +711,18 @@ alias(
 
 `@platforms//host` is [implemented](https://github.com/bazelbuild/platforms/blob/9b6373db0cf97f991458d1fdc14f164c94d91db5/host/extension.bzl#L35-L60) with a repo_rule.
 
-You can specify Host and Target platforms with cmd options `--host-platform` & `--platforms`.
+You can specify Host and Target platforms with cmd options `--host_platform` & `--platforms`.
+Default value of `--host_platform` is `"@bazel_tools//tools:host_platform`.
+It's an alias for `@platforms//host:host`:
+```shell
+bazel query --output=build '@bazel_tools//tools:host_platform'
+alias(
+  name = "host_platform",
+  actual = "@platforms//host:host",
+)
+```
+If `--platforms` is not specified, then it defaults to the value of `--host_platform`.
+Since `--host_platform` always has a value that's why you have os & cpu always specified during a bazel invocation.
 
 You can create targets that are compatible only with the given constraints with `target_compatible_with`, see
 `//subpackage:linux_x86_64_passing_test` for an example.
