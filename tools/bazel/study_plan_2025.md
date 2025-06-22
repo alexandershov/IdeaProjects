@@ -2,7 +2,8 @@
 
 * rules_python deep-dive
   * how wheels are created
-  * https://android.googlesource.com/platform/external/bazelbuild-rules_python/+/73e2490/README.md
+  * ✅ https://android.googlesource.com/platform/external/bazelbuild-rules_python/+/73e2490/README.md
+    * that was just vendored-in rules_python repo
   * understand toolchains in rules_python (e.g. @rules_python//python/config_settings:is_python_3.9)
   * etc
 * rules_py deep-dive

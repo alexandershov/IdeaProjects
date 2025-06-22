@@ -40,3 +40,15 @@ gazelle(
     name = "gazelle",
     gazelle = "@rules_python_gazelle_plugin//python:gazelle_binary",
 )
+
+genrule(
+    name = "dump_python_version",
+    outs = ["python_version.txt"],
+    # python version would 3.13 since it's the default toolchain
+    cmd = "$(PYTHON3) --version > $@",
+    toolchains = [
+        # TODO: deep-dive into rules_python toolchains
+        # this toolchain makes $(PYTHON3) make variable available
+        "@rules_python//python:current_py_toolchain",
+    ],
+)
