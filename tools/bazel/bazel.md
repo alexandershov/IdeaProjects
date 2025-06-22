@@ -729,7 +729,7 @@ $ bazel test //subpackage:linux_x86_64_passing_test
 ERROR: Analysis of target '//subpackage:linux_x86_64_passing_test' failed; build aborted: Target //subpackage:linux_x86_64_passing_test is incompatible and cannot be built, but was explicitly requested.
 Dependency chain:
     //subpackage:linux_x86_64_passing_test (e5d0b4)   <-- target platform (@@platforms//host:host) didn't satisfy constraints [@@platforms//cpu:x86_64, @@platforms//os:linux]```
-
+```
 
 ## Toolchains
 Toolchains allow you to essentially get the effect of select() inside the `attr.label(default=)`.
