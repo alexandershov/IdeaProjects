@@ -651,6 +651,86 @@ so you need a separate process of cleaning it up.
 
 Passing disk_cache='' disables disk cache. It's actually default behaviour.
 
+## Platforms
+Platforms is a named collection of constraint values.
+Constraint value is e.g. `cpu is arm64`, `cpu is x86_64`, or `os is linux`.
+In bazelspeak e.g. `cpu` is constraint_setting and e.g. `arm64/etc` is constraint_value.
+constraint_setting is essentially the name of the enum class. 
+And constraint_value are essentially possible values of the enum.
+[platforms](https://registry.bazel.build/modules/platforms) module defines a universally useful constraint settings & values.
+
+E.g, here's a cpu constraint_setting:
+```shell
+$ bazel query --output=build '@platforms//cpu:cpu'
+constraint_setting(
+  name = "cpu",
+)
+```
+
+And here's a redacted list of possible cpu constraint values:
+```shell
+bazel query '@platforms//cpu/...'
+...
+@platforms//cpu:arm64
+...
+@platforms//cpu:x86_64
+...
+```
+
+`@platforms` name is actually a misnomer (welcome to bazel), because it defines a bunch of constraint settings/values, but only one platform:
+```shell
+bazel query 'kind(platform, @platforms//...)'
+@platforms//host:host
+```
+
+You can think of 3 kinds of platforms:
+* Host Platform (system where you execute bazel commands)
+* Execution Platform (system where bazel executes actions)
+* Target Platform (system where artifacts that are built by bazel are actually running)
+
+In the simplest case all three of these are the same (e.g. your development machine is linux, you build on linux, 
+and your final binary runs on linux), but it's not necessarily the case (e.g. you can run bazel on Mac
+and cross-compile for linux)
+
+`@platforms//host` is a special platform that describes your Host:
+```shell
+$ bazel query --output=build 'kind(platform, @platforms//...)'
+platform(
+  name = "host",
+  constraint_values = ["@platforms//cpu:aarch64", "@platforms//os:osx"],
+)
+```
+aarch64 is the same as arm64:
+```shell
+$ bazel query --output=build '@platforms//cpu:arm64'
+alias(
+  name = "arm64",
+  actual = "@platforms//cpu:aarch64",
+)
+```
+
+`@platforms//host` is [implemented](https://github.com/bazelbuild/platforms/blob/9b6373db0cf97f991458d1fdc14f164c94d91db5/host/extension.bzl#L35-L60) with a repo_rule.
+
+You can specify Host and Target platforms with cmd options `--host-platform` & `--platforms`.
+
+You can create targets that are compatible only with the given constraints with `target_compatible_with`, see
+`//subpackage:linux_x86_64_passing_test` for an example.
+
+Incompatible targets are skipped in ... expansion:
+```shell
+bazel test //subpackage/...
+//subpackage:linux_x86_64_passing_test                                     SKIPPED
+//subpackage:passing_test                                                PASSED in 0.3
+```
+
+If we try to build an incompatible target explicitly, then we'll get an error:
+```shell
+$ bazel test //subpackage:linux_x86_64_passing_test
+ERROR: Analysis of target '//subpackage:linux_x86_64_passing_test' failed; build aborted: Target //subpackage:linux_x86_64_passing_test is incompatible and cannot be built, but was explicitly requested.
+Dependency chain:
+    //subpackage:linux_x86_64_passing_test (e5d0b4)   <-- target platform (@@platforms//host:host) didn't satisfy constraints [@@platforms//cpu:x86_64, @@platforms//os:linux]```
+
+
 ## Toolchains
 Toolchains allow you to essentially get the effect of select() inside the `attr.label(default=)`.
 select can't be used as value for default in `attr.label`.

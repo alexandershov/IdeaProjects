@@ -52,3 +52,30 @@ py_test(
         ":adder",
     ],
 )
+
+py_test(
+    name = "linux_x86_64_passing_test",
+    srcs = ["test_subpackage.py"],
+    main = "test_subpackage.py",
+    # if we run `bazel test //...` on a mac, then it'll be skipped, since it requires
+    # both x86_64 AND linux
+    # default of target_compatible_with is [], which means that there are no constraints
+    # you can use `select` with `target_compatible_with` for the more complex conditions:
+    # e.g.: this makes target compatible with either Mac OR linux
+    #    target_compatible_with = select(
+    #        {
+    #            "@platforms//os:macos": [],
+    #            "@platforms//os:linux": [],
+    #            "//conditions:default": ["@platforms//:incompatible"],
+    #        },
+    #    ),
+    target_compatible_with = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
+        # :incompatible is a special constraint that is incompatible with everything
+        #        "@platforms//:incompatible",
+    ],
+    deps = [
+        ":adder",
+    ],
+)
