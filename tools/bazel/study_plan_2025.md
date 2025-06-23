@@ -34,7 +34,7 @@
 * coverage deep-dive
   * what does --experimental_use_llvm_covmap do? 
   * etc
-* https://blog.engflow.com/2024/05/13/the-many-caches-of-bazel/#in-memory-caches
+* ✅ `[no new information]` https://blog.engflow.com/2024/05/13/the-many-caches-of-bazel/#in-memory-caches
 * toolchains deep-dive 
   * https://github.com/bazel-contrib/rules-template/blob/main/mylang/private/toolchains_repo.bzl
   * https://github.com/bazel-contrib/rules-template/blob/main/mylang/repositories.bzl
