@@ -754,6 +754,14 @@ The extra advantage is that you can provide toolchains that the rule author didn
 think about. Disadvantage is that it's extra complexity and another entry in ever-growing collection of
 bazel crutches.
 
+## Transitions
+Transitions allow to change build options, e.g. @aspect_rules_py// takes `python_version` as an argument.
+Actually python version is configured by a build setting `@rules_python//python/config_settings:python_version`
+So rules_py adds a [transition](https://github.com/aspect-build/rules_py/blob/main/py/private/transitions.bzl) to allow rule attribute python_version to change this build_setting.
+python_version_transition (it's a incoming edge transition) takes a python_version from the rule attrs and 
+[changes](https://github.com/aspect-build/rules_py/blob/5968bcbde0cc7224b104bea3255a97bda29c89f1/py/private/transitions.bzl#L6C13-L6C67) the value of "@rules_python//python/config_settings:python_version"
+
+
 ## Profiling
 
 You can generate profile data with bazel, use `--profile=` flag.
