@@ -24,7 +24,7 @@
   * ✅ `[added package_group & subpackages]` https://bazel.build/reference/be/functions
   * ✅ `[nothing interesting]` https://bazel.build/rules/bzl-style
   * etc
-* https://bazel.build/configure/best-practices
+* ✅ `[if you have a src, then it should be in a package, finely-grained targets]` https://bazel.build/configure/best-practices
 * ✅ https://bazel.build/contribute/codebase  
 * configurations https://bazel.build/extending/config
 * ✅ apparent/canonical repo names
