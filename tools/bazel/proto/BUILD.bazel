@@ -1,0 +1,24 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+# TODO: use non-deprecated way https://github.com/bazel-contrib/rules_python/blob/main/python/proto.bzl
+load("@rules_python//python:proto.bzl", "py_proto_library")
+
+py_library(
+    name = "lib",
+    deps = [":foo_py_pb2"],
+)
+
+# is defined in https://github.com/protocolbuffers/protobuf/blob/main/bazel/py_proto_library.bzl
+py_proto_library(
+    name = "foo_py_pb2",
+    deps = [":foo_proto"],
+)
+
+# proto_library outputs a descriptor
+# descriptor is a description of the proto file
+# descriptor is actually a proto message itself
+# it's defined here: https://github.com/protocolbuffers/protobuf/blob/15fa74e6ad21ddd6ddc3f8927d2b0259a33644d1/src/google/protobuf/descriptor.proto#L104
+proto_library(
+    name = "foo_proto",
+    srcs = ["foo.proto"],
+)
