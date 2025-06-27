@@ -9,16 +9,42 @@ py_library(
 )
 
 # is defined in https://github.com/protocolbuffers/protobuf/blob/main/bazel/py_proto_library.bzl
+# outputs stubs for a proto
+# bazel cquery --output=files //proto:foo_py_pb2
+# bazel-out/darwin_arm64-fastbuild/bin/proto/foo_pb2.py
 py_proto_library(
     name = "foo_py_pb2",
     deps = [":foo_proto"],
 )
 
+py_proto_library(
+    name = "descriptor_py_pb2",
+    deps = [":descriptor_proto"],
+)
+
 # proto_library outputs a descriptor
 # descriptor is a description of the proto file
 # descriptor is actually a proto message itself
-# it's defined here: https://github.com/protocolbuffers/protobuf/blob/15fa74e6ad21ddd6ddc3f8927d2b0259a33644d1/src/google/protobuf/descriptor.proto#L104
+# it's defined here: https://github.com/protocolbuffers/protobuf/blob/15fa74e6ad21ddd6ddc3f8927d2b0259a33644d1/src/google/protobuf/descriptor.proto#L56
+# you can parse it:
+# bazel run //proto:check_proto -- $(pwd)/bazel-out/darwin_arm64-fastbuild/bin/proto/foo_proto-descriptor-set.proto.bin
+# see check_proto.py for details
 proto_library(
     name = "foo_proto",
     srcs = ["foo.proto"],
+)
+
+proto_library(
+    name = "descriptor_proto",
+    srcs = [],
+    deps = ["@protobuf//:descriptor_proto"],
+)
+
+py_binary(
+    name = "check_proto",
+    srcs = ["check_proto.py"],
+    deps = [
+        ":descriptor_py_pb2",
+        ":foo_py_pb2",
+    ],
 )
