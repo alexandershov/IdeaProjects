@@ -1,0 +1,6 @@
+load(":defs.bzl", "pie_binary")
+
+pie_binary(
+    name = "hello",
+    srcs = ["hello.py"],
+)
