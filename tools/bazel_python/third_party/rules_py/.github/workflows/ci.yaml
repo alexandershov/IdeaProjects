@@ -1,0 +1,103 @@
+name: CI
+
+# Controls when the action will run.
+on:
+  # Triggers the workflow on push or pull request events
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+concurrency:
+  # Cancel previous actions from the same PR or branch except 'main' branch.
+  # See https://docs.github.com/en/actions/using-jobs/using-concurrency and https://docs.github.com/en/actions/learn-github-actions/contexts for more info.
+  group: concurrency-group::${{ github.workflow }}::${{ github.event.pull_request.number > 0 && format('pr-{0}', github.event.pull_request.number) || github.ref_name }}${{ github.ref_name == 'main' && format('::{0}', github.run_id) || ''}}
+  cancel-in-progress: ${{ github.ref_name != 'main' }}
+
+jobs:
+  test:
+    uses: bazel-contrib/.github/.github/workflows/bazel.yaml@646899086d7aaee8e532540480f3e91e00596234 # 11 Dec 2024
+    with:
+      # NB: the root folder is tested with Aspect Workflows on BuildKite, see /.aspect/workflows/config.yaml
+      folders: '["e2e/smoke", "e2e/repository-rule-deps", "e2e/system-interpreter", "examples/uv_pip_compile"]'
+      # TODO: Build Windows tools and add to toolchain
+      # TODO(alex): switch the root folder to bzlmod
+      # TODO: fix remaining folders on Bazel 8
+      exclude: |
+        [
+          {"os": "windows-latest"},
+          {"folder": "e2e/repository-rule-deps", "bzlmodEnabled": false},
+          {"folder": "e2e/system-interpreter", "bzlmodEnabled": false},
+          {"folder": "examples/uv_pip_compile", "bzlmodEnabled": false},
+          {"folder": "e2e/smoke", "bazelversion": "8.0.0"}
+        ]
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pre-commit/action@v3.0.1
+
+  verify-bcr-patches:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: patch --dry-run -p1 --fuzz 0 < .bcr/patches/*.patch
+
+  test-release:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # allow commenting to the PR with the token
+    defaults:
+      run:
+        working-directory: e2e/use_release
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./minimal_download_test.sh
+      - run: bazel coverage --combined_report=lcov //src/...
+      - uses: hrishikesh-kadam/setup-lcov@6c1aa0cc9e1c02f9f58f01ac599f1064ccc83470 # v1
+      # The github-actions-report-lcov doesn't follow symlinks, so get an absolute path
+      - run: echo "output_path=$(bazel info output_path)" >> $GITHUB_ENV
+      - name: Report code coverage
+        if: github.event.pull_request.head.repo.fork == false # Forks always have read-only tokens
+        uses: zgosalvez/github-actions-report-lcov@5989987f8058a03137e90bc16f9c0baaac5e069a # v4.1.22
+        with:
+          title-prefix: "e2e/use_release folder:"
+          working-directory: e2e/use_release
+          # Point to the already-merged data file Bazel produces with --combined_report=lcov
+          # Follows https://bazel.build/configure/coverage#running_coverage
+          coverage-files: "${{ env.output_path }}/_coverage/_coverage_report.dat"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          update-comment: true
+
+  # For branch protection settings, this job provides a "stable" name that can be used to gate PR merges
+  # on "all matrix jobs were successful".
+  conclusion:
+    needs:
+      - test
+      - verify-bcr-patches
+      - test-release
+      - pre-commit
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - uses: technote-space/workflow-conclusion-action@45ce8e0eb155657ab8ccf346ade734257fd196a5 # v3.0.3
+
+      # Note: possible conclusion values:
+      # https://github.com/technote-space/workflow-conclusion-action/blob/main/src/constant.ts
+      - name: report success
+        if: ${{ env.WORKFLOW_CONCLUSION == 'success' }}
+        working-directory: /tmp
+        run: echo ${{ env.WORKFLOW_CONCLUSION }} && exit 0
+
+      - name: report failure
+        if: ${{ env.WORKFLOW_CONCLUSION == 'failure' }}
+        working-directory: /tmp
+        run: echo ${{ env.WORKFLOW_CONCLUSION }} && exit 1

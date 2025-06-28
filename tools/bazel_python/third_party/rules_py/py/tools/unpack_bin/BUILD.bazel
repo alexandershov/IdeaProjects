@@ -1,0 +1,21 @@
+load("//tools/release:defs.bzl", "rust_binary")
+
+rust_binary(
+    name = "unpack",
+    srcs = [
+        "src/main.rs",
+    ],
+    deps = [
+        "//py/tools/py",
+        "@crate_index//:clap",
+        "@crate_index//:miette",
+    ],
+)
+
+alias(
+    name = "unpack_bin",
+    actual = ":unpack",
+    visibility = [
+        "//visibility:public",
+    ],
+)

@@ -18,6 +18,16 @@ local_path_override(
     path = "third_party/rules_python",
 )
 
+# cd third_party
+# g clone https://github.com/aspect-build/rules_py.git
+# cd rules_py
+# g co v1.5.2
+# rm -rf .git
+local_path_override(
+    module_name = "aspect_rules_py",
+    path = "third_party/rules_py",
+)
+
 # TODO: deep-dive into bazel module extensions
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 

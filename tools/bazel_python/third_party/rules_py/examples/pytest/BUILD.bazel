@@ -1,0 +1,40 @@
+load("@aspect_rules_py//py:defs.bzl", "py_library", "py_test")
+
+py_library(
+    name = "lib",
+    srcs = ["foo.py"],
+    imports = ["../.."],
+)
+
+py_test(
+    name = "pytest_test",
+    srcs = ["foo_test.py"],
+    data = glob([
+        "fixtures/*.json",
+    ]),
+    env_inherit = ["FOO"],
+    exec_properties = {
+        "test.foo": "bar",
+    },
+    imports = ["../.."],
+    package_collisions = "warning",
+    pytest_main = True,
+    deps = [
+        ":lib",
+        "@pypi_coverage//:pkg",
+        "@pypi_ftfy//:pkg",
+        "@pypi_neptune//:pkg",
+        "@pypi_pytest//:pkg",
+    ],
+)
+
+py_test(
+    # NB: name contains a slash as regression test for #483
+    name = "sharded/test",
+    srcs = ["sharding_test.py"],
+    imports = ["../.."],
+    package_collisions = "warning",
+    pytest_main = True,
+    shard_count = 2,
+    deps = ["@pypi_pytest//:pkg"],
+)

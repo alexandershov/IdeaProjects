@@ -1,0 +1,22 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
+  "extends": [
+    "config:base",
+    ":preserveSemverRanges",
+    ":rebaseStalePrs",
+    "schedule:weekly",
+    "group:recommended",
+    "group:monorepos",
+    "workarounds:all"
+  ],
+  "rebaseWhen": "never",
+  "labels": ["deps"],
+  "dependencyDashboard": true,
+  "packageRules": [
+    {
+      "matchFiles": ["MODULE.bazel"],
+      "enabled": false
+    }
+  ]
+}

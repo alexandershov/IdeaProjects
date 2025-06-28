@@ -1,0 +1,121 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
+package(default_visibility = [
+    "//docs:__pkg__",
+    "//py:__subpackages__",
+])
+
+exports_files(
+    [
+        "run.tmpl.sh",
+        "pytest.py.tmpl",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+exports_files(
+    [
+        "py_binary.bzl",
+        "py_library.bzl",
+    ],
+    visibility = ["//docs:__pkg__"],
+)
+
+bzl_library(
+    name = "py_image_layer",
+    srcs = ["py_image_layer.bzl"],
+    deps = [
+        "@aspect_bazel_lib//lib:tar",
+        "@aspect_bazel_lib//lib:transitions",
+    ],
+)
+
+bzl_library(
+    name = "py_binary",
+    srcs = ["py_binary.bzl"],
+    deps = [
+        ":py_library",
+        "@aspect_bazel_lib//lib:expand_make_vars",
+        "@aspect_bazel_lib//lib:paths",
+    ],
+)
+
+bzl_library(
+    name = "py_library",
+    srcs = ["py_library.bzl"],
+    deps = [
+        ":providers",
+        ":py_semantics",
+        ":py_wheel",
+        "@bazel_skylib//lib:new_sets",
+        "@bazel_skylib//lib:paths",
+        "@bazel_skylib//lib:types",
+        "@rules_python//python:defs_bzl",
+    ],
+)
+
+bzl_library(
+    name = "py_wheel",
+    deps = [":providers"],
+)
+
+bzl_library(
+    name = "py_pytest_main",
+    srcs = ["py_pytest_main.bzl"],
+    deps = [
+        "@rules_python//docs:bazel_repo_tools",
+        "@rules_python//python:defs_bzl",
+    ],
+)
+
+bzl_library(
+    name = "py_semantics",
+    srcs = ["py_semantics.bzl"],
+    deps = [
+        "//py/private/toolchain:types",
+        "@bazel_skylib//rules:common_settings",
+    ],
+)
+
+bzl_library(
+    name = "py_unpacked_wheel",
+    srcs = ["py_unpacked_wheel.bzl"],
+    deps = [
+        ":py_library",
+        ":py_semantics",
+        "//py/private/toolchain:types",
+        "@bazel_skylib//lib:paths",
+    ],
+)
+
+bzl_library(
+    name = "providers",
+    srcs = ["providers.bzl"],
+    visibility = ["//py:__subpackages__"],
+)
+
+bzl_library(
+    name = "py_executable",
+    srcs = ["py_executable.bzl"],
+    visibility = ["//py:__subpackages__"],
+)
+
+bzl_library(
+    name = "py_pex_binary",
+    srcs = ["py_pex_binary.bzl"],
+    deps = [
+        ":py_semantics",
+        "//py/private/toolchain:types",
+        "@rules_python//python:defs_bzl",
+    ],
+)
+
+bzl_library(
+    name = "virtual",
+    srcs = ["virtual.bzl"],
+)
+
+bzl_library(
+    name = "transitions",
+    srcs = ["transitions.bzl"],
+)

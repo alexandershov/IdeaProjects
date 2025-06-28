@@ -1,0 +1,58 @@
+# Cut a release whenever a new tag is pushed to the repo.
+# You should use an annotated tag, like `git tag -a v1.2.3`
+# and put the release notes into the commit message for the tag.
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+permissions:
+  id-token: write
+  attestations: write
+  contents: write
+jobs:
+  build:
+    # We don't attempt to cross-compile rust binaries from one OS to another.
+    # So just spin up a runner on each OS to build its binaries.
+    strategy:
+      matrix:
+        # Pin to runner releases since our Rust compile is fiddly with system libs
+        os: [ubuntu-22.04, macos-13]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Rust Binaries
+        env:
+          # NB: this variable is read by tools/release/copy_release_artifacts.sh
+          DEST: artifacts
+        run: |
+          rm -rf ${{ env.DEST }}
+          mkdir -p ${{ env.DEST }}
+          bazel --bazelrc=.github/workflows/ci.bazelrc \
+            run --config=release //tools/release:copy_release_artifacts
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-${{ matrix.os }}
+          path: artifacts/
+          retention-days: 1
+
+  release:
+    needs: build
+    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.2.2
+    with:
+      prerelease: false
+      release_files: |
+        artifacts-*/*
+        rules_py-*.tar.gz
+      tag_name: ${{ github.ref_name }}
+  publish:
+    needs: release
+    uses: ./.github/workflows/publish.yaml
+    with:
+      tag_name: ${{ github.ref_name }}
+    secrets:
+      BCR_PUBLISH_TOKEN: ${{ secrets.BCR_PUBLISH_TOKEN }}
