@@ -36,6 +36,11 @@ python.toolchain(
 )
 use_repo(python, "python_versions")
 
+# use_extension also takes `dev_dependency` attribute
+# it's False by default
+# if it's true and current module is a root module then this dependency will be added
+# otherwise it'll be ignored
+# it's useful for testing, if you need to bring in some dependencies only for testing
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 pip.parse(
     hub_name = "python_main_hub",
