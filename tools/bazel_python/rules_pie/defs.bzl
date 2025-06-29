@@ -1,15 +1,7 @@
 def _pie_binary_impl(ctx):
-    outputs = []
     interpreter = ctx.toolchains["@rules_python//python:toolchain_type"].py3_runtime.interpreter
-    for src in ctx.files.srcs:
-        output = ctx.actions.declare_file(src.path)
-        outputs.append(output)
-        # TODO: is there a better way to copy srcs to outputs than run_shell?
-        ctx.actions.run_shell(
-            inputs = [src],
-            outputs = [output],
-            command = "cp {} {}".format(src.path, output.path),
-        )
+    # executable will contain script like
+    # `../rules_python++python+python_3_13_aarch64-apple-darwin/bin/python3 rules_pie/hello.py`
     executable = ctx.actions.declare_file(ctx.attr.name)
     ctx.actions.expand_template(
         template = ctx.files._bootstrap_template[0],
@@ -17,15 +9,16 @@ def _pie_binary_impl(ctx):
         substitutions = {
             # TODO: understand difference between File.path & File.short_path
             "{INTERPRETER}": interpreter.short_path,
-            "{MAIN_SCRIPT}": outputs[0].short_path,
+            "{MAIN_SCRIPT}": ctx.files.srcs[0].short_path,
         },
         is_executable = True,
     )
     return [
         DefaultInfo(
+            # executable is a special attribute that would be added to `files` attribute of DefaultInfo
             executable = executable,
-            files = depset(direct = outputs + [executable]),
-            runfiles = ctx.runfiles(files = ctx.files.srcs + [interpreter] + [outputs[0]]))
+            runfiles = ctx.runfiles(files = ctx.files.srcs + [interpreter]),
+        )
     ]
 
 pie_binary = rule(

@@ -1,5 +1,7 @@
+import sys
+
 def main():
-    print("hello")
+    print(f"hello python {sys.version}")
 
 
 if __name__ == '__main__':
