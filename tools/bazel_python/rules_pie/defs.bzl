@@ -21,13 +21,30 @@ def _pie_binary_impl(ctx):
         )
     ]
 
+def _python_version_transition_impl(settings, attr):
+    if attr.python_version:
+        return {"@rules_python//python/config_settings:python_version": attr.python_version}
+
+
+# python_version_transition can change python version based on attr.python_version
+python_version_transition = transition(
+    implementation = _python_version_transition_impl,
+    inputs = [],
+    # `outputs` specify which configuration parameters this transition is allowed to change
+    outputs = ["@rules_python//python/config_settings:python_version"],
+)
+
 pie_binary = rule(
     implementation = _pie_binary_impl,
     attrs = {
         "srcs": attr.label_list(allow_files = [".py"]),
+        # works together with transition
+        "python_version": attr.string(),
         "_bootstrap_template": attr.label(default="bootstrap.sh.tpl", allow_files = True)
     },
     # with `executable = True` you can `bazel run <target>`
     executable = True,
     toolchains = ["@rules_python//python:toolchain_type"],
+    # cfg defines transition
+    cfg = python_version_transition,
 )

@@ -4,3 +4,9 @@ pie_binary(
     name = "hello",
     srcs = ["hello.py"],
 )
+
+pie_binary(
+    name = "hello_3.11",
+    srcs = ["hello.py"],
+    python_version = "3.11",
+)
