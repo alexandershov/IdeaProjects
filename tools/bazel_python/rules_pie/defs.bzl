@@ -1,4 +1,5 @@
 def _pie_binary_impl(ctx):
+    print("py3_runtime = ", ctx.toolchains["@rules_python//python:toolchain_type"].py3_runtime)
     interpreter = ctx.toolchains["@rules_python//python:toolchain_type"].py3_runtime.interpreter
     # executable will contain script like
     # `../rules_python++python+python_3_13_aarch64-apple-darwin/bin/python3 rules_pie/hello.py`
@@ -7,7 +8,8 @@ def _pie_binary_impl(ctx):
         template = ctx.files._bootstrap_template[0],
         output = executable,
         substitutions = {
-            # TODO: understand difference between File.path & File.short_path
+            # use File.short_path to reference file at runtime
+            # use File.path to reference file at exec time
             "{INTERPRETER}": interpreter.short_path,
             "{MAIN_SCRIPT}": ctx.files.srcs[0].short_path,
         },
