@@ -73,7 +73,7 @@
 * ibazel https://github.com/bazelbuild/bazel-watcher
 * aspect blog https://blog.aspect.build
 * https://earthly.dev/blog/bazel-build/ "When to use bazel"
-* rules_lint: https://www.youtube.com/watch?v=CnK-RAdfrpI 
+* ✅ rules_lint: https://www.youtube.com/watch?v=CnK-RAdfrpI 
 * useful cmdline options
   * --override_repository 
   * --subcommands
