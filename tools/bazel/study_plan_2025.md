@@ -50,7 +50,7 @@
 * sandboxing
 * bazel & envvars
 * https://github.com/bazel-contrib/rules_bazel_integration_test
-* integration testing & bazel from dropbox: https://www.youtube.com/watch?v=muvU1DYrY0w
+* ✅ integration testing & bazel from dropbox: https://www.youtube.com/watch?v=muvU1DYrY0w
 * CTC https://www.youtube.com/watch?v=9Dk7mtIm7_A
 * ecosystem
   * skylib: https://github.com/bazelbuild/bazel-skylib
