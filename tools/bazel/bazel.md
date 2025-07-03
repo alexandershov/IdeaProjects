@@ -3,7 +3,7 @@ Bazel is a language-agnostic build system.
 
 You write build rules in Starlark.
 
-Starlark is basically a heavily restricted subset of Python.
+Starlark is basically a heavily restricted subset of Python (it's actually not turing-complete)
 
 Bazel allows you to describe dependencies and run rules only when rule inputs change.
 
