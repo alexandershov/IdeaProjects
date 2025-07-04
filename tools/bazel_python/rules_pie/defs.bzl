@@ -42,8 +42,10 @@ python_version_transition = transition(
 )
 
 def _pie_library_impl(ctx):
+    deps_runfiles = depset(transitive=[dep[DefaultInfo].data_runfiles.files for dep in ctx.attr.deps])
+
     return [
-        DefaultInfo(runfiles = ctx.runfiles(files = ctx.files.srcs))
+        DefaultInfo(runfiles = ctx.runfiles(files = ctx.files.srcs, transitive_files = deps_runfiles))
     ]
 
 
@@ -67,6 +69,7 @@ pie_binary = rule(
 pie_library = rule(
     implementation = _pie_library_impl,
     attrs = {
-        "srcs": attr.label_list(allow_files = [".py"])
+        "srcs": attr.label_list(allow_files = [".py"]),
+        "deps": attr.label_list(),
     }
 )

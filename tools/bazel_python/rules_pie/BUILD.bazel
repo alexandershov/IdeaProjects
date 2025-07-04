@@ -16,4 +16,10 @@ pie_binary(
 pie_library(
     name = "greeter",
     srcs = ["greeter.py"],
+    deps = [":greeter_helper"],
+)
+
+pie_library(
+    name = "greeter_helper",
+    srcs = ["greeter_helper.py"],
 )
