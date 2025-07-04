@@ -1,5 +1,4 @@
 def _pie_binary_impl(ctx):
-    print("py3_runtime = ", ctx.toolchains["@rules_python//python:toolchain_type"].py3_runtime)
     interpreter = ctx.toolchains["@rules_python//python:toolchain_type"].py3_runtime.interpreter
     # executable will contain script like
     # `../rules_python++python+python_3_13_aarch64-apple-darwin/bin/python3 rules_pie/hello.py`
@@ -15,11 +14,17 @@ def _pie_binary_impl(ctx):
         },
         is_executable = True,
     )
+
+    deps_runfiles = depset(transitive=[dep[DefaultInfo].data_runfiles.files for dep in ctx.attr.deps])
+
     return [
         DefaultInfo(
             # executable is a special attribute that would be added to `files` attribute of DefaultInfo
             executable = executable,
-            runfiles = ctx.runfiles(files = ctx.files.srcs + [interpreter]),
+            runfiles = ctx.runfiles(
+                files = ctx.files.srcs + [interpreter],
+                transitive_files=deps_runfiles
+            ),
         )
     ]
 
@@ -36,10 +41,17 @@ python_version_transition = transition(
     outputs = ["@rules_python//python/config_settings:python_version"],
 )
 
+def _pie_library_impl(ctx):
+    return [
+        DefaultInfo(runfiles = ctx.runfiles(files = ctx.files.srcs))
+    ]
+
+
 pie_binary = rule(
     implementation = _pie_binary_impl,
     attrs = {
         "srcs": attr.label_list(allow_files = [".py"]),
+        "deps": attr.label_list(),
         # works together with transition
         "python_version": attr.string(),
         "_bootstrap_template": attr.label(default="bootstrap.sh.tpl", allow_files = True)
@@ -49,4 +61,12 @@ pie_binary = rule(
     toolchains = ["@rules_python//python:toolchain_type"],
     # cfg defines transition
     cfg = python_version_transition,
+)
+
+
+pie_library = rule(
+    implementation = _pie_library_impl,
+    attrs = {
+        "srcs": attr.label_list(allow_files = [".py"])
+    }
 )

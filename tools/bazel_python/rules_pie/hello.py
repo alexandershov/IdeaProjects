@@ -1,8 +1,12 @@
 import sys
 
+# TODO: why next import doesn't work?
+# from rules_pie.greeter import hello
+from greeter import hello
+
 
 def main():
-    print(f"hello python {sys.version}")
+    hello(f"python {sys.version}")
 
 
 if __name__ == '__main__':

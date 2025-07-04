@@ -1,12 +1,18 @@
-load(":defs.bzl", "pie_binary")
+load(":defs.bzl", "pie_binary", "pie_library")
 
 pie_binary(
     name = "hello",
     srcs = ["hello.py"],
+    deps = [":greeter"],
 )
 
 pie_binary(
     name = "hello_3.11",
     srcs = ["hello.py"],
     python_version = "3.11",
+)
+
+pie_library(
+    name = "greeter",
+    srcs = ["greeter.py"],
 )
