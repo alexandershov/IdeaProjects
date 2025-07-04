@@ -1,8 +1,6 @@
 import sys
 
-# TODO: why next import doesn't work?
-# from rules_pie.greeter import hello
-from greeter import hello
+from rules_pie.greeter import hello
 
 
 def main():
