@@ -10,6 +10,7 @@ pie_binary(
     name = "hello_3.11",
     srcs = ["hello.py"],
     python_version = "3.11",
+    deps = [":greeter"],
 )
 
 pie_library(
