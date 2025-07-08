@@ -1,12 +1,11 @@
 ## virtualenv
 
 ### TODOs
-* figure out pyvenv.cfg
 * how pip knows that it should use virtual env?.
-* wtf is happening with sys.prefix, sys.base_prefix, sys.exec_prefix, and sys.base_exec_prefix?
+* how does ensurepip work?
 * why pip contains vendored-in dependencies?
-* understand how does sys.prefix work
 * what is PYTHONHOME in bin/activate?
+* pth-files
  
 
 You can create virtualenv with 
@@ -101,8 +100,9 @@ $ file --no-dereference /opt/homebrew/opt/python@3.13/Frameworks/Python.framewor
 
 `bin/activate` prepends virtual environment's `bin/` to `$PATH`, that's why `python` finds virtual env python.
 
-
 `bin/activate` also defines a bash/zsh function `deactivate` that undos all the work done by `bin/activate`.
+
+There's no need to `bin/activate`, it just modifies `$PATH`, nothing stops you from executing venv's python directly.
 
 The most interesting part of virtual environment is file `pyvenv.cfg`.
 
@@ -114,3 +114,30 @@ version = 3.13.5
 executable = /opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/bin/python3.13
 command = /opt/homebrew/opt/python@3.13/bin/python3.13 -m venv /Users/aershov/tmp/test_venv
 ```
+
+If a parent directory of directory containing sys.executable contains pyvenv.cfg then python sets `sys.prefix` 
+(and `sys.exec_prefix` but I'll ignore `sys.exec_prefix` for simplicity, it's not that important).
+
+When using virtual env, that's exactly the case:
+
+```shell
+find . -iwholename '*bin/python3' -or -iname 'pyvenv.cfg'
+./bin/python3
+./pyvenv.cfg
+```
+
+Note that pyvenv.cfg is in the parent of `bin/`.
+
+Now `site.py` does the final modification of `sys.path` to point it to venv `site-packages/`.
+
+During each (unless you specify `-S`) python startup `site.py` is executed.
+`site.py` will update `sys.path` and it'll add `{sys.prefix}/lib/python{version}/site-packages` to a 
+sys.path. Proof:
+```shell
+python3 -c 'import sys; print(sys.path[-1])'
+/Users/aershov/tmp/test_venv/lib/python3.13/site-packages
+```
+
+If virtual env is not used, then `sys.prefix` will not be related to venv and global site-packages will be added to a `sys.path`
+`sys.base_prefix` is a prefix ignoring virtual env, so `sys.base_prefix != sys.prefix` if we're running under virtual env.
+
