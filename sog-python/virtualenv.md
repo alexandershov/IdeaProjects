@@ -7,28 +7,7 @@
 * what is PYTHONHOME in bin/activate?
  
 
-You can create virtualenv with 
-```shell
-python -m venv /path/to/venv
-```
-
-E.g. you can create `.venv` dir in your project dir.
-Or use `~/.virtualenvs` as a root for all virtualenvs.
-
-`venv` will create a file `pyvenv.cfg` in this virtualenv.
-This file is crucial in making virtualenv work.
-
-`site.py` sets `sys.prefix` to a path to your virtualenv if it 
-encounters `pyvenv.cfg`.
-
-`sys.prefix` is used to populate `sys.path`.
-
-Not directly related to virtualenvs, there are <name>.pth files. 
-`site.py` adds all paths listed in site-packages/<name>.pth files to `sys.path`.
-
-### Internals
-
-#### Create venv
+### Create venv
 
 Let's create a virtual env:
 
@@ -61,7 +40,7 @@ $ find . -not -iwholename '*/site-packages/pip*' | sort
 ./pyvenv.cfg
 ```
 
-#### Pip
+### Pip
 
 I've excluded `*site-packages/pip*` for clarity, virtual env also contains a pip installation.
 This pip installation contains vendored-in pip dependencies (e.g. `requests`, `tomli`, etc):
@@ -74,7 +53,7 @@ certifi              idna                 platformdirs         resolvelib       
 ```
 
 
-#### Python executables
+### Python executables
 `bin/python` & `bin/python3` are symlinks to `./bin/python3.13` (I've created venv running 3.13):
 ```shell
 $ file --no-dereference bin/python bin/python3
@@ -101,7 +80,7 @@ $ file --no-dereference /opt/homebrew/opt/python@3.13/Frameworks/Python.framewor
 /opt/homebrew/opt/python@3.13/Frameworks/Python.framework/Versions/3.13/bin/python3.13: Mach-O 64-bit executable arm64
 ```
 
-#### bin/activate
+### bin/activate
 `bin/activate` is a bash/zsh script intended to be used with `source bin/activate`.
 
 `bin/activate` prepends virtual environment's `bin/` to `$PATH`, that's why `python` finds virtual env python.
@@ -110,7 +89,7 @@ $ file --no-dereference /opt/homebrew/opt/python@3.13/Frameworks/Python.framewor
 
 There's no need to `bin/activate`, it just modifies `$PATH`, nothing stops you from executing venv's python directly.
 
-#### pyvenv.cfg
+### pyvenv.cfg
 The most interesting part of virtual environment is file `pyvenv.cfg`.
 
 ```shell
@@ -160,7 +139,7 @@ python3 -c 'import sys; print(sys.path[-1])'
 If virtual env is not used, then `sys.prefix` will not be related to venv and global site-packages will be added to a `sys.path`
 `sys.base_prefix` is a prefix ignoring virtual env, so `sys.base_prefix != sys.prefix` if we're running under virtual env.
 
-#### .pth files
+### .pth files
 If `site-packages/` contains any `*.pth` files, then `site.py` will add paths listed in these files to
 `sys.path`.
 
