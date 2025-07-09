@@ -1,9 +1,8 @@
 ## virtualenv
 
 ### TODOs
-* how pip knows that it should use virtual env?.
 * how does ensurepip work?
-* why pip contains vendored-in dependencies?
+* how pip knows that it should use virtual env?.
 * what is PYTHONHOME in bin/activate?
  
 
@@ -51,6 +50,13 @@ __pycache__          distlib              packaging            pyproject_hooks  
 cachecontrol         distro               pkg_resources        requests             tomli_w              vendor.txt
 certifi              idna                 platformdirs         resolvelib           truststore
 ```
+
+This vendoring is actually how `pip` operates: it vendors its dependencies. 
+Reasons are [described](https://github.com/pypa/pip/blob/main/src/pip/_vendor/README.rst) in a pip repo.
+One of the reasons: `pip` requires a fairly recent version of `requests`, this means that if you use `pip`
+then all of your dependencies should be compatible with the recent version of `requests` which is nonsense. 
+In general package manager should be independent of your project and your project dependencies. Vendoring is the
+`pip` way of doing this.
 
 
 ### Python executables
