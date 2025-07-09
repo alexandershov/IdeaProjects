@@ -3,7 +3,6 @@
 ### TODOs
 * how does ensurepip work?
 * how pip knows that it should use virtual env?.
-* what is PYTHONHOME in bin/activate?
  
 
 ### Create venv
@@ -144,6 +143,9 @@ python3 -c 'import sys; print(sys.path[-1])'
 
 If virtual env is not used, then `sys.prefix` will not be related to venv and global site-packages will be added to a `sys.path`
 `sys.base_prefix` is a prefix ignoring virtual env, so `sys.base_prefix != sys.prefix` if we're running under virtual env.
+
+Side note (not related to venv): you can change value of sys.prefix with envvar [PYTHONHOME](https://docs.python.org/3/using/cmdline.html#envvar-PYTHONHOME)
+Actually `bin/activate` unsets `$PYTHONHOME`
 
 ### .pth files
 If `site-packages/` contains any `*.pth` files, then `site.py` will add paths listed in these files to
