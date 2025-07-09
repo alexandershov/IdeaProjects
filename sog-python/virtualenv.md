@@ -1,9 +1,5 @@
 ## virtualenv
 
-### TODOs
-* how pip knows that it should use virtual env?.
- 
-
 ### Create venv
 
 Let's create a virtual env:
@@ -152,6 +148,8 @@ python3 -c 'import sys; print(sys.path[-1])'
 
 If virtual env is not used, then `sys.prefix` will not be related to venv and global site-packages will be added to a `sys.path`
 `sys.base_prefix` is a prefix ignoring virtual env, so `sys.base_prefix != sys.prefix` if we're running under virtual env.
+
+`pip` can use `sys.prefix` (or something similar like `sysconfig` or `site.getsitepackages()`) to determine which (global or venv) `site-packages/` it should use.
 
 Side note (not related to venv): you can change value of sys.prefix with envvar [PYTHONHOME](https://docs.python.org/3/using/cmdline.html#envvar-PYTHONHOME)
 Actually `bin/activate` unsets `$PYTHONHOME`
