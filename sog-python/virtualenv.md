@@ -1,7 +1,6 @@
 ## virtualenv
 
 ### TODOs
-* how does ensurepip work?
 * how pip knows that it should use virtual env?.
  
 
@@ -57,6 +56,16 @@ then all of your dependencies should be compatible with the recent version of `r
 In general package manager should be independent of your project and your project dependencies. Vendoring is the
 `pip` way of doing this.
 
+stdlib `ensurepip` module takes care of pip installation: python actually comes [bundled](https://github.com/python/cpython/tree/main/Lib/ensurepip/_bundled) with the pip wheel.
+`ensurepip` uses this bundled version of pip to install pip into `site-packages/`.
+
+Relevant code [uses](https://github.com/python/cpython/blob/77fa7a4dcc771bf4d297ebfd4f357483d0750a1c/Lib/ensurepip/__init__.py#L172) the fact
+that whl files (which are just zip-archives) can be added to `sys.path`:
+* it adds bundled pip wheel to `sys.path`
+* makes `pip install` to [use](https://github.com/python/cpython/blob/77fa7a4dcc771bf4d297ebfd4f357483d0750a1c/Lib/ensurepip/__init__.py#L162) local filesystem instead of pypi
+* runs something similar to `pip install pip`
+
+This way `ensurepip` doesn't use internet connection and works fully locally.
 
 ### Python executables
 `bin/python` & `bin/python3` are symlinks to `./bin/python3.13` (I've created venv running 3.13):
