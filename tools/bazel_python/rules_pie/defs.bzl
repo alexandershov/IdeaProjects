@@ -1,8 +1,36 @@
 def _pie_binary_impl(ctx):
+    """
+    do I want to create proper venv here?
+    If not, then I'll just reinvent venvs.
+
+    Actually, the question is: do I want to create venv during the bootstrap script execution or during the build phase?
+    Why tf should it happen during the bootstrap script execution?
+
+    Min venv stuff:
+      pyvenv.cfg
+      bin/python
+      lib/python{version}/site-packages
+
+    Possible options for venv:
+      lib/python{version}/site-packages/
+         path.pth (contains paths to wheels)
+         wheel-1.whl
+         wheel-2.whl
+
+      lib/python{version}/site-packages/
+         unpacked-wheel-1/
+         unpacked-wheel-2/
+
+    .whl option is a hack, that's not idiomatic python.
+    """
     interpreter = ctx.toolchains["@rules_python//python:toolchain_type"].py3_runtime.interpreter
     # executable will contain script like
     # `../rules_python++python+python_3_13_aarch64-apple-darwin/bin/python3 rules_pie/hello.py`
     executable = ctx.actions.declare_file(ctx.attr.name)
+
+    pyvenv_cfg = ctx.actions.declare_file("pyvenv.cfg")
+    ctx.actions.expand_template(template = ctx.file._pyvenv_cfg_template, output=pyvenv_cfg)
+
     ctx.actions.expand_template(
         template = ctx.files._bootstrap_template[0],
         output = executable,
@@ -21,6 +49,7 @@ def _pie_binary_impl(ctx):
         DefaultInfo(
             # executable is a special attribute that would be added to `files` attribute of DefaultInfo
             executable = executable,
+            files = depset([pyvenv_cfg]),
             runfiles = ctx.runfiles(
                 files = ctx.files.srcs + [interpreter],
                 transitive_files=deps_runfiles
@@ -56,7 +85,8 @@ pie_binary = rule(
         "deps": attr.label_list(),
         # works together with transition
         "python_version": attr.string(),
-        "_bootstrap_template": attr.label(default="bootstrap.sh.tpl", allow_files = True)
+        "_bootstrap_template": attr.label(default="bootstrap.sh.tpl", allow_files = True),
+        "_pyvenv_cfg_template": attr.label(default="pyvenv.cfg.tpl", allow_single_file = True),
     },
     # with `executable = True` you can `bazel run <target>`
     executable = True,
