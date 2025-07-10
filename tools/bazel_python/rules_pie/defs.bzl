@@ -32,7 +32,7 @@ def _pie_binary_impl(ctx):
     ctx.actions.expand_template(template = ctx.file._pyvenv_cfg_template, output=pyvenv_cfg)
 
     ctx.actions.expand_template(
-        template = ctx.files._bootstrap_template[0],
+        template = ctx.file._bootstrap_template,
         output = executable,
         substitutions = {
             # use File.short_path to reference file at runtime
@@ -85,7 +85,7 @@ pie_binary = rule(
         "deps": attr.label_list(),
         # works together with transition
         "python_version": attr.string(),
-        "_bootstrap_template": attr.label(default="bootstrap.sh.tpl", allow_files = True),
+        "_bootstrap_template": attr.label(default="bootstrap.sh.tpl", allow_single_file = True),
         "_pyvenv_cfg_template": attr.label(default="pyvenv.cfg.tpl", allow_single_file = True),
     },
     # with `executable = True` you can `bazel run <target>`
