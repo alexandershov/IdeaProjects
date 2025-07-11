@@ -29,7 +29,7 @@ def _pie_binary_impl(ctx):
     executable = ctx.actions.declare_file(ctx.attr.name)
 
     pyvenv_cfg = ctx.actions.declare_file("pyvenv.cfg")
-    ctx.actions.expand_template(template = ctx.file._pyvenv_cfg_template, output=pyvenv_cfg)
+    ctx.actions.write(output=pyvenv_cfg, content="include-system-site-packages = false")
 
     venv_python = ctx.actions.declare_file("bin/python")
     ctx.actions.symlink(output = venv_python, target_file = interpreter)
@@ -93,7 +93,6 @@ pie_binary = rule(
         # works together with transition
         "python_version": attr.string(),
         "_bootstrap_template": attr.label(default="bootstrap.sh.tpl", allow_single_file = True),
-        "_pyvenv_cfg_template": attr.label(default="pyvenv.cfg.tpl", allow_single_file = True),
     },
     # with `executable = True` you can `bazel run <target>`
     executable = True,
