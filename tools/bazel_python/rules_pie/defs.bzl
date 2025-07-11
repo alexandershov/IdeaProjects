@@ -31,13 +31,21 @@ def _pie_binary_impl(ctx):
     pyvenv_cfg = ctx.actions.declare_file("pyvenv.cfg")
     ctx.actions.expand_template(template = ctx.file._pyvenv_cfg_template, output=pyvenv_cfg)
 
+    venv_python = ctx.actions.declare_file("bin/python")
+    ctx.actions.symlink(output = venv_python, target_file = interpreter)
+
+    # TODO: unhardcode 3.13, take version from toolchain
+    # create empty .pth file, as a quick way to create site-packages/ directory without ctx.actions.run
+    site_packages_pth = ctx.actions.declare_file("lib/python3.13/site-packages/paths.pth")
+    ctx.actions.write(output = site_packages_pth, content = "")
+
     ctx.actions.expand_template(
         template = ctx.file._bootstrap_template,
         output = executable,
         substitutions = {
             # use File.short_path to reference file at runtime
             # use File.path to reference file at exec time
-            "{INTERPRETER}": interpreter.short_path,
+            "{INTERPRETER}": venv_python.short_path,
             "{MAIN_SCRIPT}": ctx.files.srcs[0].short_path,
         },
         is_executable = True,
@@ -49,9 +57,8 @@ def _pie_binary_impl(ctx):
         DefaultInfo(
             # executable is a special attribute that would be added to `files` attribute of DefaultInfo
             executable = executable,
-            files = depset([pyvenv_cfg]),
             runfiles = ctx.runfiles(
-                files = ctx.files.srcs + [interpreter],
+                files = ctx.files.srcs + [interpreter, pyvenv_cfg, venv_python, site_packages_pth],
                 transitive_files=deps_runfiles
             ),
         )
