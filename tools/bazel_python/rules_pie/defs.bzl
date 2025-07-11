@@ -23,7 +23,9 @@ def _pie_binary_impl(ctx):
 
     .whl option is a hack, that's not idiomatic python.
     """
-    interpreter = ctx.toolchains["@rules_python//python:toolchain_type"].py3_runtime.interpreter
+
+    py3_runtime = ctx.toolchains["@rules_python//python:toolchain_type"].py3_runtime
+    interpreter = py3_runtime.interpreter
     # executable will contain script like
     # `../rules_python++python+python_3_13_aarch64-apple-darwin/bin/python3 rules_pie/hello.py`
     executable = ctx.actions.declare_file(ctx.attr.name)
@@ -34,9 +36,9 @@ def _pie_binary_impl(ctx):
     venv_python = ctx.actions.declare_file("bin/python")
     ctx.actions.symlink(output = venv_python, target_file = interpreter)
 
-    # TODO: unhardcode 3.13, take version from toolchain
     # create empty .pth file, as a quick way to create site-packages/ directory without ctx.actions.run
-    site_packages_pth = ctx.actions.declare_file("lib/python3.13/site-packages/paths.pth")
+    site_packages_pth = ctx.actions.declare_file("lib/python{}.{}/site-packages/paths.pth".format(
+        py3_runtime.interpreter_version_info.major, py3_runtime.interpreter_version_info.minor))
     ctx.actions.write(output = site_packages_pth, content = "")
 
     ctx.actions.expand_template(
