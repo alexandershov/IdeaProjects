@@ -36,10 +36,22 @@ def _pie_binary_impl(ctx):
     venv_python = ctx.actions.declare_file("bin/python")
     ctx.actions.symlink(output = venv_python, target_file = interpreter)
 
-    # create empty .pth file, as a quick way to create site-packages/ directory without ctx.actions.run
     site_packages_pth = ctx.actions.declare_file("lib/python{}.{}/site-packages/paths.pth".format(
         py3_runtime.interpreter_version_info.major, py3_runtime.interpreter_version_info.minor))
-    ctx.actions.write(output = site_packages_pth, content = "")
+
+    # site-packages dir is e.g. "path/in/workspace/lib/python3.13/site-packages"
+    # we need to constuct relative path in paths.pth so
+    # os.path.join("path/in/workspace/lib/python3.13/site-packages", path_in_paths_pth) == ""
+    # this way our binary can do `import path.in.workspace`
+    # the way to construct relative path is to negate each path component of site-packages dir with ..
+    # number of path components is number of slashes + 1
+
+    # `- 1` discards a slash before `paths.pth`, so we have a slash count in
+    # site-packages dir ("path/in/workspace/lib/python3.13/site-packages") and not in
+    # "path/in/workspace/lib/python3.13/site-packages/paths.pth"
+    num_slashes_in_site_packages_dir = site_packages_pth.short_path.count("/") - 1
+    num_components = num_slashes_in_site_packages_dir + 1
+    ctx.actions.write(output = site_packages_pth, content = "/".join([".." for _ in range(num_components)]))
 
     ctx.actions.expand_template(
         template = ctx.file._bootstrap_template,
