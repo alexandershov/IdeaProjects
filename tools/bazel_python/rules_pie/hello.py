@@ -1,11 +1,16 @@
 import sys
 
+import fastapi
+import uvicorn
 from rules_pie.greeter import hello
 
+app = fastapi.FastAPI()
 
-def main():
-    hello(f"python {sys.version}")
+
+@app.get("/version")
+def version():
+    return hello(f"python {sys.version}")
 
 
 if __name__ == '__main__':
-    main()
+    uvicorn.run(app, port=8888)

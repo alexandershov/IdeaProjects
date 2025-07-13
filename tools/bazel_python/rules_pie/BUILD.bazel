@@ -3,14 +3,20 @@ load(":defs.bzl", "pie_binary", "pie_library")
 pie_binary(
     name = "hello",
     srcs = ["hello.py"],
-    deps = [":greeter"],
+    deps = [
+        ":greeter",
+        "@pypi//fastapi",
+        "@pypi//uvicorn",
+    ],
 )
 
 pie_binary(
     name = "hello_3.11",
     srcs = ["hello.py"],
     python_version = "3.11",
-    deps = [":greeter"],
+    deps = [
+        ":greeter",
+    ],
 )
 
 pie_library(

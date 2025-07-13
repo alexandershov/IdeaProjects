@@ -36,8 +36,9 @@ def _pie_binary_impl(ctx):
     venv_python = ctx.actions.declare_file("bin/python")
     ctx.actions.symlink(output = venv_python, target_file = interpreter)
 
-    site_packages_pth = ctx.actions.declare_file("lib/python{}.{}/site-packages/paths.pth".format(
-        py3_runtime.interpreter_version_info.major, py3_runtime.interpreter_version_info.minor))
+    site_packages_dir = "lib/python{}.{}/site-packages".format(
+            py3_runtime.interpreter_version_info.major, py3_runtime.interpreter_version_info.minor)
+    site_packages_pth = ctx.actions.declare_file("{}/paths.pth".format(site_packages_dir))
 
     # site-packages dir is e.g. "path/in/workspace/lib/python3.13/site-packages"
     # we need to constuct relative path in paths.pth so
@@ -64,15 +65,24 @@ def _pie_binary_impl(ctx):
         },
         is_executable = True,
     )
-
-    deps_runfiles = depset(transitive=[dep[DefaultInfo].data_runfiles.files for dep in ctx.attr.deps])
+    runfiles = []
+    # TODO: clean up creating of symlinks in site-packages
+    for dep in ctx.attr.deps:
+        for file in dep[DefaultInfo].default_runfiles.files.to_list():
+            if "site-packages/" in file.short_path and "site-packages/__init__.py" not in file.short_path:
+                start = file.short_path.rindex("site-packages/")
+                path_in_site_packages = file.short_path[start:].removeprefix("site-packages/")
+                path = ctx.actions.declare_file("{}/{}".format(site_packages_dir, path_in_site_packages))
+                ctx.actions.symlink(output = path, target_file = file)
+                runfiles.append(path)
+    deps_runfiles = depset(transitive=[dep[DefaultInfo].default_runfiles.files for dep in ctx.attr.deps])
 
     return [
         DefaultInfo(
             # executable is a special attribute that would be added to `files` attribute of DefaultInfo
             executable = executable,
             runfiles = ctx.runfiles(
-                files = ctx.files.srcs + [interpreter, pyvenv_cfg, venv_python, site_packages_pth],
+                files = ctx.files.srcs + [interpreter, pyvenv_cfg, venv_python, site_packages_pth] + runfiles,
                 transitive_files=deps_runfiles
             ),
         )
@@ -92,7 +102,7 @@ python_version_transition = transition(
 )
 
 def _pie_library_impl(ctx):
-    deps_runfiles = depset(transitive=[dep[DefaultInfo].data_runfiles.files for dep in ctx.attr.deps])
+    deps_runfiles = depset(transitive=[dep[DefaultInfo].default_runfiles.files for dep in ctx.attr.deps])
 
     return [
         DefaultInfo(runfiles = ctx.runfiles(files = ctx.files.srcs, transitive_files = deps_runfiles))
