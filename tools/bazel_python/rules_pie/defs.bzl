@@ -1,3 +1,5 @@
+load("@rules_python//python:defs.bzl", "PyInfo")
+
 def _pie_binary_impl(ctx):
     """
     do I want to create proper venv here?
@@ -66,15 +68,20 @@ def _pie_binary_impl(ctx):
         is_executable = True,
     )
     runfiles = []
+    seen_paths_in_site_packages = set() # set appeared in bazel 8.1
     # TODO: clean up creating of symlinks in site-packages
     for dep in ctx.attr.deps:
-        for file in dep[DefaultInfo].default_runfiles.files.to_list():
-            if "site-packages/" in file.short_path and "site-packages/__init__.py" not in file.short_path:
-                start = file.short_path.rindex("site-packages/")
-                path_in_site_packages = file.short_path[start:].removeprefix("site-packages/")
-                path = ctx.actions.declare_file("{}/{}".format(site_packages_dir, path_in_site_packages))
-                ctx.actions.symlink(output = path, target_file = file)
-                runfiles.append(path)
+        if PyInfo in dep:  # rules_python's py_(library|binary|test)
+            for file in dep[DefaultInfo].default_runfiles.files.to_list():
+                if "site-packages/" in file.short_path:
+                    start = file.short_path.rindex("site-packages/")
+                    path_in_site_packages = file.short_path[start:].removeprefix("site-packages/")
+                    if path_in_site_packages in seen_paths_in_site_packages:
+                        continue
+                    seen_paths_in_site_packages.add(path_in_site_packages)
+                    path = ctx.actions.declare_file("{}/{}".format(site_packages_dir, path_in_site_packages))
+                    ctx.actions.symlink(output = path, target_file = file)
+                    runfiles.append(path)
     deps_runfiles = depset(transitive=[dep[DefaultInfo].default_runfiles.files for dep in ctx.attr.deps])
 
     return [
