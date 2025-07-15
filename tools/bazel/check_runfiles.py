@@ -17,6 +17,7 @@ def main():
     # cwd is bazel-out/..../_main
     # _main is ctx.workspace_name, looks like it can't be changed
     print(f'{os.getcwd()=}')
+    # TODO: how does _FindPythonRunfilesRoot work?
     print(f'{runfiles.runfiles._FindPythonRunfilesRoot()=}')
     # cwd contains bazel.md and subpackage/file_in_subpackage.txt
     # also it contains this script itself and bazel python runner
