@@ -17,7 +17,11 @@ def main():
     # cwd is bazel-out/..../_main
     # _main is ctx.workspace_name, looks like it can't be changed
     print(f'{os.getcwd()=}')
-    # TODO: how does _FindPythonRunfilesRoot work?
+    # _FindPythonRunfilesRoot() just walks 4 levels up from the __file__
+    # it works because runfiles.py is located in
+    # check_runfiles.runfiles/rules_python++pip+python_main_hub_311_bazel_runfiles/site-packages/runfiles/runfiles.py
+    # rules_py patches _FindPythonRunfilesRoot to walk 6 (because of the venv) levels up from the __file__
+    # patch was done here: https://github.com/aspect-build/rules_py/pull/519
     print(f'{runfiles.runfiles._FindPythonRunfilesRoot()=}')
     # cwd contains bazel.md and subpackage/file_in_subpackage.txt
     # also it contains this script itself and bazel python runner
