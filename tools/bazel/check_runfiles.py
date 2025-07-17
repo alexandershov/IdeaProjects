@@ -28,6 +28,11 @@ def main():
     print(f'{os.listdir()=}')
     assert pathlib.Path('bazel.md').exists()
     assert pathlib.Path('subpackage/file_in_subpackage.txt').exists()
+    # runfiles library is actually pretty simple: it takes a path of the form <repo>/path/to/file
+    # it transforms <repo> to a canonical repo name and find the path in runfiles
+    # it's easy to find path in runfiles, since it knows .runfiles dir, so in the end it's just
+    # os.path.join
+    # implementation is hairy (it uses sys._getframe & inspect.getfile), that's bazel for you
     r = runfiles.Create()
     location = pathlib.Path(r.Rlocation(args.rlocationpath))
     assert location.exists()
