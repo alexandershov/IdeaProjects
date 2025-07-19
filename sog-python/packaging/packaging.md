@@ -24,7 +24,21 @@ uvloop-0.21.0.tar.gz
 ```
 
 ### Pyproject.toml
-TODO: https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
+In pyproject.toml you define, ahem, your project properties.
+See [pyproject.toml](./pyproject.toml) for an example and walkthrough.
+You can build your package with (you'd need to do `pip install build` first):
+
+```shell
+python -m build .
+```
+
+This created source distribution (aka sdist) & binary distribution (aka wheel):
+```shell
+$ ls dist | cat
+mypackage-0.0.1-py3-none-any.whl
+mypackage-0.0.1.tar.gz
+```
+
 
 ### Wheel
 

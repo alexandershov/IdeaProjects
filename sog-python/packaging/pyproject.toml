@@ -1,0 +1,32 @@
+[build-system]
+# requirements to build a package
+requires = ["setuptools"]
+# buildbuild backend - is a thingy that can build packages
+# pip is not a build backend, it's a build frontend and calls build-backend
+# there are different build backends e.g.: hatchling, PDM, poetry, setuptools
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mypackage"
+dependencies = [
+    "httpx",
+]
+requires-python = ">= 3.11"
+# some attributes (exact list depends on a build system) can be defined dynamically
+# e.g. setuptools supports dynamic version
+# you specify how to compute version in a table `tool.setuptools.dynamic`
+dynamic = ["version"]
+# you can specify version statically like this:
+# version = "0.0.1"
+classifiers = [
+    # this classifier doesn't allow upload of this package to public PyPI
+    "Private :: Do Not Upload"
+]
+
+# table `project.scripts` defines executables that this package installs
+[project.scripts]
+mypackage_cli = "mypackage.cli:main"
+
+[tool.setuptools.dynamic]
+# take version dynamically from the attribute mypackage.__version__
+version = { attr = "mypackage.__version__" }
