@@ -23,6 +23,21 @@ uvloop-0.21.0-cp313-cp313-macosx_10_13_universal2.whl
 uvloop-0.21.0.tar.gz
 ```
 
+### Pyproject.toml
+TODO: https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
+
 ### Wheel
 
 ### Sdist
+
+### Dependencies Extras
+TODO: https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
+
+### Rest
+TODO: 
+* Install editable https://setuptools.pypa.io/en/latest/userguide/development_mode.html
+* Requirements format (extras, versions, file/http/etc)
+* pip install --no-index --find-links
+* entrypoints
+* pipx
+* python -m build
