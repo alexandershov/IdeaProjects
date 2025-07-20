@@ -56,6 +56,15 @@ Example of a wheel with abi3 in its name: `cryptography-45.0.5-cp311-abi3-muslli
 TODO: https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
 
 ### Rest
+#### Versioning
+You can determine version of any installed package programmatically 
+(no need to guess with `{package_name}.__version__` which is not always present):
+```python
+import importlib.metadata
+importlib.metadata.version("httpx")
+'0.28.1'
+```
+
 TODO: 
 * Install editable https://setuptools.pypa.io/en/latest/userguide/development_mode.html
 * Requirements format (extras, versions, file/http/etc)
