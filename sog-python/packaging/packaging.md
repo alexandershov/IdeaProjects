@@ -39,8 +39,16 @@ mypackage-0.0.1-py3-none-any.whl
 mypackage-0.0.1.tar.gz
 ```
 
-
 ### Wheel
+
+#### Name
+`abi3` in wheel name means that this wheel is compatible with all python3.* releases.
+Python C ABI is not backward compatible even across minor versions, but there's a stable subset of it, that is
+compatible across python3.* releases.
+and `abi3` means that wheel uses only this stable ABI subset.
+Example of a wheel with abi3 in its name: `cryptography-45.0.5-cp311-abi3-musllinux_1_2_aarch64.whl` 
+
+#### Content
 
 ### Sdist
 
