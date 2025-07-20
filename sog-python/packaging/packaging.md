@@ -39,6 +39,13 @@ mypackage-0.0.1-py3-none-any.whl
 mypackage-0.0.1.tar.gz
 ```
 
+`build` creates a new virtualenv in which it performs the build, from the logs of `python -m build .`:
+```shell
+* Creating isolated environment: venv+pip...
+* Installing packages in isolated environment:
+  - setuptools
+```
+
 ### Wheel
 
 #### Name
