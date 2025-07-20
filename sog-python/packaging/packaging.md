@@ -52,6 +52,16 @@ Example of a wheel with abi3 in its name: `cryptography-45.0.5-cp311-abi3-muslli
 
 ### Sdist
 
+### Distribution packages
+Distribution package is a package on PyPI. Import package is a regular python package you can import.
+Distribution package names are case-insensitive and all allowed non-alphanumeric characters (namely `_.-`)
+are treated as equal and sequences of non-alphanumeric characters are collapsed into one, so this works:
+```shell
+pip install langchain-._OPENAI
+pip freeze | rg langchain-openai
+langchain-openai==0.3.28
+```
+
 ### Dependencies Extras
 TODO: https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
 
