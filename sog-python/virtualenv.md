@@ -61,6 +61,9 @@ that whl files (which are just zip-archives) can be added to `sys.path`:
 * makes `pip install` to [use](https://github.com/python/cpython/blob/77fa7a4dcc771bf4d297ebfd4f357483d0750a1c/Lib/ensurepip/__init__.py#L162) local filesystem instead of pypi
 * runs something similar to `pip install pip`
 
+Adding whl to `sys.path` and importing it actually is not guaranteed to work in general case, since
+wheel is an installation format, not import format (old-school eggs are in import format)
+
 This way `ensurepip` doesn't use internet connection and works fully locally.
 
 ### Python executables
