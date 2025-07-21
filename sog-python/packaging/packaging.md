@@ -49,6 +49,24 @@ mypackage-0.0.1.tar.gz
 ### Wheel
 
 #### Name
+Wheel name format is `{distribution-name}-{version}-{python-tag}-{abi-tag}-{platform-tag}.whl` (I've ignored `build-tag` stuff, it's rarely used)
+E.g. wheel name `uvloop-0.21.0-cp313-cp313-musllinux_1_2_x86_64.whl` means:
+* it's a wheel for a distribution package `uvloop`
+* version of distribution package is `0.21.0`
+* compatible with cpython 3.13 (`cp` stands `cpython`)
+* ABI-compatible with cpython 3.13
+* compatible with [musl](https://en.wikipedia.org/wiki/Musl) linux and x86_64 cpu architecture
+
+Here's another example `uvicorn-0.35.0-py3-none-any.whl`, meaning that this wheel is compatible with:
+* any python3 (this includes cpython, pypy, etc. `py` stands for "generic python")
+* no restriction on python ABI (`none`)
+* no restriction on architecture (`any`)
+
+Essentially all pure python packages will end with `py3-none-any`.
+There's special `manylinux{x}` platform tag which means compatibility with a range of linuxes having some suitable glibc version.
+
+
+
 `abi3` in wheel name means that this wheel is compatible with all python3.* releases.
 Python C ABI is not backward compatible even across minor versions, but there's a stable subset of it, that is
 compatible across python3.* releases.
