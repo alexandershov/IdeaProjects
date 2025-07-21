@@ -65,13 +65,42 @@ Here's another example `uvicorn-0.35.0-py3-none-any.whl`, meaning that this whee
 Essentially all pure python packages will end with `py3-none-any`.
 There's special `manylinux{x}` platform tag which means compatibility with a range of linuxes having some suitable glibc version.
 
-
-
 `abi3` in wheel name means that this wheel is compatible with all python3.* releases.
 Python C ABI is not backward compatible even across minor versions, but there's a stable subset of it, that is
 compatible across python3.* releases.
 and `abi3` means that wheel uses only this stable ABI subset.
-Example of a wheel with abi3 in its name: `cryptography-45.0.5-cp311-abi3-musllinux_1_2_aarch64.whl` 
+Example of a wheel with abi3 in its name: `cryptography-45.0.5-cp311-abi3-musllinux_1_2_aarch64.whl`
+
+Question: is this cryptography wheel compatible with python3.11+?
+[PEP-425](https://peps.python.org/pep-0425/) is kinda vague in this regard, but reality is that, yes,
+python tag `cp311` means that wheel will be considered compatible with 3.11, 3.12, 3.13, ...
+
+[Reference implementation](https://packaging.pypa.io/en/stable/tags.html#packaging.tags.sys_tags) of supported tags for a current platform is in the `packaging.tags`:
+```python
+>>> import sys
+>>> import packaging.tags
+
+>>> print(sys.version)
+3.13.5 (main, Jun 11 2025, 15:36:57) [Clang 17.0.0 (clang-1700.0.13.3)]
+
+>>> for tag in packaging.tags.sys_tags(): print(tag)
+<REDACTED>
+py312-none-any
+py311-none-any
+py310-none-any
+py39-none-any
+py38-none-any
+py37-none-any
+py36-none-any
+py35-none-any
+py34-none-any
+py33-none-any
+py32-none-any
+py31-none-any
+py30-none-any
+```
+
+See also quite illuminating [discussion](https://discuss.python.org/t/python-tags-specific-version-of-interpreter-or-minimum-version/7831/27) about this.
 
 #### Content
 
