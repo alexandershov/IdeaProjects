@@ -45,3 +45,10 @@ mypy won't see this dynamically generated attributes.
 But you can create a stub file (`X.pyi`) that will have interfaces of functions/classes/etc in a `X.py`
 and mypy can use that. See [lib.pyi](./example/lib.pyi) for an example: it adds a type hint for a 
 `fn` that is dynamically injected into `globals()` in `lib.py`.
+
+You can generate stubs automatically with `stubgen`:
+```shell
+stubgen --inspect-mode example/lib.py
+```
+
+Stubgen can inspect runtime stuff with `--inspect-mode`.
