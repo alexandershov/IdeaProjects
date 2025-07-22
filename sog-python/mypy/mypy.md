@@ -38,3 +38,10 @@ when invoking mypy:
 ```shell
 mypy --check-untyped-defs example
 ```
+
+### Stubs
+If you have a module that dynamically generates its attributes (e.g. changing `globals()`), then
+mypy won't see this dynamically generated attributes.
+But you can create a stub file (`X.pyi`) that will have interfaces of functions/classes/etc in a `X.py`
+and mypy can use that. See [lib.pyi](./example/lib.pyi) for an example: it adds a type hint for a 
+`fn` that is dynamically injected into `globals()` in `lib.py`.
