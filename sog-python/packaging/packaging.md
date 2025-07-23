@@ -105,6 +105,7 @@ See also quite illuminating [discussion](https://discuss.python.org/t/python-tag
 #### Content
 
 ### Sdist
+Sdist is a tar.gz file containing package source.
 
 ### Distribution packages
 Distribution package is a package on PyPI. Import package is a regular python package you can import.
