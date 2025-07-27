@@ -143,8 +143,47 @@ pip freeze | rg langchain-openai
 langchain-openai==0.3.28
 ```
 
-### Dependencies Extras
-TODO: https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
+### Dependencies specification
+The simplest way to specify dependency is just name it: e.g. for `httpx` just specify `httpx`
+
+Specific version:
+```text
+httpx==0.28.1
+```
+
+Version range:
+```text
+httpx>=0.28.1
+```
+
+Platform restrictions (most useful are python version and OS):
+```text
+httpx==0.28.1; python_version>=3.9 and platform_system == 'linux' 
+```
+
+Direct url:
+```text
+httpx @ https://files.pythonhosted.org/packages/2a/39/e50c7c3a983047577ee07d2a9e53faf5a69493943ec3f6a384bdc792deb2/httpx-0.28.1-py3-none-any.whl
+```
+
+Local path:
+```text
+httpx @ file:///path/to/httpx.whl
+```
+
+Dependencies extras. Packages can specify dependencies extra to add additional dependencies, e.g.
+`httpx` defines an [extra set](https://github.com/encode/httpx/blob/4fb9528c2f5ac000441c3634d297e77da23067cd/pyproject.toml#L48-L50) of dependencies for http2.
+
+You can request this extra set with:
+```text
+httpx[http2]
+```
+
+You can separate several extras with the comma:
+```text
+httpx[cli,http]
+```
+Dependencies from the extras sets will be unioned.
 
 ### Rest
 #### Versioning
