@@ -16,7 +16,7 @@ requires-python = ">= 3.11"
 # e.g. setuptools supports dynamic version
 # you specify how to compute version in a table `tool.setuptools.dynamic`
 dynamic = ["version"]
-# you can specify version statically like this:
+# you can also specify version statically like this:
 # version = "0.0.1"
 classifiers = [
     # this classifier doesn't allow upload of this package to public PyPI

@@ -103,6 +103,8 @@ py30-none-any
 See also quite illuminating [discussion](https://discuss.python.org/t/python-tags-specific-version-of-interpreter-or-minimum-version/7831/27) about this.
 
 #### Content
+platlib vs purelib: some systems make distinction where to install platform dependent files (e.g. `.so`)
+and platform independent (e.g. `.py`), that's it.
 
 ### Sdist
 Sdist is a tar.gz file containing package source:
@@ -153,12 +155,23 @@ httpx==0.28.1
 
 Version range:
 ```text
-httpx>=0.28.1
+httpx>=0.28.1,<1.0.0
 ```
 
-Platform restrictions (most useful are python version and OS):
+Another way to define ranges for compatible releases:
 ```text
-httpx==0.28.1; python_version>=3.9 and platform_system == 'linux' 
+httpx ~= 0.28
+```
+
+This is the same as:
+```text
+httpx >= 0.28, == 0.*
+```
+
+
+Platform restrictions (most useful are python version and OS, `and|or` are supported):
+```text
+httpx==0.28.1; python_version>=3.9 and platform_system == 'linux or platform_system = 'macos' 
 ```
 
 Direct url:
@@ -183,7 +196,9 @@ You can separate several extras with the comma:
 ```text
 httpx[cli,http]
 ```
+
 Dependencies from the extras sets will be unioned.
+
 
 ### Rest
 #### Versioning
