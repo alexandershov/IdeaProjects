@@ -105,7 +105,33 @@ See also quite illuminating [discussion](https://discuss.python.org/t/python-tag
 #### Content
 
 ### Sdist
-Sdist is a tar.gz file containing package source.
+Sdist is a tar.gz file containing package source:
+```shell
+tar -tzf dist/mypackage-0.0.1.tar.gz
+mypackage-0.0.1/
+mypackage-0.0.1/PKG-INFO
+mypackage-0.0.1/pyproject.toml
+mypackage-0.0.1/setup.cfg
+mypackage-0.0.1/src/
+mypackage-0.0.1/src/mypackage/
+mypackage-0.0.1/src/mypackage/__init__.py
+mypackage-0.0.1/src/mypackage/cli.py
+mypackage-0.0.1/src/mypackage/lib.py
+mypackage-0.0.1/src/mypackage.egg-info/
+mypackage-0.0.1/src/mypackage.egg-info/PKG-INFO
+mypackage-0.0.1/src/mypackage.egg-info/SOURCES.txt
+mypackage-0.0.1/src/mypackage.egg-info/dependency_links.txt
+mypackage-0.0.1/src/mypackage.egg-info/entry_points.txt
+mypackage-0.0.1/src/mypackage.egg-info/requires.txt
+mypackage-0.0.1/src/mypackage.egg-info/top_level.txt
+```
+Main parts of this archive are:
+* top-level folder in the archive is the `{name}-{version}`
+* then pyproject.toml
+* and source code (in unspecified format)
+
+The format in which source code is stored is not specified, but general idea that it should be enough
+stuff to build a wheel from it.
 
 ### Distribution packages
 Distribution package is a package on PyPI. Import package is a regular python package you can import.
