@@ -108,6 +108,63 @@ and platform independent (e.g. `.py`), that's it.
 Inside of the wheel there's a file called WHEEL, for pure python packages it'll have
 `Root-Is-Purelib: true`
 
+Here's an example of wheel content:
+```shell
+unzip -l dist/mypackage-0.0.1-py3-none-any.whl
+Archive:  dist/mypackage-0.0.1-py3-none-any.whl
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+       21  07-19-2025 15:40   mypackage/__init__.py
+       70  07-19-2025 15:45   mypackage/cli.py
+        0  07-19-2025 15:30   mypackage/lib.py
+      135  07-20-2025 12:17   mypackage-0.0.1.dist-info/METADATA
+       91  07-20-2025 12:17   mypackage-0.0.1.dist-info/WHEEL
+       53  07-20-2025 12:17   mypackage-0.0.1.dist-info/entry_points.txt
+       10  07-20-2025 12:17   mypackage-0.0.1.dist-info/top_level.txt
+      619  07-20-2025 12:17   mypackage-0.0.1.dist-info/RECORD
+```
+
+`mypackage-0.0.1.dist-info` contains wheel metadata:
+WHEEL contains wheel version, generator (which build backend created a wheel), and tags.
+```shell
+unzip -p dist/mypackage-0.0.1-py3-none-any.whl mypackage-0.0.1.dist-info/WHEEL
+Wheel-Version: 1.0
+Generator: setuptools (80.9.0)
+Root-Is-Purelib: true
+Tag: py3-none-any
+```
+
+More wheel info is in the METADATA:
+```shell
+unzip -p httpx-0.28.1-py3-none-any.whl httpx-0.28.1.dist-info/METADATA
+Metadata-Version: 2.3
+Name: httpx
+Version: 0.28.1
+<REDACTED>
+Requires-Python: >=3.8
+Requires-Dist: anyio
+Requires-Dist: certifi
+Requires-Dist: httpcore==1.*
+Requires-Dist: idna
+Provides-Extra: brotli
+Requires-Dist: brotli; (platform_python_implementation == 'CPython') and extra == 'brotli'
+Requires-Dist: brotlicffi; (platform_python_implementation != 'CPython') and extra == 'brotli'
+Provides-Extra: cli
+Requires-Dist: click==8.*; extra == 'cli'
+Requires-Dist: pygments==2.*; extra == 'cli'
+Requires-Dist: rich<14,>=10; extra == 'cli'
+Provides-Extra: http2
+Requires-Dist: h2<5,>=3; extra == 'http2'
+Provides-Extra: socks
+Requires-Dist: socksio==1.*; extra == 'socks'
+Provides-Extra: zstd
+Requires-Dist: zstandard>=0.18.0; extra == 'zstd'
+```
+
+METADATA contains dependencies (Requires-Dist), extras (Provides-Extra), required python version (Requires-Python) and other stuff.
+extras are used as platform specifiers in Requires-Dist.
+
+RECORD contains all wheel files with their hashes.
 
 ### Sdist
 Sdist is a tar.gz file containing package source:
