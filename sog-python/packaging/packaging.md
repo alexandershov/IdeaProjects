@@ -105,6 +105,9 @@ See also quite illuminating [discussion](https://discuss.python.org/t/python-tag
 #### Content
 platlib vs purelib: some systems make distinction where to install platform dependent files (e.g. `.so`)
 and platform independent (e.g. `.py`), that's it.
+Inside of the wheel there's a file called WHEEL, for pure python packages it'll have
+`Root-Is-Purelib: true`
+
 
 ### Sdist
 Sdist is a tar.gz file containing package source:
