@@ -195,6 +195,8 @@ Main parts of this archive are:
 The format in which source code is stored is not specified, but general idea that it should be enough
 stuff to build a wheel from it.
 
+Also sdist contains PKG-INFO which has the same format & data as METADATA in a wheel.
+
 ### Distribution packages
 Distribution package is a package on PyPI. Import package is a regular python package you can import.
 Distribution package names are case-insensitive and all allowed non-alphanumeric characters (namely `_.-`)
