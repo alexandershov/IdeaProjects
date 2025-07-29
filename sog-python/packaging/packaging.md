@@ -197,6 +197,42 @@ stuff to build a wheel from it.
 
 Also sdist contains PKG-INFO which has the same format & data as METADATA in a wheel.
 
+### Installation
+When you install python project aside from the code itself installation tool will also create a 
+`{name}-{version}.dist-info` directory in site-packages/ containing metainformation about the installation:
+```shell
+$ ls ~/.virtualenvs/packaging_playground/lib/python3.13/site-packages/httpx-0.28.1.dist-info | cat
+INSTALLER
+METADATA
+RECORD
+WHEEL
+entry_points.txt
+licenses
+```
+
+INSTALLER contains the name of the tool that installed the package:
+```shell
+$ cat INSTALLER
+pip
+```
+
+METADATA is the same as PKG-INFO in sdist or METADATA in a wheel.
+
+RECORD is a list of installed files:
+```shell
+cat RECORD
+../../../bin/httpx,sha256=BoI7FDnFmx4J-UdjO0fC1HbpVOm0hwudwB3mGG9X00c,251
+httpx-0.28.1.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+httpx-0.28.1.dist-info/METADATA,sha256=_rubD48-gNV8gZnDBPNcQzboWB0dGNeYPJJ2a4J5OyU,7052
+<REDACTED>
+```
+
+RECORD can be used by a package manager to uninstall a package. Algorithm for removal is:
+1. Remove all files from RECORD
+2. Remove all .pyc files for each .py file in RECORD
+3. Remove all empty directories
+
+
 ### Distribution packages
 Distribution package is a package on PyPI. Import package is a regular python package you can import.
 Distribution package names are case-insensitive and all allowed non-alphanumeric characters (namely `_.-`)
