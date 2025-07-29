@@ -166,6 +166,12 @@ extras are used as platform specifiers in Requires-Dist.
 
 RECORD contains all wheel files with their hashes.
 
+#### Installation
+Wheel installation is essentially 
+* unpacking into correct directory (purelib/platlib) and
+* rewriting `#!python` with the current python interpreter (could be in venv)
+* compiling .pyc files
+
 ### Sdist
 Sdist is a tar.gz file containing package source:
 ```shell
