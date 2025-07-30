@@ -27,6 +27,10 @@ classifiers = [
 [project.scripts]
 mypackage_cli = "mypackage.cli:main"
 
+
+[project.entry-points."my.entry.point.group"]
+adder = "mypackage.lib:add"
+
 # tool.* table keys & content are defined by, ahem, tools: e.g. ruff, pytest, setuptools, etc
 [tool.setuptools.dynamic]
 # take version dynamically from the attribute mypackage.__version__

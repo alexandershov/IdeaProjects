@@ -249,6 +249,43 @@ pip freeze | rg langchain-openai
 langchain-openai==0.3.28
 ```
 
+### Entry points
+Entry points is a way to add additional metadata to your projects.
+E.g. you can add
+```toml
+[project.scripts]
+httpx = "httpx:main"
+```
+
+in your `pyproject.toml` and wheel will contain 
+```text
+[console_scripts]
+httpx = httpx:main
+```
+
+`httpx` will be a file name and `httpx:main` is a path to python function `main` in a module `httpx`.
+
+console_script is just a well-known entrypoint with a support from a python tooling, but you can define
+non-console_scripts entry points. See `[project.entry-points]` section in [pyproject.toml](./pyproject.toml) 
+for how you can define entry point.
+You can query entrypoints with `importlib.metadata`:
+
+```pycon
+>>> from importlib.metadata import entry_points
+>>> eps = entry_points()
+>>> list(eps)[1]
+EntryPoint(name='adder', value='mypackage.lib:add', group='my.entry.point.group')
+>>> list(eps)[1].load()
+<function add at 0x1055547c0>
+>>> list(eps)[1].load()(3, 2)
+5
+>>>
+```
+
+`EntryPoint.load()` resolves entrypoint value to a python object.
+Entrypoints are used by e.g. pytest for plugins: you write a package that provides entrypoint in a
+group `pytest11` and pytest will get it with the `importlib.metadata`.
+
 ### Dependencies specification
 The simplest way to specify dependency is just name it: e.g. for `httpx` just specify `httpx`
 
