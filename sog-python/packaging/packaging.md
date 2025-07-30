@@ -286,6 +286,22 @@ EntryPoint(name='adder', value='mypackage.lib:add', group='my.entry.point.group'
 Entrypoints are used by e.g. pytest for plugins: you write a package that provides entrypoint in a
 group `pytest11` and pytest will get it with the `importlib.metadata`.
 
+
+### Editable installation
+With `pip install -e .` you can create an editable installation: meaning that you can change your package 
+(edit/create/delete files) and it will be reflected in a current environment.
+
+The way it's currently implemented is via `.pth` in site-packages/ and adding `.dist-info`:
+```shell
+cat  ~/.virtualenvs/packaging_playground/lib/python3.13/site-packages/__editable__.mypackage-0.0.1.pth
+/Users/aershov/IdeaProjects/sog-python/packaging/src
+ls -lrt  ~/.virtualenvs/packaging_playground/lib/python3.13/site-packages | tail -2
+-rw-r--r--@  1 aershov  staff      53 Jul 30 21:17 __editable__.mypackage-0.0.1.pth
+drwxr-xr-x@ 10 aershov  staff     320 Jul 30 21:17 mypackage-0.0.1.dist-info
+```
+
+.dist-info is just a regular `.dist-info` - same stuff you get when you install a wheel.
+
 ### Dependencies specification
 The simplest way to specify dependency is just name it: e.g. for `httpx` just specify `httpx`
 
