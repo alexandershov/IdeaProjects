@@ -388,10 +388,27 @@ importlib.metadata.version("httpx")
 '0.28.1'
 ```
 
+#### Pipx
+Pipx allows you to install python apps in a separate virtual env:
+```shell
+$ pipx install 'httpx[cli]'
+aershov@Ubuntu-2404-noble-amd64-base:~$ httpx
+Usage: httpx [OPTIONS] URL
+
+Error: Missing argument 'URL'.
+$ cat $(which httpx)
+#!/home/aershov/.local/share/pipx/venvs/httpx/bin/python
+import sys
+from httpx import main
+if __name__ == '__main__':
+    if sys.argv[0].endswith('.exe'):
+        sys.argv[0] = sys.argv[0][:-4]
+    sys.exit(main())
+```
+
+As we can see httpx library is installed in its own virtual env.
+
+
+
 TODO: 
-* Install editable https://setuptools.pypa.io/en/latest/userguide/development_mode.html
-* Requirements format (extras, versions, file/http/etc)
 * pip install --no-index --find-links
-* entrypoints
-* pipx
-* python -m build
