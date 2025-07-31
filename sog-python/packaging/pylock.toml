@@ -1,0 +1,101 @@
+lock-version = "1.0"
+created-by = "pip"
+
+[[packages]]
+name = "annotated-types"
+version = "0.7.0"
+
+[[packages.wheels]]
+name = "annotated_types-0.7.0-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/78/b6/6307fbef88d9b5ee7421e68d78a9f162e0da4900bc5f5793f6d3d0e34fb8/annotated_types-0.7.0-py3-none-any.whl"
+
+[packages.wheels.hashes]
+sha256 = "1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53"
+
+[[packages]]
+name = "packaging"
+version = "25.0"
+
+[[packages.wheels]]
+name = "packaging-25.0-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/20/12/38679034af332785aac8774540895e234f4d07f7545804097de4b666afd8/packaging-25.0-py3-none-any.whl"
+
+[packages.wheels.hashes]
+sha256 = "29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484"
+
+[[packages]]
+name = "pydantic"
+version = "2.11.7"
+
+[[packages.wheels]]
+name = "pydantic-2.11.7-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/6a/c0/ec2b1c8712ca690e5d61979dee872603e92b8a32f94cc1b72d53beab008a/pydantic-2.11.7-py3-none-any.whl"
+
+[packages.wheels.hashes]
+sha256 = "dde5df002701f6de26248661f6835bbe296a47bf73990135c7d07ce741b9623b"
+
+[[packages]]
+name = "pydantic-core"
+version = "2.33.2"
+
+[[packages.wheels]]
+name = "pydantic_core-2.33.2-cp313-cp313-macosx_11_0_arm64.whl"
+url = "https://files.pythonhosted.org/packages/3a/cc/5999d1eb705a6cefc31f0b4a90e9f7fc400539b1a1030529700cc1b51838/pydantic_core-2.33.2-cp313-cp313-macosx_11_0_arm64.whl"
+
+[packages.wheels.hashes]
+sha256 = "f517ca031dfc037a9c07e748cefd8d96235088b83b4f4ba8939105d20fa1dcd6"
+
+[[packages]]
+name = "pyproject-toml"
+version = "0.1.0"
+
+[[packages.wheels]]
+name = "pyproject_toml-0.1.0-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/38/c1/d8dd436dc2c2e323441b98abf7bee8c51bda5ca6d066ec46d8163a1aeaa9/pyproject_toml-0.1.0-py3-none-any.whl"
+
+[packages.wheels.hashes]
+sha256 = "96bf8d47162d5cae417e7db46e7f1f51af915bcce620350e2cfae3e2478e301b"
+
+[[packages]]
+name = "setuptools"
+version = "80.9.0"
+
+[[packages.wheels]]
+name = "setuptools-80.9.0-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/a3/dc/17031897dae0efacfea57dfd3a82fdd2a2aeb58e0ff71b77b87e44edc772/setuptools-80.9.0-py3-none-any.whl"
+
+[packages.wheels.hashes]
+sha256 = "062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922"
+
+[[packages]]
+name = "typing-extensions"
+version = "4.14.1"
+
+[[packages.wheels]]
+name = "typing_extensions-4.14.1-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/b5/00/d631e67a838026495268c2f6884f3711a15a9a2a96cd244fdaea53b823fb/typing_extensions-4.14.1-py3-none-any.whl"
+
+[packages.wheels.hashes]
+sha256 = "d1e1e3b58374dc93031d6eda2420a48ea44a36c2b4766a4fdeb3710755731d76"
+
+[[packages]]
+name = "typing-inspection"
+version = "0.4.1"
+
+[[packages.wheels]]
+name = "typing_inspection-0.4.1-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/17/69/cd203477f944c353c31bade965f880aa1061fd6bf05ded0726ca845b6ff7/typing_inspection-0.4.1-py3-none-any.whl"
+
+[packages.wheels.hashes]
+sha256 = "389055682238f53b04f7badcb49b989835495a96700ced5dab2d8feae4b26f51"
+
+[[packages]]
+name = "wheel"
+version = "0.45.1"
+
+[[packages.wheels]]
+name = "wheel-0.45.1-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/0b/2c/87f3254fd8ffd29e4c02732eee68a83a1d3c346ae39bc6822dcbcb697f2b/wheel-0.45.1-py3-none-any.whl"
+
+[packages.wheels.hashes]
+sha256 = "708e7481cc80179af0e556bbf0cc00b8444c7321e2700b8d8580231d13017248"

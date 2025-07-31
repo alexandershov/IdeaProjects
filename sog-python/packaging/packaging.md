@@ -408,7 +408,17 @@ if __name__ == '__main__':
 
 As we can see httpx library is installed in its own virtual env.
 
+#### Lock files
+You can create requirements lock file with pip-tools:
+```shell
+python -m pip install pip-tools
+pip-compile -o requirements.txt pyproject.toml
+```
 
+There's a new format for lock files: [pylock.toml](https://peps.python.org/pep-0751/). You can generate it with
+```shell
+pip lock pyproject.toml
+```
 
 TODO: 
 * pip install --no-index --find-links
