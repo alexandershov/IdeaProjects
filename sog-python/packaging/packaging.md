@@ -302,6 +302,27 @@ drwxr-xr-x@ 10 aershov  staff     320 Jul 30 21:17 mypackage-0.0.1.dist-info
 
 .dist-info is just a regular `.dist-info` - same stuff you get when you install a wheel.
 
+
+### Data files
+You can include data (non-py) files to your package.
+See `[tool.setuptools.package-data]` table in [pyproject.toml](./pyproject.toml).
+You can access these files with:
+```shell
+>>> import importlib.resources
+>>> import mypackage
+>>> importlib.resources.read_text(mypackage, "data.txt")
+''
+```
+
+or with:
+```shell
+>>> from importlib.resources import files
+>>> files('mypackage').joinpath('data.txt').read_text()
+''
+```
+
+The advantage of using `importlib.resources` is that it also works if your package is zip archive.
+
 ### Dependencies specification
 The simplest way to specify dependency is just name it: e.g. for `httpx` just specify `httpx`
 
