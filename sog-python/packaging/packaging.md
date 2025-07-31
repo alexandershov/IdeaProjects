@@ -420,5 +420,10 @@ There's a new format for lock files: [pylock.toml](https://peps.python.org/pep-0
 pip lock pyproject.toml
 ```
 
-TODO: 
-* pip install --no-index --find-links
+#### Local install
+
+You can install from a local path without using pypi:
+```
+pip install --no-index --find-links path/to/dir mypackage
+```
+This will not use pypi and will use `path/to/dir` instead to install mypackage
