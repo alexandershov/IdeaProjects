@@ -69,4 +69,42 @@ pub fn main() void {
     if (optCount) |v| {
         std.debug.print("v = {}\n", .{v});
     }
+
+    // memory allocation is explicit
+    const allocator = std.heap.page_allocator;
+    const memory = allocator.alloc(u8, 5) catch unreachable;
+    std.debug.print("memory = {any}\n", .{memory});
+    defer allocator.free(memory);
+
+    // GeneralPurposeAllocator can detect double free, memory leaks
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const gpaAllocator = gpa.allocator();
+    defer {
+        // commented out, because it's quite spammy
+        // const gpaStatus = gpa.deinit();
+        // will point to a leak, because bytes is not freed
+        // std.debug.print("gpaStatus = {any}\n", .{gpaStatus});
+    }
+    const bytes = gpaAllocator.alloc(u8, 3) catch unreachable;
+    std.debug.print("bytes = {any}\n", .{bytes});
+
+    // like C++ std::vector
+    var list = std.ArrayList(u8).init(gpaAllocator);
+    defer list.deinit();
+    list.append('H') catch unreachable;
+    std.debug.print("list = {any}\n", .{list.items});
+
+    // hash maps
+    var map = std.AutoHashMap(u32, u8).init(gpaAllocator);
+    defer map.deinit();
+    map.put(1, 2) catch unreachable;
+    map.put(3, 6) catch unreachable;
+    // map.get returns an optional
+    std.debug.print("map[3] = {any}\n", .{map.get(3)});
+
+    var iterator = map.iterator();
+    while (iterator.next()) |entry| {
+        // .* is pointer dereference
+        std.debug.print("map[{any}] = {any}\n", .{ entry.key_ptr.*, entry.value_ptr.* });
+    }
 }
