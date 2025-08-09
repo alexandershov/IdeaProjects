@@ -40,3 +40,9 @@ const Parser = struct {
    next() !?Game
 }
 ```
+
+### Do we need extra token types for parens/brackets etc
+* ✅Yes
+  Probably would be easier for a switch statement
+  Tokens are explicitly listed
+* 🛑No
