@@ -1,12 +1,10 @@
 /// Parse PGN files
 /// This is just parsing and skips moves validation
-
 const std = @import("std");
 
 // pgn format spec:
 // comments: ; till the end of string and {} comments
 // line starting with % should be ignored
-
 
 /// Represent a token in PGN file
 /// E.g. [Event "Live Chess"] will be tokenized into
@@ -17,42 +15,44 @@ const std = @import("std");
 /// * .ClosingBracket("]")
 const Token = union(enum) {
     /// Delimits PGN tags
-    .OpeningBracket: u8,
-    .ClosingBracket: u8,
+    OpeningBracket: u8,
+    ClosingBracket: u8,
 
     /// Delimits (possibly recursive) variations
-    .OpeningParen: u8,
-    .ClosingParen: u8,
+    OpeningParen: u8,
+    ClosingParen: u8,
 
     /// Represents move numbers
-    .Number: u32,
+    Number: u32,
 
     /// Comments can be of two types:
     /// ; single line comment follows semicolon
     /// { comment inside of the braces }
-    .Comment: []u8,
+    Comment: []u8,
 
     /// Includes spaces, tabs, newlines
-    .Whitespace: []u8,
+    Whitespace: []u8,
 
     /// Represents tag values
-    .String: []u8,
+    String: []u8,
 
     /// Represents period after a white move number `1. e4`
-    .Period u8,
+    Period: u8,
 
-    /// Represents period after a black move number `1... e5`
-    .TriplePeriod []u8,
+    /// Represents periods after a black move number `1... e5`
+    TriplePeriod: []u8,
+
+    /// "1-0", "0-1", "1/2-1/2", or "*" (star means unknown result)
+    Result: []u8,
 
     /// Represents any text not covered by the rest of the tokens
     /// It's a catch-all token and represents:
     /// * tag names (e.g. "Event" in [Event "Live Chess"])
     /// * moves (e.g. "Nge2" in "4. Nge2"),
-    /// * game result (e.g. "1-0")
     /// * numeric annotation glyphs (e.g. "$2" in "1. e4 $2")
     /// This token never includes whitespace
-    .Text: []u8,
-}
+    Text: []u8,
+};
 
 /// Convert a stream of bytes into Tokens
 /// Iterator
@@ -62,12 +62,11 @@ const Tokenizer = struct {
 
     /// Returns next token in a stream and moves the iterator further.
     /// Standard iterator stuff.
-    fn next(self *Tokenizer) !?Token {}
+    fn next(_: *Tokenizer) !?Token {}
 
     /// Returns next token in a stream but iterator stays at the same position.
-    fn peek(self *Tokenizer) !?Token {}
-}
-
+    fn peek(_: *Tokenizer) !?Token {}
+};
 
 pub fn main() !void {
     const stdin = std.io.getStdIn().reader();

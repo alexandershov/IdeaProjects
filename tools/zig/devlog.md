@@ -41,8 +41,25 @@ const Parser = struct {
 }
 ```
 
-### Do we need extra token types for parens/brackets etc
+### Do we need extra token types for parens/brackets etc?
 * ✅Yes
   Probably would be easier for a switch statement
   Tokens are explicitly listed
 * 🛑No
+
+
+### How to implement Tokenizer.next & Tokenizer.peek?
+* 🛑matchOf(regex) ```zig
+
+```
+ Ideally - it should be used, but there's no mature zig regex library, so let's roll out our own stuff 
+
+* ✅ manual ```zig
+  switch currentByte {
+    '0-9': => readNumber()
+    ';': => readSingleLineComment()
+    '{': => readMultiLineComment()
+    '"': => readString() 
+    _ => 
+}
+```
