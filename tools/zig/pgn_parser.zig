@@ -12,16 +12,13 @@ const std = @import("std");
 /// E.g. [Event "Live Chess"] will be tokenized into
 /// * .OpeningBracket("[")
 /// * .Whitespace(" ")
-/// * .Symbol("Event")
+/// * .Text("Event")
 /// * .String("Live Chess")
 /// * .ClosingBracket("]")
 const Token = union(enum) {
     /// Delimits PGN tags
     .OpeningBracket: u8,
     .ClosingBracket: u8,
-
-    /// Represents tag names
-    .Symbol: []u8,
 
     /// Delimits (possibly recursive) variations
     .OpeningParen: u8,
@@ -47,17 +44,14 @@ const Token = union(enum) {
     /// Represents period after a black move number `1... e5`
     .TriplePeriod []u8,
 
-    /// Represents the move, e.g. "Nf3" or "O-O-O".
-    /// Note that castle is represented with capital letter O, not zero (0)
-    /// That's part of PGN spec
-    .Move []u8,
-
-    /// Represents Numeric Annotation Glyph, e.g. "$2" in "1. e4 $2"
-    .MoveAnnotation []u8
-
-    /// "1-0", "0-1", "1/2-1/2", or "*" (unknown result)
-    /// Follows the 
-    .Result []u8,
+    /// Represents any text not covered by the rest of the tokens
+    /// It's a catch-all token and represents:
+    /// * tag names (e.g. "Event" in [Event "Live Chess"])
+    /// * moves (e.g. "Nge2" in "4. Nge2"),
+    /// * game result (e.g. "1-0")
+    /// * numeric annotation glyphs (e.g. "$2" in "1. e4 $2")
+    /// This token never includes whitespace
+    .Text: []u8,
 }
 
 /// Convert a stream of bytes into Tokens
