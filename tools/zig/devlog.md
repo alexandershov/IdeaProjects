@@ -130,7 +130,8 @@ pub fn peek(peekaboo []u8) {
      // we need to possibly handle circular thing here
      memcpy(buffer, peekaboo) 
   } else {
-    
+    // possibly handle circular thing here 
+    memcpy(reader.read(len_difference), buf + start)
   }
 }
 
