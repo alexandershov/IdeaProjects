@@ -21,8 +21,8 @@ fn BufferedReader(comptime ReaderType: type) type {
                 // we need to read some extra bytes
                 const toRead = out.len - self.len;
                 const bytesRead = try self.reader.read(out[0..toRead]);
-                // out[0..bytesRead] contains extra bytes that we need to append to buffer
-                const freeHeadLen = @max(self.buffer.len - (self.start + self.len), 0);
+                // out[0..bytesRead] contains extra bytes that we need to append to self.buffer
+                const freeHeadLen = if (self.buffer.len >= self.start + self.len) self.buffer.len - (self.start + self.len) else 0;
                 var bytesRemaining = bytesRead;
                 const headLenToWrite = @min(bytesRemaining, freeHeadLen);
                 if (freeHeadLen > 0) {
@@ -30,18 +30,16 @@ fn BufferedReader(comptime ReaderType: type) type {
                     @memcpy(self.buffer[cpyStart .. cpyStart + headLenToWrite], out[0..headLenToWrite]);
                     bytesRemaining -= headLenToWrite;
                 }
-                if (bytesRemaining > 0) {
-                    @memcpy(self.buffer[0..bytesRemaining], out[headLenToWrite .. headLenToWrite + bytesRemaining]);
-                }
+                const cpyStart = (self.start + self.len + headLenToWrite) % self.buffer.len;
+                @memcpy(self.buffer[cpyStart .. cpyStart + bytesRemaining], out[headLenToWrite .. headLenToWrite + bytesRemaining]);
+
                 self.len += bytesRead;
             }
             std.debug.assert(self.len >= out.len);
             const headLen = @min(self.buffer.len - self.start, self.len);
             @memcpy(out[0..headLen], self.buffer[self.start .. self.start + headLen]);
             const tailLen = self.len - headLen;
-            if (tailLen > 0) {
-                @memcpy(out[headLen .. headLen + tailLen], self.buffer[0..tailLen]);
-            }
+            @memcpy(out[headLen .. headLen + tailLen], self.buffer[0..tailLen]);
             return headLen + tailLen;
         }
 
@@ -60,7 +58,17 @@ pub fn main() !void {
     const StdInReader = BufferedReader(@TypeOf(stdin));
     var buffer: [10]u8 = undefined;
     var reader = StdInReader{ .reader = stdin, .buffer = &buffer };
-    var peekaboo: [3]u8 = undefined;
-    const size = try reader.peek(&peekaboo);
-    std.debug.print("read {any}\n", .{peekaboo[0..size]});
+    var peekaboo: [6]u8 = undefined;
+
+    const size1 = try reader.peek(&peekaboo);
+    std.debug.print("read <{s}>\n", .{peekaboo[0..size1]});
+    reader.toss(size1);
+
+    const size2 = try reader.peek(&peekaboo);
+    std.debug.print("read <{s}>\n", .{peekaboo[0..size2]});
+
+    reader.toss(1);
+
+    const size3 = try reader.peek(&peekaboo);
+    std.debug.print("read <{s}>\n", .{peekaboo[0..size3]});
 }
