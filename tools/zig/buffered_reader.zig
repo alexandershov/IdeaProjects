@@ -35,10 +35,11 @@ fn BufferedReader(comptime ReaderType: type) type {
 
                 self.len += bytesRead;
             }
+            // TODO: handle case when self.len < out.len (e.g because of EOF)
             std.debug.assert(self.len >= out.len);
-            const headLen = @min(self.buffer.len - self.start, self.len);
+            const headLen = @min(self.buffer.len - self.start, self.len, out.len);
             @memcpy(out[0..headLen], self.buffer[self.start .. self.start + headLen]);
-            const tailLen = self.len - headLen;
+            const tailLen = @min(self.len - headLen, out.len - headLen);
             @memcpy(out[headLen .. headLen + tailLen], self.buffer[0..tailLen]);
             return headLen + tailLen;
         }
@@ -49,6 +50,27 @@ fn BufferedReader(comptime ReaderType: type) type {
             std.debug.assert(self.len >= count);
             self.len -= count;
             self.start = (self.start + count) % self.buffer.len;
+        }
+
+        /// Reads data from a stream while current char is in allowedChars and not in stopChars
+        /// Result will contain only characters from the allowedChars
+        pub fn readWhile(self: *Self, allocator: std.mem.Allocator, allowedChars: ?[]const u8, stopChars: ?[]const u8) ![]u8 {
+            var list = std.ArrayList(u8).init(allocator);
+            while (true) {
+                var nextChar: [1]u8 = undefined;
+                const bytesRead = try self.peek(&nextChar);
+                if (bytesRead == 0) break;
+
+                if (allowedChars) |chars| {
+                    if (std.mem.indexOfScalar(u8, chars, nextChar[0])) |_| {} else break;
+                }
+                if (stopChars) |chars| {
+                    if (std.mem.indexOfScalar(u8, chars, nextChar[0])) |_| break;
+                }
+                try list.append(nextChar[0]);
+                self.toss(1);
+            }
+            return list.toOwnedSlice();
         }
     };
 }
@@ -71,4 +93,17 @@ pub fn main() !void {
 
     const size3 = try reader.peek(&peekaboo);
     std.debug.print("read <{s}>\n", .{peekaboo[0..size3]});
+
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const gpaAllocator = gpa.allocator();
+    defer {
+        const gpaStatus = gpa.deinit();
+        if (gpaStatus != std.heap.Check.ok) {
+            std.debug.print("gpaStatus = {any}", .{gpaStatus});
+        }
+    }
+    const stopChars: [1]u8 = .{'c'};
+    const text = try reader.readWhile(gpaAllocator, null, &stopChars);
+    defer gpaAllocator.free(text);
+    std.debug.print("read <{s}>\n", .{text});
 }
