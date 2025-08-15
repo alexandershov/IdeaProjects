@@ -59,6 +59,8 @@ fn BufferedReader(comptime ReaderType: type) type {
             while (true) {
                 var nextChar: [1]u8 = undefined;
                 const bytesRead = try self.peek(&nextChar);
+
+                // checking for eof
                 if (bytesRead == 0) break;
 
                 if (allowedChars) |chars| {

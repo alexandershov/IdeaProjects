@@ -142,3 +142,22 @@ pub fn toss(n usize) {
 }
 ```
 
+### Current implementation of `peek` is incredibly ugly. How to improve on it?
+We need to do 2 tasks in `peek`:
+1. possibly reading missing bytes into `self.buffer`
+1. filling `out` from `self.buffer`
+
+What if we had a magic function rangesFrom()?
+```zig
+const Range = struct {
+  start: usize,
+  end: usize,
+}
+
+fn rangesFrom(self: *Self, start usize, len usize) []Range {
+  
+}
+```
+
+We can use this function both for getting ranges to copy from `self.buffer` to `out`.
+And we can use it to fill out `self.buffer` (start would be self.start + self.usize)
