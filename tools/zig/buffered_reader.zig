@@ -1,19 +1,18 @@
 const std = @import("std");
 
-
-
 /// Wrapper over any reader
 fn BufferedReader(comptime ReaderType: type) type {
     const Range = struct {
-    start: usize,
-    len: usize,
-}
+        start: usize,
+        end: usize,
+    };
 
-const Ranges = struct {
-    head: ?Range,
-    tail: ?Range,
-}
-    
+    // TODO: replace with slice
+    const Ranges = struct {
+        head: ?Range,
+        tail: ?Range,
+    };
+
     return struct {
         const Self = @This();
 
@@ -23,53 +22,64 @@ const Ranges = struct {
         start: usize = 0,
         len: usize = 0,
 
-        /// Return ranges in circular buffer
+        /// Return ranges in circular buffer at position self.start + offset
         /// Sum of ranges will be `len`
-        /// start can be >= self.buffer.len, in this case Ranges.head will be null (because only tail space is available)
-        fn getRanges(self: *Self, unboundedStart usize, len usize) Ranges {
+        /// This function asserts that requested `len` is available
+        /// Used to fill `self.buffer` during `peek` and to fill `out`
+        fn getRanges(self: *Self, offset: usize, len: usize) Ranges {
+            const availableLen = self.buffer.len - ((self.start + offset) % self.buffer.len);
+            std.debug.assert(len <= availableLen);
+            // unboundedStart & unboundedEnd can be out of bounds of `self.buffer`
+            // that's okay, we deal with it later
             var head: ?Range = null;
-            var start = unboundedStart % self.buffer.len;
-            if (unboundedStart < self.buffer.len) {
-                // there's room in head
-                const freeHeadSize = self.buffer.len - start;
-                const headSizeToUse = @min(freeHeadSize, len);
-                head = {.start, .start + headSizeTouse};
-                len -= headSizeTouse;
+            var tail: ?Range = null;
+            const unboundedStart = self.start + offset;
+            const unboundedEnd = unboundedStart + len;
+            if (self.buffer.len > unboundedStart and self.buffer.len < unboundedEnd) {
+                // we need to split in two
+                head = Range{ .start = unboundedStart, .end = self.buffer.len };
+                tail = Range{ .start = 0, .end = unboundedEnd % self.buffer.len };
+            } else {
+                // self.buffer.len is on a one side (left or right) of the (unboundedStart; unboundedEnd) range
+                // we just need to do everything modulo self.buffer.len,
+                // modulo operation can be no-op if unboundedStart/unboundedEnd < self.buffer.len, that's fine
+                tail = Range{ .start = unboundedStart % self.buffer.len, .end = unboundedEnd % self.buffer.len };
             }
-            return .{head, tail};
+            return Ranges{ .head = head, .tail = tail };
         }
 
         /// Fills out buffer with the next out.len bytes from the stream.
         /// Returns number of bytes read
         /// Doesn't change the stream position
         pub fn peek(self: *Self, out: []u8) !usize {
-            // TODO: simplify implementation
             std.debug.assert(self.buffer.len >= out.len);
             if (self.len < out.len) {
-                // we need to read some extra bytes
                 const toRead = out.len - self.len;
                 const bytesRead = try self.reader.read(out[0..toRead]);
-                // out[0..bytesRead] contains extra bytes that we need to append to self.buffer
-                const freeHeadLen = if (self.buffer.len >= self.start + self.len) self.buffer.len - (self.start + self.len) else 0;
-                var bytesRemaining = bytesRead;
-                const headLenToWrite = @min(bytesRemaining, freeHeadLen);
-                if (freeHeadLen > 0) {
-                    const cpyStart = self.start + self.len;
-                    @memcpy(self.buffer[cpyStart .. cpyStart + headLenToWrite], out[0..headLenToWrite]);
-                    bytesRemaining -= headLenToWrite;
-                }
-                const cpyStart = (self.start + self.len + headLenToWrite) % self.buffer.len;
-                @memcpy(self.buffer[cpyStart .. cpyStart + bytesRemaining], out[headLenToWrite .. headLenToWrite + bytesRemaining]);
 
+                const ranges = self.getRanges(self.len, bytesRead);
+                var outOffset: usize = 0;
+                if (ranges.head) |head| {
+                    @memcpy(self.buffer[head.start..head.end], out[0..(head.end - head.start)]);
+                    outOffset += head.end - head.start;
+                }
+                if (ranges.tail) |tail| {
+                    @memcpy(self.buffer[tail.start..tail.end], out[outOffset .. outOffset + tail.end - tail.start]);
+                }
                 self.len += bytesRead;
             }
-            // TODO: handle case when self.len < out.len (e.g because of EOF)
-            std.debug.assert(self.len >= out.len);
-            const headLen = @min(self.buffer.len - self.start, self.len, out.len);
-            @memcpy(out[0..headLen], self.buffer[self.start .. self.start + headLen]);
-            const tailLen = @min(self.len - headLen, out.len - headLen);
-            @memcpy(out[headLen .. headLen + tailLen], self.buffer[0..tailLen]);
-            return headLen + tailLen;
+            // TODO: handle case when `self.len` is still less than `out.len` (e.g because of EOF)
+            const ranges = self.getRanges(0, @min(self.len, out.len));
+            var outOffset: usize = 0;
+            if (ranges.head) |head| {
+                @memcpy(out[0 .. head.end - head.start], self.buffer[head.start..head.end]);
+                outOffset += head.end - head.start;
+            }
+            if (ranges.tail) |tail| {
+                @memcpy(out[outOffset .. outOffset + tail.end - tail.start], self.buffer[tail.start..tail.end]);
+                outOffset += tail.end - tail.start;
+            }
+            return outOffset;
         }
 
         /// Move stream position forward `count` bytes

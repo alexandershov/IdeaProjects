@@ -174,3 +174,6 @@ So we split it with `[2, 4]` & `[4, 5]` and we simply translate `[4, 5]` to `[0,
 
 start = 2, offset = 3, len = 1, should be [`b`]
 range is `[5, 6]` we just translate it to `[1, 2]`
+
+abcd|ab
+     4 6
