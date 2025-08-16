@@ -1,7 +1,19 @@
 const std = @import("std");
 
+
+
 /// Wrapper over any reader
 fn BufferedReader(comptime ReaderType: type) type {
+    const Range = struct {
+    start: usize,
+    len: usize,
+}
+
+const Ranges = struct {
+    head: ?Range,
+    tail: ?Range,
+}
+    
     return struct {
         const Self = @This();
 
@@ -10,6 +22,22 @@ fn BufferedReader(comptime ReaderType: type) type {
 
         start: usize = 0,
         len: usize = 0,
+
+        /// Return ranges in circular buffer
+        /// Sum of ranges will be `len`
+        /// start can be >= self.buffer.len, in this case Ranges.head will be null (because only tail space is available)
+        fn getRanges(self: *Self, unboundedStart usize, len usize) Ranges {
+            var head: ?Range = null;
+            var start = unboundedStart % self.buffer.len;
+            if (unboundedStart < self.buffer.len) {
+                // there's room in head
+                const freeHeadSize = self.buffer.len - start;
+                const headSizeToUse = @min(freeHeadSize, len);
+                head = {.start, .start + headSizeTouse};
+                len -= headSizeTouse;
+            }
+            return .{head, tail};
+        }
 
         /// Fills out buffer with the next out.len bytes from the stream.
         /// Returns number of bytes read

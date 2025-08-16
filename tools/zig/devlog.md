@@ -161,3 +161,16 @@ fn rangesFrom(self: *Self, start usize, len usize) []Range {
 
 We can use this function both for getting ranges to copy from `self.buffer` to `out`.
 And we can use it to fill out `self.buffer` (start would be self.start + self.usize)
+
+Can we do it easier?
+Let's say we work in a linear way and do the transformation at the very end
+
+abcd
+  ^
+buffer.len = 4
+start = 2, offset = 0, len = 3, should be `[cd]` + `[a]`
+we're getting end = 2 + 3 = 5. range is `[2, 5]`. 5 is out of bounds
+So we split it with `[2, 4]` & `[4, 5]` and we simply translate `[4, 5]` to `[0, 1]`.
+
+start = 2, offset = 3, len = 1, should be [`b`]
+range is `[5, 6]` we just translate it to `[1, 2]`
