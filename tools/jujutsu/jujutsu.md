@@ -71,7 +71,8 @@ Added regular file test.txt:
         2: haha
 ```
 
-Note that "Commit ID" changed (it's git commit id), but "Change ID" stays the same (it's jj id.)
+Note that "Commit ID" changed (it's git commit id), but "Change ID" stays the same (it's jj identifier).
+Commits in git are immutable, but changes are mutable in jj.
 
 We can add a message to our current change:
 ```shell
@@ -153,12 +154,14 @@ Created conflict in test.txt:
         9: >>>>>>> Conflict 1 of 1 ends
 ```
 
+Also `jj edit` is kinda like automatic rebase (== "stacked diffs/PRs")
+
 You resolve conflict by either create a new revision on top or resolving a conflict in a file:
 ```shell
 $ echo -n "first\nsecond\nhaha" > test.txt
 ```
 
-Conflict resolve now:
+Conflict is resolved now:
 ```shell
 Commit ID: e12f9042b1499f93d1a8a7d8e24f4c94aafb95da
 Change ID: kxnmztwmyouqyxmtwzmmtskyvyzlnrzn
@@ -174,6 +177,9 @@ Modified regular file test.txt:
    3    3: haha
 (END)
 ```
+
+Note, that conflicts are not show-stoppers in `jj`: they're first-class objects.
+You can have a tree with conflicts in it.
 
 You can undo changes (this will undo all changes to test.txt made in current revision):
 ```shell
