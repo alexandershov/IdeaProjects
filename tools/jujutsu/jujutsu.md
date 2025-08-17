@@ -197,4 +197,29 @@ second
 haha%
 ```
 
-That undo was pretty cool!
+That undo was pretty cool! It's like friendly `git reflog`.
+
+You can split the last (default) revision in two:
+```shell
+jj split
+```
+
+During `jj split` you pick what goes in the first part of split with TUI (the rest will go to the second part)
+and name both new revisions.
+
+I've split two line change into two one-line changes:
+```shell
+@  mwlpqwxq codumentary.com@gmail.com 2025-08-17 12:37:23 test-change c29d19e3
+│  better second line
+○  kxnmztwm codumentary.com@gmail.com 2025-08-17 12:37:11 git_head() c83026d5
+│  better first line
+○  zpuvqxzw codumentary.com@gmail.com 2025-08-17 10:36:59 935229a3
+│  add third haha
+◆  mvuxrvnt codumentary.com@gmail.com 2025-08-16 12:36:31 main 83adab95
+│  pgn_parser: make getRanges compile
+```
+
+We can squash several revisions in one (`@-` means "parent of @"):
+```shell
+jj squash --from @- --to @
+```
