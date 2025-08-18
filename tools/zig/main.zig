@@ -14,6 +14,16 @@ fn divide(x: u32, y: u32) DivideError!u32 {
     return x / y;
 }
 
+// comptime is how zig does metaprogramming, types are values at comptime and
+// you can create a function that takes a type and creates a new type based on this
+
+fn Pair(comptime T: type, comptime S: type) type {
+    return struct {
+        first: T,
+        second: S,
+    };
+}
+
 pub fn main() void {
     // immutable value
     const count: u32 = 30;
@@ -107,4 +117,8 @@ pub fn main() void {
         // .* is pointer dereference
         std.debug.print("map[{any}] = {any}\n", .{ entry.key_ptr.*, entry.value_ptr.* });
     }
+
+    // using comptime
+    const me: Pair([]const u8, usize) = .{ .first = "sasa", .second = 40 };
+    std.debug.print("me = {any}\n", .{me});
 }
