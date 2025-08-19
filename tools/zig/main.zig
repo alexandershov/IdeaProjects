@@ -15,13 +15,20 @@ fn divide(x: u32, y: u32) DivideError!u32 {
 }
 
 // comptime is how zig does metaprogramming, types are values at comptime and
-// you can create a function that takes a type and creates a new type based on this
-
+// e.g. you can create a function that takes a type and creates a new type based on this
+// here Pair is a regular zig function, that takes a type and constructs a new type
 fn Pair(comptime T: type, comptime S: type) type {
     return struct {
         first: T,
         second: S,
     };
+}
+
+// we can't put anytype as return value
+// anytype is kinda like T in template<typename T> - wildcard that will be inferenced
+// at comptime
+fn myAdd(comptime Res: type, x: anytype, y: anytype) Res {
+    return x + y;
 }
 
 pub fn main() void {
@@ -121,4 +128,25 @@ pub fn main() void {
     // using comptime
     const me: Pair([]const u8, usize) = .{ .first = "sasa", .second = 40 };
     std.debug.print("me = {any}\n", .{me});
+
+    // comptime can come before an expression making it to execute during the comptime
+    // the way comptime works is that everything that can be executed at comptime
+    // will be executed at comptime
+    // and if there are some runtime values, then zig will emit code for it
+    const fieldNames = comptime std.meta.fieldNames(Pair([]const u8, usize));
+    // inline for unrolls loop, it's quite helpful for comptime
+    // essentially it's equivalent to writing:
+    // std.debug.print("struct has field = {s}\n", .{"first"});
+    // std.debug.print("struct has field = {s}\n", .{"second"});
+    inline for (fieldNames) |name| {
+        std.debug.print("struct has field = {s}\n", .{name});
+    }
+
+    // `inline while` is similar to `inline for`
+    comptime var i = 0;
+    inline while (i < fieldNames.len) : (i += 1) {
+        std.debug.print("struct has field {d} = {s}\n", .{ i, fieldNames[i] });
+    }
+
+    std.debug.print("myAdd(3, 2) = {d}\n", .{myAdd(u8, 3, 2)});
 }
