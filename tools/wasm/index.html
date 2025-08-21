@@ -1,0 +1,14 @@
+<html>
+<head>
+    <script src="vec.js"></script>
+    <script>
+        Module.onRuntimeInitialized = () => {
+            const sum_to_n = Module.cwrap("sum_to_n", "number", ["number"]);
+            console.log(sum_to_n(5));
+        };
+    </script>
+</head>
+<body>
+
+</body>
+</html>
