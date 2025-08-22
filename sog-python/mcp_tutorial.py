@@ -3,8 +3,10 @@ from mcp.server.fastmcp import FastMCP
 mcp = FastMCP("frobnicator")
 
 
+# with this tool you can ask LLM to "frobnicate 9 & 18"
 @mcp.tool()
 def frobnicator(x: int, y: int) -> int:
+    """Frobnicate two number x & y using a very complicated algorithm"""
     return x + y + 1
 
 
