@@ -72,7 +72,16 @@
             for (let r = minR - 1; r <= maxR + 1; r++) {
                 for (let c = minC - 1; c <= maxC + 1; c++) {
                     let numLiveNeighbours = 0;
-                    // TODO: calculate number of neighbours
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            if (dr === 0 && dc === 0) {
+                                continue;
+                            }
+                            if (isCellLive(GAME.grid, r + dr, c + dc)) {
+                                numLiveNeighbours++;
+                            }
+                        }
+                    }
                     let isLive = isCellLive(GAME.grid, r, c);
                     if (isLive && (numLiveNeighbours === 2 || numLiveNeighbours === 3)) {
                         nextGrid.set(makeKey(r, c), true);
