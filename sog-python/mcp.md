@@ -24,6 +24,8 @@ command = "/Users/aershov/IdeaProjects/sog-python/venv/bin/python"
 args = ["/Users/aershov/IdeaProjects/sog-python/mcp_tutorial.py"]
 ```
 
+Codex will start MCP server given `command` & `args`.
+
 Now you can start codex and ask it to use your tool. Here's a session transcript:
 ```text
 user
