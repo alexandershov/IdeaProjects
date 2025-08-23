@@ -5,8 +5,8 @@
     <title>Game of Life</title>
     <style>
         .cell {
-            width: 20px;
-            height: 20px;
+            width: 10px;
+            height: 10px;
         }
 
         .live {
@@ -18,7 +18,7 @@
         }
     </style>
     <script>
-        let GAME = {size: 20, grid: new Map(), state: 'updating', delay: 1};
+        let GAME = {size: 50, grid: new Map(), state: 'updating', delay: 0.01};
 
         function toggleUpdating() {
             let button = document.getElementById("toggleButton");
@@ -48,7 +48,6 @@
         }
 
         function step() {
-            console.log("doing step")
             let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
             for ([key, isLive] of GAME.grid) {
                 if (!isLive) {
