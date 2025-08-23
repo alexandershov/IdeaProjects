@@ -17,23 +17,117 @@
             background-color: #9ca3af;
         }
     </style>
+    <script>
+        let GAME = {size: 20, grid: new Map(), state: 'updating'};
 
+        function clearGame() {
+            console.log("TODO: clear!")
+        }
+
+        function toggleUpdating() {
+            let button = document.getElementById("toggleButton");
+            if (GAME.state === 'updating') {
+                button.innerText = 'Continue';
+                GAME.state = 'paused';
+            } else if (GAME.state === 'paused') {
+                button.innerText = 'Pause';
+                GAME.state = 'updating';
+            } else {
+                alert(`unknown state ${GAME.state}`);
+            }
+        }
+
+        function isCellAlive(grid, r, c) {
+            return !!grid.get(makeKey(r, c));
+        }
+
+        function makeKey(r, c) {
+            return `${r}_${c}`
+        }
+
+        function parseKey(key) {
+            let split = key.split("_");
+            return [parseInt(split[0]), parseInt(split[1])];
+        }
+
+        function step() {
+            let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+            for ([key, isAlive] of GAME.grid) {
+                if (!isAlive) {
+                    continue;
+                }
+                let [r, c] = parseKey(key);
+                minR = Math.min(r, minR);
+                maxR = Math.max(r, maxR);
+                minC = Math.min(c, minC);
+                maxC = Math.max(c, maxC);
+            }
+
+            if (minR === Infinity) {
+                // no live cells
+                return;
+            }
+
+            let nextGrid = new Map();
+            for (let r = minR - 1; r <= maxR + 1; r++) {
+                for (let c = minC - 1; c <= maxC + 1; c++) {
+                    let numAliveNeighbours = 0;
+                    // TODO: calculate number of neighbours
+                    let isAlive = isCellAlive(GAME.grid, r, c);
+                    if (isAlive && (numAliveNeighbours === 2 || numAliveNeighbours === 3)) {
+                        nextGrid.set(makeKey(r, c), true);
+                    } else if (!isAlive && numAliveNeighbours === 3) {
+                        nextGrid.set(makeKey(r, c), true);
+                    }
+                }
+            }
+            GAME.grid = nextGrid;
+        }
+
+    </script>
 </head>
 <body>
+<button onclick="clearGame()">Clear</button>
+<button onclick="toggleUpdating()" id="toggleButton">Pause</button>
 <script>
-    function createVisibleGrid(size) {
+    function createGrid(size) {
         let body = document.getElementsByTagName("body")[0];
         let table = document.createElement("table");
+        table.id = "grid";
         for (let r = 0; r < size; r++) {
             let row = table.insertRow();
             for (let c = 0; c < size; c++) {
-                row.insertCell().className = "dead cell";
+                let cell = row.insertCell();
+                cell.className = "dead cell";
+                cell.onclick = () => toggleCell(size - r - 1, c);
             }
         }
         body.appendChild(table);
     }
 
-    createVisibleGrid(20);
+    function toggleCell(r, c) {
+        console.log(`toggle cell (${r}, ${c})`)
+    }
+
+    function showGrid(grid) {
+        let table = document.getElementById("grid");
+        let numRows = table.rows.length;
+        let numColumns = table.rows[0].cells.length;
+        for ([key, isAlive] of grid) {
+            let [r, c] = parseKey(key);
+            if (r >= 0 && r < numRows && c >= 0 && c < numColumns) {
+                let cell = table.rows[numRows - r - 1].cells[c];
+                if (isAlive) {
+                    cell.className = "live cell";
+                } else {
+                    cell.className = "dead cell";
+                }
+            }
+        }
+    }
+
+    createGrid(GAME.size);
+    showGrid(GAME.grid);
 </script>
 </body>
 </html>
