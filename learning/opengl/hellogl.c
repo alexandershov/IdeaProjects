@@ -1,3 +1,8 @@
+// shut up mac warnings that OpenGL is deprecated
+#define GL_SILENCE_DEPRECATION
+
+#include <OpenGL/gl.h>
+#include <OpenGL/glext.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <stdbool.h>
@@ -23,6 +28,51 @@ int main(int argc, char* argv[]) {
 
     // create OpenGL context for the window
     SDL_GLContext context = SDL_GL_CreateContext(window);
+
+    // Vertex Buffer Object, used to send vertices to GPU memory
+    unsigned int VBO;
+    // init 1 buffer object
+    glGenBuffers(1, &VBO);
+
+    // from now on all operations on GL_ARRAY_BUFFER will operate on VBO
+    // this is kinda like binding of variable (think `let` in Common Lisp)
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    // Coordinates are in Normalized Device Coordinates - range is [-1.0; 1.0]
+    float vertices[] = {
+    //  x     y     z
+        0.0f, 0.0f, 0.0f,
+        0.5f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.0f,
+    };
+
+    // copy data in the currently bound buffer
+    // GL_STATIC_DRAW means - data will be set only once and used many times
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    const char* vertexShaderSource = "#version 410 core\n"
+    // declare input: 3d-vector named aPos
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main()\n"
+    "{\n"
+    // gl_Position is an output
+    // last argument in vec4(..., 1.0) is a something called Perspective Division
+    // I don't know what it is
+    "  gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\n";
+
+    // vertex shader operates, ahem, on vertices
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    // set source code to a shader, it takes an array of string, we pass just 1 string
+    // NULL means that strings are null-terminated
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+    int vertexShaderCompiled;
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vertexShaderCompiled);
+    if (!vertexShaderCompiled) {
+        printf("vertex shader failed to compile!\n");
+    }
+
 
     bool running = true;
     SDL_Event event;
