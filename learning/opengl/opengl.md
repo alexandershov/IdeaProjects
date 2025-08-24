@@ -20,7 +20,7 @@ brew install sdl2 pkg-config
 
 See [hellogl.c](./hellogl.c) for an example.
 
-Run it with `make hellogl`
+Run it with `make run`
 
 ### Fundamentals
 

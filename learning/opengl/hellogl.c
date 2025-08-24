@@ -5,11 +5,23 @@
 int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
 
+    // use opengl 4.1
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+
+    // core profile (i.e. "New way of doing OpenGL"): usage of glBegin/glEnd is forbidden
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-    SDL_Window* window = SDL_CreateWindow("OpenGL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL);
+    // https://wiki.libsdl.org/SDL2/SDL_CreateWindow
+    SDL_Window* window = SDL_CreateWindow(
+        /* window title*/ "Testing OpenGL",
+        /* x position of the window */ SDL_WINDOWPOS_CENTERED,
+        /* y position of the window */ SDL_WINDOWPOS_CENTERED,
+        /* width */ 800,
+        /* height */ 600,
+        /* window is usable with OpenGL */ SDL_WINDOW_OPENGL);
+
+    // create OpenGL context for the window
     SDL_GLContext context = SDL_GL_CreateContext(window);
 
     bool running = true;
@@ -21,10 +33,18 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        glClear(GL_COLOR_BUFFER_BIT);
+        // clear color buffers, this is OpenGL function
+        // As I understand this is to reset OpenGL state machine on each frame
+        // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glClear.xhtml
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // update a window with OpenGL rendering
+        // default OpenGL context uses double buffering, hence "swap" of the background/in-progress buffer
+        // to the "active/screen" buffer
         SDL_GL_SwapWindow(window);
     }
 
+    // clean up & exit
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(window);
     SDL_Quit();
