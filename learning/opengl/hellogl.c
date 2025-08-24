@@ -112,6 +112,18 @@ int main(int argc, char* argv[]) {
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
+    // tell OpenGL how to interpret our vector data (array of 9 floats)
+    glVertexAttribPointer(
+    /* attribute position, same as location value in vertex shader */ 0,
+    /* attribute size, it's a vec3 in vertex shader */ 3,
+    /* attribute type */ GL_FLOAT,
+    /* normalize data */ GL_FALSE,
+    /* stride: distance between consecutive attributes */ 3 * sizeof(float),
+    /* offset of data in the buffer */ (void*)0);
+
+    // enable attribute at location 0
+    glEnableVertexAttribArray(0);
+
     bool running = true;
     SDL_Event event;
     while (running) {
