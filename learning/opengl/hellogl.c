@@ -95,6 +95,23 @@ int main(int argc, char* argv[]) {
         printf("fragment shader failed to compile!\n");
     }
 
+    // shader program contains several shaders
+    unsigned int shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    int programLinked;
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &programLinked);
+    if (!programLinked) {
+        printf("shader program failed to link!\n");
+    }
+
+    glUseProgram(shaderProgram);
+    // we don't need shader objects after we've linked them into a program
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
     bool running = true;
     SDL_Event event;
     while (running) {
