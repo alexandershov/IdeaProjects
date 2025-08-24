@@ -1,10 +1,11 @@
 // shut up mac warnings that OpenGL is deprecated
 #define GL_SILENCE_DEPRECATION
 
-#include <OpenGL/gl.h>
-#include <OpenGL/glext.h>
+// counterintuitively gl3.h also works with OpenGL 4.1
+// IMPORTANT: don't include OpenGL/gl.h - it's a legacy header
+// IMPORTANT: don't include SDL_opengl.h - it includes OpenGL/gl.h
+#include <OpenGL/gl3.h>
 #include <SDL.h>
-#include <SDL_opengl.h>
 #include <stdbool.h>
 
 int main(int argc, char* argv[]) {
@@ -28,27 +29,6 @@ int main(int argc, char* argv[]) {
 
     // create OpenGL context for the window
     SDL_GLContext context = SDL_GL_CreateContext(window);
-
-    // Vertex Buffer Object, used to send vertices to GPU memory
-    unsigned int VBO;
-    // init 1 buffer object
-    glGenBuffers(1, &VBO);
-
-    // from now on all operations on GL_ARRAY_BUFFER will operate on VBO
-    // this is kinda like binding of variable (think `let` in Common Lisp)
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    // Coordinates are in Normalized Device Coordinates - range is [-1.0; 1.0]
-    float vertices[] = {
-    //  x     y     z
-        0.0f, 0.0f, 0.0f,
-        0.5f, 0.0f, 0.0f,
-        0.5f, 0.5f, 0.0f,
-    };
-
-    // copy data in the currently bound buffer
-    // GL_STATIC_DRAW means - data will be set only once and used many times
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // `version 410` means OpenGL 4.1.0
     // `core` means using core platform
@@ -107,10 +87,43 @@ int main(int argc, char* argv[]) {
         printf("shader program failed to link!\n");
     }
 
-    glUseProgram(shaderProgram);
     // we don't need shader objects after we've linked them into a program
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+
+
+
+    // Vertex Buffer Object, used to send vertices to GPU memory
+    unsigned int VBO;
+    // init 1 buffer object
+    glGenBuffers(1, &VBO);
+
+    // Vertex Array Object - holds VBO and its attribute configuration
+    // Essentially it's a way to store VBO and its configuration done by *AttribPointer* functions
+    // in one place and then use this place to draw
+    // OpenGL core platform actually requires VAO to draw
+    unsigned int VAO;
+    // init 1 VAO object
+    glGenVertexArrays(1, &VAO);
+
+    // after call to glBindVertexArray VAO will remember *AttribPointer* functions
+    glBindVertexArray(VAO);
+
+    // from now on all operations on GL_ARRAY_BUFFER will operate on VBO
+    // this is kinda like binding of variable (think `let` in Common Lisp)
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    // Coordinates are in Normalized Device Coordinates - range is [-1.0; 1.0]
+    float vertices[] = {
+    //  x     y     z
+        0.0f, 0.0f, 0.0f,
+        0.5f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.0f,
+    };
+
+    // copy data in the currently bound buffer
+    // GL_STATIC_DRAW means - data will be set only once and used many times
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // tell OpenGL how to interpret our vector data (array of 9 floats)
     glVertexAttribPointer(
@@ -123,6 +136,10 @@ int main(int argc, char* argv[]) {
 
     // enable attribute at location 0
     glEnableVertexAttribArray(0);
+    // unbind VBO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // unbind current VAO
+    glBindVertexArray(0);
 
     bool running = true;
     SDL_Event event;
@@ -133,10 +150,21 @@ int main(int argc, char* argv[]) {
             }
         }
 
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         // clear color buffers, this is OpenGL function
         // As I understand this is to reset OpenGL state machine on each frame
         // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glClear.xhtml
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glUseProgram(shaderProgram);
+        // use VAO
+        glBindVertexArray(VAO);
+
+        // draw triangles
+        glDrawArrays(
+        GL_TRIANGLES,
+        /* starting index of vertex array */ 0,
+        /* how many vertices to draw, there are 3 vertices in a triangle */ 3);
 
         // update a window with OpenGL rendering
         // default OpenGL context uses double buffering, hence "swap" of the background/in-progress buffer
