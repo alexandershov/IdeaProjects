@@ -50,6 +50,8 @@ int main(int argc, char* argv[]) {
     // GL_STATIC_DRAW means - data will be set only once and used many times
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    // `version 410` means OpenGL 4.1.0
+    // `core` means using core platform
     const char* vertexShaderSource = "#version 410 core\n"
     // declare input: 3d-vector named aPos
     "layout (location = 0) in vec3 aPos;\n"
@@ -73,6 +75,25 @@ int main(int argc, char* argv[]) {
         printf("vertex shader failed to compile!\n");
     }
 
+    // fragment shader outputs RGBA color. A stands for alpha (aka opacity)
+    const char* fragmentShaderSource = "#version 410 core\n"
+    "out vec4 Color;\n"
+    "void main()\n"
+    "{\n"
+    " Color = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
+    "}\n";
+
+
+    // fragment shader operates, ahem, on fragments (of a screen) e.g. group of pixels
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    // compilation process is the same as for vertexShader
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    int fragmentShaderCompiled;
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fragmentShaderCompiled);
+    if (!fragmentShaderCompiled) {
+        printf("fragment shader failed to compile!\n");
+    }
 
     bool running = true;
     SDL_Event event;
