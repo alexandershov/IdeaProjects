@@ -42,7 +42,12 @@ int main(int argc, char* argv[]) {
     // gl_Position is an output
     // last argument in vec4(..., 1.0) is a something called Perspective Division
     // I don't know what it is
-    "  gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    // aPos.xyz is like `*[aPos.x, aPos.y, aPos.z]` in python
+    // it's called swizzling
+    // you can also create new vectors from it and rearrange components
+    // here I rearrange components twice just for the kicks of it
+    "vec3 tmpPos = aPos.zyx;\n"
+    "  gl_Position = vec4(tmpPos.zyx, 1.0);\n"
     "}\n";
 
     // vertex shader operates, ahem, on vertices
