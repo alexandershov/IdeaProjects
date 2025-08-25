@@ -7,6 +7,8 @@
 #include <OpenGL/gl3.h>
 #include <SDL.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
@@ -53,6 +55,7 @@ int main(int argc, char* argv[]) {
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vertexShaderCompiled);
     if (!vertexShaderCompiled) {
         printf("vertex shader failed to compile!\n");
+        exit(1);
     }
 
     // fragment shader outputs RGBA color. A stands for alpha (aka opacity)
@@ -73,6 +76,7 @@ int main(int argc, char* argv[]) {
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fragmentShaderCompiled);
     if (!fragmentShaderCompiled) {
         printf("fragment shader failed to compile!\n");
+        exit(1);
     }
 
     // shader program contains several shaders
@@ -85,6 +89,7 @@ int main(int argc, char* argv[]) {
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &programLinked);
     if (!programLinked) {
         printf("shader program failed to link!\n");
+        exit(1);
     }
 
     // we don't need shader objects after we've linked them into a program

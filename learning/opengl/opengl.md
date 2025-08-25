@@ -35,4 +35,5 @@ There are different stages in the pipeline, on a high-level:
 * rasterization outputs stuff on a screen
 * fragment shaders (aka pixel shaders) can control the color of each pixel on screen
 
-Shaders are small programs written in a special language GLSL (GL Shader Language) and they run on a GPU. 
+Shaders are small programs written in a special language GLSL (GL Shader Language) and they run on a GPU.
+GLSL is a C-like language, you send a string containing GLSL program to the driver and it compiles it.
