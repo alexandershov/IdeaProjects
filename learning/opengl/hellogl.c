@@ -164,6 +164,7 @@ int main(int argc, char* argv[]) {
 
     bool running = true;
     SDL_Event event;
+    float redDelta = 0.0f;
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -181,7 +182,11 @@ int main(int argc, char* argv[]) {
         // assigning uniform (aka global) value
         int colorDeltaLocation = glGetUniformLocation(shaderProgram, "colorDelta");
         // 4f is like hungarian notation, here it means assign vec4 to a location
-        glUniform4f(colorDeltaLocation, -0.1f, 0.5f, 0.0f, 0.0f);
+        redDelta -= 0.0001f;
+        if (redDelta < -0.999f) {
+            redDelta = 0.0f;
+        }
+        glUniform4f(colorDeltaLocation, redDelta, 0.0f, 0.0f, 0.0f);
         // use VAO
         glBindVertexArray(VAO);
 
