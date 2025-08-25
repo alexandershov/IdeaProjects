@@ -37,6 +37,9 @@ int main(int argc, char* argv[]) {
     const char* vertexShaderSource = "#version 410 core\n"
     // declare input: 3d-vector named aPos
     "layout (location = 0) in vec3 aPos;\n"
+    // another input: 3d vector named aColor
+    "layout (location = 1) in vec3 aColor;\n"
+
     // output variable
     "out vec4 vertexColor;\n"
 
@@ -54,7 +57,7 @@ int main(int argc, char* argv[]) {
     "vec3 tmpPos = aPos.zyx;\n"
     "  gl_Position = vec4(tmpPos.zyx, 1.0);\n"
     // GLSL supports arithmetic operations on vectors
-    "  vertexColor = vec4(1.0f, 0.0f, 0.0f, 1.0f) + colorDelta;\n"
+    "  vertexColor = vec4(aColor, 1.0f) + colorDelta;\n"
     "}\n";
 
     // vertex shader operates, ahem, on vertices
@@ -136,27 +139,43 @@ int main(int argc, char* argv[]) {
 
     // Coordinates are in Normalized Device Coordinates - range is [-1.0; 1.0]
     float vertices[] = {
-    //  x     y     z
-        0.0f, 0.0f, 0.0f,
-        0.5f, 0.0f, 0.0f,
-        0.5f, 0.5f, 0.0f,
+    //  x     y     z     r     g     b
+        0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
     };
 
     // copy data in the currently bound buffer
     // GL_STATIC_DRAW means - data will be set only once and used many times
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // tell OpenGL how to interpret our vector data (array of 9 floats)
+    // tell OpenGL how to extract positions from our vector data (array of 18 floats)
     glVertexAttribPointer(
     /* attribute position, same as location value in vertex shader */ 0,
     /* attribute size, it's a vec3 in vertex shader */ 3,
     /* attribute type */ GL_FLOAT,
     /* normalize data */ GL_FALSE,
-    /* stride: distance between consecutive attributes */ 3 * sizeof(float),
+    /* stride: distance between consecutive attributes */ 6 * sizeof(float),
     /* offset of data in the buffer */ (void*)0);
 
     // enable attribute at location 0
     glEnableVertexAttribArray(0);
+
+    // tell OpenGL how to extract colors from our vector data (array of 18 floats)
+    glVertexAttribPointer(
+    /* attribute position, same as location value in vertex shader */ 1,
+    /* attribute size, it's a vec3 in vertex shader */ 3,
+    /* attribute type */ GL_FLOAT,
+    /* normalize data */ GL_FALSE,
+    /* stride: distance between consecutive attributes */ 6 * sizeof(float),
+    /* offset of data in the buffer */ (void*)(3 * sizeof(float)));
+
+    // enable attribute at location 1
+    glEnableVertexAttribArray(1);
+
+    // we'll have 3 vertices with 3 colors, but fragment shader output will be quite colorful
+    // because it'll interpolate colors
+
     // unbind VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     // unbind current VAO
