@@ -37,6 +37,8 @@ int main(int argc, char* argv[]) {
     const char* vertexShaderSource = "#version 410 core\n"
     // declare input: 3d-vector named aPos
     "layout (location = 0) in vec3 aPos;\n"
+    // output variable
+    "out vec4 vertexColor;\n"
     "void main()\n"
     "{\n"
     // gl_Position is an output
@@ -48,6 +50,7 @@ int main(int argc, char* argv[]) {
     // here I rearrange components twice just for the kicks of it
     "vec3 tmpPos = aPos.zyx;\n"
     "  gl_Position = vec4(tmpPos.zyx, 1.0);\n"
+    "  vertexColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
     "}\n";
 
     // vertex shader operates, ahem, on vertices
@@ -65,10 +68,14 @@ int main(int argc, char* argv[]) {
 
     // fragment shader outputs RGBA color. A stands for alpha (aka opacity)
     const char* fragmentShaderSource = "#version 410 core\n"
+    // this will be taken from the out of vertex shader
+    // if output of one shader matches type & name for the input another shader
+    // then the input and output become linked into pipeline
+    "in vec4 vertexColor;\n"
     "out vec4 Color;\n"
     "void main()\n"
     "{\n"
-    " Color = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
+    " Color = vertexColor;\n"
     "}\n";
 
 
