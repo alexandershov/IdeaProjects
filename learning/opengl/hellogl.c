@@ -39,6 +39,9 @@ int main(int argc, char* argv[]) {
     "layout (location = 0) in vec3 aPos;\n"
     // output variable
     "out vec4 vertexColor;\n"
+
+    // uniform is like a global variable
+    "uniform vec4 colorDelta;\n"
     "void main()\n"
     "{\n"
     // gl_Position is an output
@@ -50,7 +53,8 @@ int main(int argc, char* argv[]) {
     // here I rearrange components twice just for the kicks of it
     "vec3 tmpPos = aPos.zyx;\n"
     "  gl_Position = vec4(tmpPos.zyx, 1.0);\n"
-    "  vertexColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
+    // GLSL supports arithmetic operations on vectors
+    "  vertexColor = vec4(1.0f, 0.0f, 0.0f, 1.0f) + colorDelta;\n"
     "}\n";
 
     // vertex shader operates, ahem, on vertices
@@ -174,6 +178,10 @@ int main(int argc, char* argv[]) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shaderProgram);
+        // assigning uniform (aka global) value
+        int colorDeltaLocation = glGetUniformLocation(shaderProgram, "colorDelta");
+        // 4f is like hungarian notation, here it means assign vec4 to a location
+        glUniform4f(colorDeltaLocation, -0.1f, 0.5f, 0.0f, 0.0f);
         // use VAO
         glBindVertexArray(VAO);
 
