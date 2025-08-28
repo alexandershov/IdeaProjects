@@ -25,6 +25,13 @@ Then we can execute 4 instructions (i1, i2, i3, i4) at the same time:
 ....
 Each instruction latency stays the same: 4 cycles. But starting with clock 4 we complete 1 instruction.
 So throughput (ignoring first 3 clocks when pipeline ramps up) is 1 instruction/cycle.
+Deeper pipelines are possible, but we can't increase the pipeline ad infinitum, because it'll have 
+diminishing returns (instructions depend on each other, so there's a natural limit on how many instructions
+one can run in parallel)
+
+Dependant instructions actually don't need to wait for Writeback of another instruction.
+There are "bypasses" - kinda like speedlanes where instructions can feed their results to another instructions
+before Writeback finishes.
 
 ### Superscalar
 We can have 2 Fetchers, 2 Decoders etc. This will double our throughput. This is superscalar architecture:
@@ -32,7 +39,9 @@ when we have several units for each task.
 
 ### Out of order execution
 If CPU will try to execute instructions in order, then there will be problem because instructions depend on
-each other stalling pipeline. So CPU can try out of order execution to keep pipeline saturated. 
+each other stalling pipeline. So CPU can try out of order execution to keep pipeline saturated.
+Actually compiler can do that too. Compiler knows more about a program structure, but CPU knows more about 
+the runtime (e.g. cache misses)
 
 ### Speculative execution (branch prediction)
 Branches destroy naive pipeline architecture, because we don't know what the next instruction will be.
