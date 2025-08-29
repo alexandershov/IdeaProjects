@@ -27,10 +27,17 @@ Each instruction latency stays the same: 4 cycles. But starting with clock 4 we 
 So throughput (ignoring first 3 clocks when pipeline ramps up) is 1 instruction/cycle.
 Deeper pipelines are possible, but we can't increase the pipeline ad infinitum, because it'll have 
 diminishing returns (instructions depend on each other, so there's a natural limit on how many instructions
-one can run in parallel)
+one can run in parallel).
+
+CPUs theoretical throughput is higher than real-world programs allow, 
+because of the dependencies between instructions, memory accesses etc.
+So pipeline elements are often underused. Hyperthreading is a way to use these underused elements.
+If you have several threads then same pipeline can execute elements from instructions from different threads.
+E.g. we have 2 threads. Decode #1 is not busy, because thread #1 is underusing CPU. So decode from thread #2 
+can be executed on Decode #1.
 
 Dependant instructions actually don't need to wait for Writeback of another instruction.
-There are "bypasses" - kinda like speedlanes where instructions can feed their results to another instructions
+There are "bypasses" - kinda like speed lanes where instructions can feed their results to another instructions
 before Writeback finishes.
 
 ### Superscalar
@@ -55,6 +62,13 @@ L1 is the fastest cache, but also the smallest.
 Cache-friendly algorithms access memory in 
 * predictable fashion (e.g. iterating over an array, i, i+1, i+2, ...)
 * using all the data that was fetched: struct of arrays over array of structs.
+
+Cache greatly helps the code that exhibits temporal & spatial locality.
+Temporal locality: if you access memory at location X, then it's highly probable that you access the
+same location again in the near time.
+
+Spatial locality: if you access memory at location X, then it's highly probable that you access the 
+location X +/- y (where y is small) in the near time.
 
 When we write to a memory that cache is invalidated.
 Memory is cached in terms of cache lines (64 bytes), not single words. 
