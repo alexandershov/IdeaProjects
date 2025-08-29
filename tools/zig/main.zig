@@ -106,7 +106,8 @@ pub fn main() void {
     std.debug.print("bytes = {any}\n", .{bytes});
 
     // like C++ std::vector
-    var list = std.ArrayList(u8).init(gpaAllocator);
+    // TODO: use std.ArrayList
+    var list = std.array_list.Managed(u8).init(gpaAllocator);
     defer list.deinit();
     list.append('H') catch unreachable;
     std.debug.print("list = {any}\n", .{list.items});
@@ -149,4 +150,12 @@ pub fn main() void {
     }
 
     std.debug.print("myAdd(3, 2) = {d}\n", .{myAdd(u8, 3, 2)});
+
+    // Zig supports SIMD, operations on @Vector use SIMD if available
+    const v1 = @Vector(4, i32){ 1, 2, 3, 4 };
+    const v2 = @Vector(4, i32){ 4, 3, 2, 1 };
+
+    // will compile to SIMD
+    const v = v1 + v2;
+    std.debug.print("v = {any}\n", .{v});
 }
