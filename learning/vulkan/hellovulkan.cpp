@@ -33,6 +33,37 @@ int main() {
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
 
+    // By default Vulkan do almost no error checking. You're getting VkResult, but that's about it.
+    // To debug your application you can use validation layers
+    // they allow you to hook your validation functions into Vulkan API
+    // Vulkan SDK comes with the standard validation layer VK_LAYER_KHRONOS_validation
+    std::vector<const char*> validationLayers = {
+        "VK_LAYER_KHRONOS_validation"
+    };
+
+    bool enableValidationLayers = true;
+
+    uint32_t layerCount;
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+    std::vector<VkLayerProperties> availableLayers(layerCount);
+    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+    for (const char* layerName : validationLayers) {
+        bool layerFound = false;
+
+        for (const auto& layerProperties : availableLayers) {
+            if (strcmp(layerName, layerProperties.layerName) == 0) {
+                layerFound = true;
+                break;
+            }
+        }
+        if (!layerFound) {
+            std::cout << "layer " << layerName << " not found" << "\n";
+            exit(1);
+        }
+    }
+
     // VkInstanceCreateInfo is used to tell which global extension & validation layers to use
     VkInstanceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -52,8 +83,10 @@ int main() {
     createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
     createInfo.enabledExtensionCount = (uint32_t) requiredExtensions.size();
     createInfo.ppEnabledExtensionNames = requiredExtensions.data();
-    // no validation layers for now
-    createInfo.enabledLayerCount = 0;
+
+    // add validation layer
+    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+    createInfo.ppEnabledLayerNames = validationLayers.data();
 
     // create Vulkan instance, which connects our application to the Vulkan library
     VkInstance instance;
