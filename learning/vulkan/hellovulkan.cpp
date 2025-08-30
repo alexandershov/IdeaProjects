@@ -199,6 +199,15 @@ int main() {
         }
     }
 
+    // there are several present modes
+    // VK_PRESENT_MODE_FIFO_KHR is guaranteed to be present (image will be shown in the order in the queue)
+    VkPresentModeKHR surfacePresentMode = VK_PRESENT_MODE_FIFO_KHR;
+    for (const auto& availablePresentMode : surfacePresentModes) {
+            if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+                surfacePresentMode = availablePresentMode;
+            }
+        }
+
     // Every interaction with GPU goes through the queues
     // there are different types of queues for different types of interactions
     // Now we're checking that our device supports graphics commands queue
