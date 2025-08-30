@@ -160,6 +160,30 @@ int main() {
        exit(1);
    }
 
+    // getting surface parameters
+    VkSurfaceCapabilitiesKHR surfaceCapabilities;
+    std::vector<VkSurfaceFormatKHR> surfaceFormats;
+    std::vector<VkPresentModeKHR> surfacePresentModes;
+
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities);
+
+    // familiar idiom: get count & array
+    uint32_t surfaceFormatCount;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &surfaceFormatCount, nullptr);
+
+    if (surfaceFormatCount != 0) {
+        surfaceFormats.resize(surfaceFormatCount);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &surfaceFormatCount, surfaceFormats.data());
+    }
+
+    uint32_t surfacePresentModeCount;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &surfacePresentModeCount, nullptr);
+
+    if (surfacePresentModeCount != 0) {
+        surfacePresentModes.resize(surfacePresentModeCount);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &surfacePresentModeCount, surfacePresentModes.data());
+    }
+
     // Every interaction with GPU goes through the queues
     // there are different types of queues for different types of interactions
     // Now we're checking that our device supports graphics commands queue
@@ -226,7 +250,9 @@ int main() {
 
     // we need it on Mac
     std::vector<const char*> deviceProperties{
-        VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
+        VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,
+        // shortcut: we should check that this extension is available
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
     };
     deviceCreateInfo.enabledExtensionCount = deviceProperties.size();
     deviceCreateInfo.ppEnabledExtensionNames = deviceProperties.data();
