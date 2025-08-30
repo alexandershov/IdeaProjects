@@ -201,6 +201,12 @@ int main() {
     result = vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device);
     checkedVk(result, "can't create logical device");
 
+    std::cout << "created logical device\n";
+
+    VkQueue graphicsQueue;
+    // get queue handle for our family
+    vkGetDeviceQueue(device, graphicsFamily.value(), 0, &graphicsQueue);
+
     // main loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
