@@ -99,6 +99,17 @@ int main() {
 
     // VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME is required to enable VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
     requiredExtensions.emplace_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+
+    // the following will print:
+    // requiredExtension = VK_KHR_surface
+    // requiredExtension = VK_EXT_metal_surface
+    // requiredExtension = VK_KHR_portability_enumeration
+    // requiredExtension = VK_KHR_get_physical_device_properties2
+
+    // VK_KHR_surface is an extension that allows Vulkan to render stuff on abstract surface
+    for (const auto& extension: requiredExtensions) {
+        std::cout << "requiredExtension = " << extension << "\n";
+    }
     createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
     createInfo.enabledExtensionCount = (uint32_t) requiredExtensions.size();
     createInfo.ppEnabledExtensionNames = requiredExtensions.data();
@@ -111,6 +122,11 @@ int main() {
     VkInstance instance;
     VkResult result = vkCreateInstance(&createInfo, /* custom allocator callbacks */ nullptr, &instance);
     checkedVk(result, "failed to create an instance");
+
+    // Surface is used to render stuff
+    VkSurfaceKHR surface;
+    result = glfwCreateWindowSurface(instance, window, /* custom allocator */ nullptr, &surface);
+    checkedVk(result, "can't create window surface");
 
     // query the number of physical devices (aka graphics cards) your system has
     // that's quite a popular pattern in Vulkan: first you query number of entities
@@ -215,6 +231,7 @@ int main() {
     // Start of destroying everything
     vkDestroyDevice(device, nullptr);
 
+    vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
 
     // deinit window
