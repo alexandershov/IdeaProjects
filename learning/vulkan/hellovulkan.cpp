@@ -184,6 +184,11 @@ int main() {
         vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &surfacePresentModeCount, surfacePresentModes.data());
     }
 
+    if (surfaceFormats.empty() || surfacePresentModes.empty()) {
+        std::cout << "no suitable surface, exiting\n";
+        exit(1);
+    }
+
     // Every interaction with GPU goes through the queues
     // there are different types of queues for different types of interactions
     // Now we're checking that our device supports graphics commands queue
