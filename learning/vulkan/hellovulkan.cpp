@@ -2,6 +2,7 @@
 #include <iostream>
 #include <optional>
 #include <cstdlib>
+#include <algorithm>
 
 // with GLFW_INCLUDE_VULKAN glfw will include vulkan headers
 #define GLFW_INCLUDE_VULKAN
@@ -200,13 +201,31 @@ int main() {
     }
 
     // there are several present modes
-    // VK_PRESENT_MODE_FIFO_KHR is guaranteed to be present (image will be shown in the order in the queue)
+    // VK_PRESENT_MODE_FIFO_KHR is guaranteed to be present (image will be shown in the order of the queue)
     VkPresentModeKHR surfacePresentMode = VK_PRESENT_MODE_FIFO_KHR;
     for (const auto& availablePresentMode : surfacePresentModes) {
-            if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-                surfacePresentMode = availablePresentMode;
-            }
+        if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+            surfacePresentMode = availablePresentMode;
         }
+    }
+
+    // determine window resolution in pixels
+    VkExtent2D actualExtent;
+
+    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+        actualExtent = capabilities.currentExtent;
+    } else {
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+
+        VkExtent2D actualExtent = {
+            static_cast<uint32_t>(width),
+            static_cast<uint32_t>(height)
+        };
+
+        actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+        actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+    }
 
     // Every interaction with GPU goes through the queues
     // there are different types of queues for different types of interactions
