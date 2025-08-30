@@ -48,7 +48,9 @@ static std::vector<char> readFile(const std::string& filename) {
     return buffer;
 }
 
-void recordCommandBuffer(VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkExtent2D actualExtent, std::vector<VkFramebuffer> swapChainFramebuffers, uint32_t imageIndex) {
+void recordCommandBuffer(
+        VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkExtent2D actualExtent,
+        VkPipeline graphicsPipeline, std::vector<VkFramebuffer> swapChainFramebuffers, uint32_t imageIndex) {
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = 0; // Optional
@@ -64,6 +66,31 @@ void recordCommandBuffer(VkCommandBuffer commandBuffer, VkRenderPass renderPass,
 
     renderPassBeginInfo.renderArea.offset = {0, 0};
     renderPassBeginInfo.renderArea.extent = actualExtent;
+
+    VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+    renderPassBeginInfo.clearValueCount = 1;
+    renderPassBeginInfo.pClearValues = &clearColor;
+
+    vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+    VkViewport viewport{};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = static_cast<float>(actualExtent.width);
+    viewport.height = static_cast<float>(actualExtent.height);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+    VkRect2D scissor{};
+    scissor.offset = {0, 0};
+    scissor.extent = actualExtent;
+    vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+    vkCmdDraw(commandBuffer, /* vertex count */ 3, /* instance count*/ 1, /* first vertex  */0, /*firstInstance*/ 0);
+    vkCmdEndRenderPass(commandBuffer);
+    result = vkEndCommandBuffer(commandBuffer);
+    checkedVk(result, "can't end command buffer");
 }
 
 int main() {
