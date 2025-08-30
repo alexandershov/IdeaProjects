@@ -227,7 +227,17 @@ int main() {
         actualExtent.height = std::clamp(actualExtent.height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
     }
 
-    uint32_t imageCount = surfaceCapabilities.minImageCount;
+    uint32_t imageCount = surfaceCapabilities.minImageCount + 1;
+
+    VkSwapchainCreateInfoKHR swapChainCreateInfo{};
+    swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    swapChainCreateInfo.surface = surface;
+    swapChainCreateInfo.minImageCount = imageCount;
+    swapChainCreateInfo.imageFormat = surfaceFormat.format;
+    swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
+    swapChainCreateInfo.imageExtent = actualExtent;
+    swapChainCreateInfo.imageArrayLayers = 1;
+    swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
     // Every interaction with GPU goes through the queues
     // there are different types of queues for different types of interactions
@@ -264,6 +274,25 @@ int main() {
             std::cout << "no present queue found, exiting\n";
             exit(1);
         }
+
+
+    uint32_t queueFamilyIndices[] = {graphicsFamily.value(), presentFamily.value()};
+
+    if (graphicsFamily != presentFamily) {
+        swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+        swapChainCreateInfo.queueFamilyIndexCount = 2;
+        swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;
+    } else {
+        swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        swapChainCreateInfo.queueFamilyIndexCount = 0; // Optional
+        swapChainCreateInfo.pQueueFamilyIndices = nullptr; // Optional
+    }
+    swapChainCreateInfo.preTransform = surfaceCapabilities.currentTransform;
+    // ignore alpha channel VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR
+    swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    swapChainCreateInfo.presentMode = surfacePresentMode;
+    swapChainCreateInfo.clipped = VK_TRUE;
+    swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
     // Now we need create logical device to interact with the physical device
     // Logical device requires us to specify queues that it needs
@@ -310,6 +339,12 @@ int main() {
 
     std::cout << "created logical device\n";
 
+
+    VkSwapchainKHR swapChain;
+    result = vkCreateSwapchainKHR(device, &swapChainCreateInfo, nullptr, &swapChain);
+    checkedVk(result, "can't create swapchain");
+    std::cout << "created swapchain\n";
+
     VkQueue graphicsQueue;
     // get graphics queue handle
     vkGetDeviceQueue(device, graphicsFamily.value(), 0, &graphicsQueue);
@@ -325,6 +360,7 @@ int main() {
     }
 
     // Start of destroying everything
+    vkDestroySwapchainKHR(device, swapChain, nullptr);
     vkDestroyDevice(device, nullptr);
 
     vkDestroySurfaceKHR(instance, surface, nullptr);
