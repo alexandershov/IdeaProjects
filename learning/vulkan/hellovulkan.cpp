@@ -212,8 +212,8 @@ int main() {
     // determine window resolution in pixels
     VkExtent2D actualExtent;
 
-    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
-        actualExtent = capabilities.currentExtent;
+    if (surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+        actualExtent = surfaceCapabilities.currentExtent;
     } else {
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
@@ -223,9 +223,11 @@ int main() {
             static_cast<uint32_t>(height)
         };
 
-        actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-        actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+        actualExtent.width = std::clamp(actualExtent.width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
+        actualExtent.height = std::clamp(actualExtent.height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
     }
+
+    uint32_t imageCount = surfaceCapabilities.minImageCount;
 
     // Every interaction with GPU goes through the queues
     // there are different types of queues for different types of interactions
