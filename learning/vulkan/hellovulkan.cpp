@@ -14,6 +14,18 @@ void checkedVk(VkResult result, const std::string& msg) {
     }
 }
 
+bool isDeviceSuitable(VkPhysicalDevice device) {
+    // basic device properties, like name, type, and supported Vulkan version
+    VkPhysicalDeviceProperties deviceProperties;
+    vkGetPhysicalDeviceProperties(device, &deviceProperties);
+
+    // more advanced features
+    VkPhysicalDeviceFeatures deviceFeatures;
+    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+    return true;
+}
+
 int main() {
     // init window
     glfwInit();
@@ -93,11 +105,45 @@ int main() {
     VkResult result = vkCreateInstance(&createInfo, /* custom allocator callbacks */ nullptr, &instance);
     checkedVk(result, "failed to create an instance");
 
+    // query the number of physical devices (aka graphics cards) your system has
+    // that's quite a popular pattern in Vulkan: first you query number of entities
+    // and then you get the entities themselves
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+
+    // hold all PhysicalDevices
+    std::vector<VkPhysicalDevice> devices(deviceCount);
+    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+    std::cout << "got " << deviceCount << " physical devices\n";
+
+    if (deviceCount == 0) {
+        std::cout << "no physical devices, exiting";
+        exit(1);
+    }
+
+    for (const auto& device: devices) {
+        if (isDeviceSuitable(device)) {
+            physicalDevice = device;
+            break;
+        }
+    }
+
+    if (physicalDevice == VK_NULL_HANDLE) {
+        std::cout << "no suitable physical device, exiting\n";
+        exit(1);
+    }
+
+
     // main loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
     }
 
+
+    // Start of destroying everything
     vkDestroyInstance(instance, nullptr);
 
     // deinit window
