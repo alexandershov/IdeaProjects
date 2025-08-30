@@ -7,7 +7,9 @@ Vulkan is a cross-platform graphics API. It's a replacement for OpenGL.
 It's more performant than OpenGL (if you know what you're doing) & more low-level. It doesn't rely on global state as OpenGL does, it lowers load on CPU,
 also allows CPU to leverage multithreading.
 
-Instead of GLSL that always needs compiling, it uses byte-code to represent shaders. 
+Instead of GLSL that always needs compiling, it uses byte-code ([SPIR-V](https://www.khronos.org/spirv/)) to represent shaders.
+There's a compiler that transforms GLSL to SPIR-V: it's included in Vulkan SDK and is called `glscl`.
+See `compile-shaders` target in a [Makefile](./Makefile).
 
 ### Install
 I'm using macOS, there's no native Vulkan support, since Metal is _the_ graphics API on Apple.
