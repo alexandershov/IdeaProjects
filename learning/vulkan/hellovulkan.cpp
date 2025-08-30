@@ -6,6 +6,9 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+// for VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
+#include <vulkan/vulkan_beta.h>
+
 
 void checkedVk(VkResult result, const std::string& msg) {
     if (result != VK_SUCCESS) {
@@ -93,6 +96,9 @@ int main() {
         requiredExtensions.emplace_back(glfwExtensions[i]);
     }
     requiredExtensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+
+    // VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME is required to enable VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
+    requiredExtensions.emplace_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
     createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
     createInfo.enabledExtensionCount = (uint32_t) requiredExtensions.size();
     createInfo.ppEnabledExtensionNames = requiredExtensions.data();
@@ -182,11 +188,12 @@ int main() {
     deviceCreateInfo.queueCreateInfoCount = 1;
     deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
 
-    std::cout << "requiredExtensions.size() = " << requiredExtensions.size() << "\n";
-    std::cout << "requiredExtensions[2] = " << requiredExtensions[2] << "\n";
-    deviceCreateInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-    deviceCreateInfo.enabledExtensionCount = (uint32_t) requiredExtensions.size();
-    deviceCreateInfo.ppEnabledExtensionNames = requiredExtensions.data();
+    // we need it on Mac
+    std::vector<const char*> deviceProperties{
+        VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
+    };
+    deviceCreateInfo.enabledExtensionCount = deviceProperties.size();
+    deviceCreateInfo.ppEnabledExtensionNames = deviceProperties.data();
     deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
     deviceCreateInfo.ppEnabledLayerNames = validationLayers.data();
 
