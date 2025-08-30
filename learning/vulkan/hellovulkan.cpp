@@ -400,6 +400,23 @@ int main() {
     auto vertShaderCode = readFile("shaders/vert.spv");
     auto fragShaderCode = readFile("shaders/frag.spv");
 
+    // create module from vert shader
+    VkShaderModuleCreateInfo vertShaderCreateInfo{};
+    vertShaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    vertShaderCreateInfo.codeSize = vertShaderCode.size();
+    vertShaderCreateInfo.pCode = reinterpret_cast<const uint32_t*>(vertShaderCode.data());
+    VkShaderModule vertShaderModule;
+    result = vkCreateShaderModule(device, &vertShaderCreateInfo, nullptr, &vertShaderModule);
+    checkedVk(result, "can't create vert shader module");
+
+    // create module from frag shader
+    VkShaderModuleCreateInfo fragShaderCreateInfo{};
+    fragShaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    fragShaderCreateInfo.codeSize = fragShaderCode.size();
+    fragShaderCreateInfo.pCode = reinterpret_cast<const uint32_t*>(fragShaderCode.data());
+    VkShaderModule fragShaderModule;
+    result = vkCreateShaderModule(device, &fragShaderCreateInfo, nullptr, &fragShaderModule);
+    checkedVk(result, "can't create frag shader module");
 
     // main loop
     while (!glfwWindowShouldClose(window)) {
@@ -407,6 +424,9 @@ int main() {
     }
 
     // Start of destroying everything
+    vkDestroyShaderModule(device, fragShaderModule, nullptr);
+    vkDestroyShaderModule(device, vertShaderModule, nullptr);
+
     for (auto imageView : swapChainImageViews) {
         vkDestroyImageView(device, imageView, nullptr);
     }
