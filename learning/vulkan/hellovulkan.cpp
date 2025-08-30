@@ -345,6 +345,12 @@ int main() {
     checkedVk(result, "can't create swapchain");
     std::cout << "created swapchain\n";
 
+    // getting images from swapChain
+    std::vector<VkImage> swapChainImages;
+    vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
+    swapChainImages.resize(imageCount);
+    vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
+
     VkQueue graphicsQueue;
     // get graphics queue handle
     vkGetDeviceQueue(device, graphicsFamily.value(), 0, &graphicsQueue);
