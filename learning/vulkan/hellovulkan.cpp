@@ -189,6 +189,16 @@ int main() {
         exit(1);
     }
 
+    VkSurfaceFormatKHR surfaceFormat = surfaceFormats[0];
+    for (const auto& availableFormat : surfaceFormats) {
+        // 32 bit rgba
+        if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+            surfaceFormat = availableFormat;
+            std::cout << "chosen suitable surface format: VK_FORMAT_B8G8R8A8_SRGB!\n";
+            break;
+        }
+    }
+
     // Every interaction with GPU goes through the queues
     // there are different types of queues for different types of interactions
     // Now we're checking that our device supports graphics commands queue
