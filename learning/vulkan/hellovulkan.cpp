@@ -162,14 +162,46 @@ int main() {
         exit(1);
     }
 
+    // Now we need create logical device to interact with the physical device
+    // Logical device requires us to specify queues that it needs
+    VkDeviceQueueCreateInfo queueCreateInfo{};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueFamilyIndex = graphicsFamily.value();
+    queueCreateInfo.queueCount = 1;
+    float queuePriority = 1.0f;
+    queueCreateInfo.pQueuePriorities = &queuePriority;
+    // now we need to specify set of device features we're using
+    // we don't need any for now, so we'll use the default
+    VkPhysicalDeviceFeatures deviceFeatures{};
+
+    // now we can pass queue & features info to logical device create info
+    VkDeviceCreateInfo deviceCreateInfo{};
+    deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+    deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
+    deviceCreateInfo.queueCreateInfoCount = 1;
+    deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+
+    std::cout << "requiredExtensions.size() = " << requiredExtensions.size() << "\n";
+    std::cout << "requiredExtensions[2] = " << requiredExtensions[2] << "\n";
+    deviceCreateInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    deviceCreateInfo.enabledExtensionCount = (uint32_t) requiredExtensions.size();
+    deviceCreateInfo.ppEnabledExtensionNames = requiredExtensions.data();
+    deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+    deviceCreateInfo.ppEnabledLayerNames = validationLayers.data();
+
+    VkDevice device;
+    result = vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device);
+    checkedVk(result, "can't create logical device");
 
     // main loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
     }
 
-
     // Start of destroying everything
+    vkDestroyDevice(device, nullptr);
+
     vkDestroyInstance(instance, nullptr);
 
     // deinit window
