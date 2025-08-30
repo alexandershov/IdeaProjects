@@ -65,6 +65,8 @@ int main() {
         glfwPollEvents();
     }
 
+    vkDestroyInstance(instance, nullptr);
+
     // deinit window
     glfwDestroyWindow(window);
     // deinit glfw
