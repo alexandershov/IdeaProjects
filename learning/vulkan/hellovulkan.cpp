@@ -1,3 +1,4 @@
+#include <set>
 #include <iostream>
 #include <optional>
 #include <cstdlib>
@@ -170,11 +171,17 @@ int main() {
 
     // picking the queue that support graphics
     std::optional<uint32_t> graphicsFamily;
+    // picking the queue that supports presentation on a surface
+    std::optional<uint32_t> presentFamily;
     uint32_t i = 0;
     for (const auto& queueFamily : queueFamilies) {
         if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             graphicsFamily = i;
-            break;
+        }
+        VkBool32 presentSupport = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &presentSupport);
+        if (presentSupport) {
+            presentFamily = i;
         }
         i++;
     }
@@ -184,14 +191,27 @@ int main() {
         exit(1);
     }
 
+    if (!presentFamily.has_value()) {
+            std::cout << "no present queue found, exiting\n";
+            exit(1);
+        }
+
     // Now we need create logical device to interact with the physical device
     // Logical device requires us to specify queues that it needs
-    VkDeviceQueueCreateInfo queueCreateInfo{};
-    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = graphicsFamily.value();
-    queueCreateInfo.queueCount = 1;
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+    std::set<uint32_t> uniqueQueueFamilies = {graphicsFamily.value(), presentFamily.value()};
+
     float queuePriority = 1.0f;
-    queueCreateInfo.pQueuePriorities = &queuePriority;
+    for (uint32_t queueFamily : uniqueQueueFamilies) {
+        VkDeviceQueueCreateInfo queueCreateInfo{};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.queueFamilyIndex = queueFamily;
+        queueCreateInfo.queueCount = 1;
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+        queueCreateInfos.push_back(queueCreateInfo);
+    }
+
+
     // now we need to specify set of device features we're using
     // we don't need any for now, so we'll use the default
     VkPhysicalDeviceFeatures deviceFeatures{};
@@ -200,8 +220,8 @@ int main() {
     VkDeviceCreateInfo deviceCreateInfo{};
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-    deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
-    deviceCreateInfo.queueCreateInfoCount = 1;
+    deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
+    deviceCreateInfo.queueCreateInfoCount = queueCreateInfos.size();
     deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
 
     // we need it on Mac
@@ -220,8 +240,13 @@ int main() {
     std::cout << "created logical device\n";
 
     VkQueue graphicsQueue;
-    // get queue handle for our family
+    // get graphics queue handle
     vkGetDeviceQueue(device, graphicsFamily.value(), 0, &graphicsQueue);
+
+    VkQueue presentQueue;
+    // get present queue handle
+    vkGetDeviceQueue(device, presentFamily.value(), 0, &presentQueue);
+
 
     // main loop
     while (!glfwWindowShouldClose(window)) {
