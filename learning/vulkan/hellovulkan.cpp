@@ -1,4 +1,5 @@
 #include <iostream>
+#include <optional>
 #include <cstdlib>
 
 // with GLFW_INCLUDE_VULKAN glfw will include vulkan headers
@@ -122,17 +123,42 @@ int main() {
     if (deviceCount == 0) {
         std::cout << "no physical devices, exiting";
         exit(1);
-    }
+   }
 
-    for (const auto& device: devices) {
-        if (isDeviceSuitable(device)) {
-            physicalDevice = device;
+   for (const auto& device: devices) {
+       if (isDeviceSuitable(device)) {
+           physicalDevice = device;
+           break;
+       }
+   }
+
+   if (physicalDevice == VK_NULL_HANDLE) {
+       std::cout << "no suitable physical device, exiting\n";
+       exit(1);
+   }
+
+    // Every interaction with GPU goes through the queues
+    // there are different types of queues for different types of interactions
+    // Now we're checking that our device supports graphics commands queue
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+
+    // picking the queue that support graphics
+    std::optional<uint32_t> graphicsFamily;
+    uint32_t i = 0;
+    for (const auto& queueFamily : queueFamilies) {
+        if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+            graphicsFamily = i;
             break;
         }
+        i++;
     }
 
-    if (physicalDevice == VK_NULL_HANDLE) {
-        std::cout << "no suitable physical device, exiting\n";
+    if (!graphicsFamily.has_value()) {
+        std::cout << "no graphics queue found, exiting\n";
         exit(1);
     }
 
