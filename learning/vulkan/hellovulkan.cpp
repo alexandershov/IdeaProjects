@@ -48,6 +48,24 @@ static std::vector<char> readFile(const std::string& filename) {
     return buffer;
 }
 
+void recordCommandBuffer(VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkExtent2D actualExtent, std::vector<VkFramebuffer> swapChainFramebuffers, uint32_t imageIndex) {
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = 0; // Optional
+    beginInfo.pInheritanceInfo = nullptr; // Optional
+
+    VkResult result = vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    checkedVk(result, "can't begin command buffer");
+
+    VkRenderPassBeginInfo renderPassBeginInfo{};
+    renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassBeginInfo.renderPass = renderPass;
+    renderPassBeginInfo.framebuffer = swapChainFramebuffers[imageIndex];
+
+    renderPassBeginInfo.renderArea.offset = {0, 0};
+    renderPassBeginInfo.renderArea.extent = actualExtent;
+}
+
 int main() {
     // init window
     glfwInit();
@@ -619,6 +637,26 @@ int main() {
         checkedVk(result, "can't create framebuffer");
     }
 
+    // there are no functions to draw, we do drawing through the commands that are added to command buffer
+    VkCommandPool commandPool;
+    VkCommandPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    poolInfo.queueFamilyIndex = graphicsFamily.value();
+    vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool);
+
+    // create command buffer
+    VkCommandBuffer commandBuffer;
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = commandPool;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = 1;
+
+    result = vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+    checkedVk(result, "can't allocate command buffer");
+
     // main loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -633,6 +671,7 @@ int main() {
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
     vkDestroyPipeline(device, graphicsPipeline, nullptr);
+    vkDestroyCommandPool(device, commandPool, nullptr);
     for (auto imageView : swapChainImageViews) {
         vkDestroyImageView(device, imageView, nullptr);
     }
