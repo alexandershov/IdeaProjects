@@ -93,6 +93,10 @@ void recordCommandBuffer(
     checkedVk(result, "can't end command buffer");
 }
 
+void drawFrame() {
+
+}
+
 int main() {
     // init window
     glfwInit();
@@ -684,12 +688,42 @@ int main() {
     result = vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
     checkedVk(result, "can't allocate command buffer");
 
+    // VkSemaphore is used for synchronization on GPU
+    // we can submit command to GPU that triggers semaphore on completion
+    // and we can submit command to GPU that waits for semaphore
+    VkSemaphore imageAvailableSemaphore;
+    VkSemaphore renderFinishedSemaphore;
+    // VkFench is used for synchronization on host
+    // they work similar to semaphores in principle, but host can wait on a fence
+    VkFence inFlightFence;
+
+    VkSemaphoreCreateInfo semaphoreInfo{};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+
+    result = vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphore);
+    checkedVk(result, "can't create image semaphore");
+
+    result = vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphore);
+    checkedVk(result, "can't create render semaphore");
+
+    result = vkCreateFence(device, &fenceInfo, nullptr, &inFlightFence);
+    checkedVk(result, "can't create fence");
+
+
     // main loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
+        drawFrame();
     }
 
     // Start of destroying everything
+    vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
+    vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
+    vkDestroyFence(device, inFlightFence, nullptr);
+
     for (auto framebuffer : swapChainFramebuffers) {
         vkDestroyFramebuffer(device, framebuffer, nullptr);
     }
