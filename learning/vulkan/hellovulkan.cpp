@@ -613,12 +613,22 @@ int main() {
 
     VkRenderPass renderPass;
 
+    VkSubpassDependency dependency{};
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcAccessMask = 0;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
     VkRenderPassCreateInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = 1;
     renderPassInfo.pAttachments = &colorAttachment;
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
+    renderPassInfo.dependencyCount = 1;
+    renderPassInfo.pDependencies = &dependency;
 
     result = vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass);
     checkedVk(result, "can' create render pass");
@@ -702,6 +712,8 @@ int main() {
 
     VkFenceCreateInfo fenceInfo{};
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    // create fence in signaled state, so we don't block in the first frame when we wait for a fence
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     result = vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphore);
     checkedVk(result, "can't create image semaphore");
@@ -716,7 +728,49 @@ int main() {
     // main loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
-        drawFrame();
+        // draw frame
+
+        // wait till the previous frame is finished
+        vkWaitForFences(device, /* count */ 1, &inFlightFence, VK_TRUE, /* timeout */ UINT64_MAX);
+        // reset fence to unsignaled state
+        vkResetFences(device, 1, &inFlightFence);
+
+        uint32_t imageIndex;
+        vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+        vkResetCommandBuffer(commandBuffer, 0);
+        // record the commands
+        recordCommandBuffer(commandBuffer, renderPass, actualExtent, graphicsPipeline, swapChainFramebuffers, imageIndex);
+        // submitting the commands
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+        VkSemaphore waitSemaphores[] = {imageAvailableSemaphore};
+        VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = waitSemaphores;
+        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &commandBuffer;
+
+        VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = signalSemaphores;
+
+        result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFence);
+        checkedVk(result, "can't submit to graphics queue");
+
+        VkPresentInfoKHR presentInfo{};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = signalSemaphores;
+        VkSwapchainKHR swapChains[] = {swapChain};
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = swapChains;
+        presentInfo.pImageIndices = &imageIndex;
+        presentInfo.pResults = nullptr; // Optional
+        vkQueuePresentKHR(presentQueue, &presentInfo);
     }
 
     // Start of destroying everything
