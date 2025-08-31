@@ -2,7 +2,12 @@
 
 ### What is it?
 
-Vulkan is a cross-platform graphics API. It's a replacement for OpenGL.
+Vulkan is a cross-platform graphics API.
+
+It's a clusterfuck of an API, drawing a triangle is 800 lines of code, it's very low-level, bunch of abstractions,
+everything is explicit and in your face.
+Looks like the auditory of this API is 10 companies in the world that are doing engines/platforms.
+For a single person ROI is negative.
 
 It's more performant than OpenGL (if you know what you're doing) & more low-level. It doesn't rely on global state as OpenGL does, it lowers load on CPU,
 also allows CPU to leverage multithreading.
