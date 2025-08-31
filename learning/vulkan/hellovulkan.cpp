@@ -773,6 +773,9 @@ int main() {
         vkQueuePresentKHR(presentQueue, &presentInfo);
     }
 
+    // wait for logical device to finish operations
+    vkDeviceWaitIdle(device);
+
     // Start of destroying everything
     vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
     vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
