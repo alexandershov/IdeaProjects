@@ -19,4 +19,5 @@ ozc -c main.oz && ozengine main.ozf
 
 `ozc` is an Oz compiler. `ozengine` is a runner of compiled bytecode.
 
-See [main.oz](./main.oz) for an sample of the most interesting features.
+See [main.oz](./main.oz) for a sample of the most interesting features – which is declarative concurrency.
+Also, it supports logic programming.

@@ -4,7 +4,7 @@ import
 define
    local X Y Z in
     thread
-     % this thread will wait until X & Y are defined, it's kinda like declarative dataflow in Excel.
+     % this thread will wait until X & Y are defined, it's kinda like Excel.
      Z = X + Y
      {System.showInfo Z}
     end
