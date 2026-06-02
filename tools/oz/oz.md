@@ -4,7 +4,7 @@ Oz is concurrency-oriented language. Mozart is an implementation/runtime of Oz.
 
 Overall looks dead, last release was 8 years ago.
 
-## Install
+# Install
 
 Linux:
 ```shell
@@ -12,7 +12,7 @@ curl -OL https://github.com/mozart/mozart2/releases/download/v2.0.1/mozart2-2.0.
 sudo apt install ./mozart2-2.0.1-x86_64-linux.deb
 ```
 
-## Usage
+# Usage
 ```shell
 ozc -c main.oz && ozengine main.ozf
 ```
