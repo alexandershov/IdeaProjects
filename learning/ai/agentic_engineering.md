@@ -8,6 +8,8 @@ Condensed to things that I found interesting. Also contains my reflections on th
 * It may be worth it to err on a side it "yeah, let's build it" or "yeah, let's refactor it", if you think LLM can deal with it, and you won't need to spend much time on cleaning the slop.
 * Use agents to do complicated git stuff (bisect, splitting commits, etc)
 * Add knowledge to agents on how to do different things
+* Use red/green TDD
+* Ask agents to manually verify the code
 
 ## LLMs
 LLMs are stateless, so conversation "Hi", "yello", "How are you doing?", "fine" from the point of LLM is actually 2 requests 
@@ -30,6 +32,12 @@ Writing (garbage) code is cheap now. So it may be worth it to err on a side it "
 ## Hoard things you know how to do
 E.g. "i know how to start a service". Document it. Then LLM can use it. This stuff compounds and agents can be
 useful.
+
+## Testing
+Add "use red/green TDD" to a prompt. This will force an agent to write tests to veryfy that code works.
+Agents are good at automating boring stuff. 
+Ask an agent to do manual testing of a feature: e.g. start a service locally, make requests to it.
+Ask agent to create a proof-of-manual-testing document: commands it ran, results it got, etc.
 
 ## Agents and Git
 Agents are good at git. Git is not super complicated, but annoying enough so we have tendencies to
