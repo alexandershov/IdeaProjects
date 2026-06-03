@@ -1,0 +1,10 @@
+[project]
+name = "austin-playground"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "austin-dist>=4.0.0",
+    "austin-python>=2.2.0",
+]
