@@ -10,6 +10,7 @@ Condensed to things that I found interesting. Also contains my reflections on th
 * Add knowledge to agents on how to do different things
 * Use red/green TDD
 * Ask agents to manually verify the code
+* Ask agents to explain unfamiliar code for you
 
 ## LLMs
 LLMs are stateless, so conversation "Hi", "yello", "How are you doing?", "fine" from the point of LLM is actually 2 requests 
@@ -46,3 +47,7 @@ take shortcuts (e.g. not splitting commits or not using bisect). With agents, yo
 * Split this change in 2 separate commits (first one is refactoring, second one is feature work)
 * Find when bug was introduced with bisect
 * Etc.
+
+## Codebase Exploration
+Ask agents to explain unfamiliar code for you, it will be sloppy, but may save you some time.
+
