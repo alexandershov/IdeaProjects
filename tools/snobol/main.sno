@@ -1,2 +1,44 @@
-        OUTPUT = "Hello, SNOBOL4!"
+* this is a comment
+* SNOBOL program consists of statements of the form
+* label subject pattern = object : transfer
+* so each statement can consist of five items, each item is optional
+* this are just an assignments
+    P = "abc"
+    TEXT = "abcdef"
+* if pattern P matches text, then jump to ABC_MATCHES, otherwise jump to END
+    TEXT P : S(ABC_MATCHES) F(SPECIAL_VARIABLES)
+* ABC_MATCHES is a label, jump without F/S is unconditional jump
+ABC_MATCHES OUTPUT = "abc matches" : (SPECIAL_VARIABLES)
+
+* SPECIAL_VARIABLES is a label
+SPECIAL_VARIABLES
+* OUTPUT is a special variable, this prints to stdout
+    OUTPUT = "Hello, SNOBOL4!"
+
+* INPUT is a special variable, this reads from stdin to X
+    X = INPUT
+
+* print X twice
+    OUTPUT = X X
+
+PATTERN_CONCAT
+* this creates a pattern "abc abc"
+    DOUBLE_ABC_WITH_SPACE = P " " P
+    TEXT DOUBLE_ABC_WITH_SPACE : S(HAS_DOUBLE_ABC) F(COMPLEX_PATTERNS)
+HAS_DOUBLE_ABC OUTPUT = "double abc matches"
+
+COMPLEX_PATTERNS
+* there are various ways to create complex patterns out of simple ones
+* SPAN is like [0-9]+
+    DIGITS = SPAN("0123456789")
+* | is or
+* POS(0) and RPOS(0) make a pattern to match an entire string
+    FLOAT = POS(0) (DIGITS | DIGITS "." DIGITS) RPOS(0)
+    "3.1415926" FLOAT : S(PI_IS_FLOAT) F(PI_IS_NOT_FLOAT)
+PI_IS_FLOAT OUTPUT = "pi is float" : S(ASSIGNMENTS)
+PI_IS_NOT_FLOAT OUTPUT = "pi is not float" : S(ASSIGNMENTS)
+
+ASSIGNMENTS
+
+* END is a label
 END

@@ -12,5 +12,5 @@ brew install snobol4
 
 ## Usage
 ```shell
-snobol4 main.sno
+echo from_stdin | snobol4 main.sno
 ```
