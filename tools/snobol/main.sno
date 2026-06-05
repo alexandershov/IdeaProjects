@@ -43,10 +43,27 @@ ASSIGNMENTS
 * $ will assign match value to N, in this case it'll be 99 & problems
 * $ will assign only if an entire pattern matches.
 * There's also `.` that assigns even pattern matches partially
+* ARB is like ``.*` regex
+* This is like captures in regexes
     "i have 99 problems" (DIGITS $ N) " " (ARB $ NOUN) RPOS(0)
     OUTPUT = "extracted number of " NOUN ": " N
 
+RECURSIVE_PATTERNS
+* Previously considered patterns were more or less like composable regular expressions
+* But SNOBOL patterns can be recursive! Essentially you can translate BNFs with little modifications
+* into SNOBOL patterns.
+* btw ARBNO is arbitrary number of. Like * in regex
+* *BALANCED_PARENS allows us to create recursive definitions
+    BALANCED_PARENS = "(" ARBNO(*BALANCED_PARENS) ")"
+    "((()))" (POS(0) BALANCED_PARENS RPOS(0)) : S(PARENS_ARE_BALANCED) F(REPLACEMENTS)
+PARENS_ARE_BALANCED OUTPUT = "parens balanced!"
+
 REPLACEMENTS
+* this is `TEXT PATTERN = REPLACEMENT` form
+* it replaces all matches with the REPLACEMENT
+    PROBLEM_STATEMENT = "I have 3.1415926 problems"
+    PROBLEM_STATEMENT (DIGITS "." DIGITS | DIGITS) = '99'
+    OUTPUT = PROBLEM_STATEMENT
 
 * END is a label
 END
