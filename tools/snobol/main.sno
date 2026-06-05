@@ -32,13 +32,21 @@ COMPLEX_PATTERNS
 * SPAN is like [0-9]+
     DIGITS = SPAN("0123456789")
 * | is or
-* POS(0) and RPOS(0) make a pattern to match an entire string
+* POS(0) and RPOS(0) make a pattern to match an entire string, otherwise match would succeed
+* if any part of the string matches the pattern
     FLOAT = POS(0) (DIGITS | DIGITS "." DIGITS) RPOS(0)
     "3.1415926" FLOAT : S(PI_IS_FLOAT) F(PI_IS_NOT_FLOAT)
 PI_IS_FLOAT OUTPUT = "pi is float" : S(ASSIGNMENTS)
 PI_IS_NOT_FLOAT OUTPUT = "pi is not float" : S(ASSIGNMENTS)
 
 ASSIGNMENTS
+* $ will assign match value to N, in this case it'll be 99 & problems
+* $ will assign only if an entire pattern matches.
+* There's also `.` that assigns even pattern matches partially
+    "i have 99 problems" (DIGITS $ N) " " (ARB $ NOUN) RPOS(0)
+    OUTPUT = "extracted number of " NOUN ": " N
+
+REPLACEMENTS
 
 * END is a label
 END
