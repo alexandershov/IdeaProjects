@@ -1,8 +1,12 @@
 # Agentic Engineering
 
 ## What is it?
-My walkthrough of https://simonwillison.net/guides/agentic-engineering-patterns/.
-Condensed to things that I found interesting. Also contains my reflections on this.
+My walkthrough of:
+* `[very good]` https://mitchellh.com/writing/my-ai-adoption-journey
+* `[mostly fluff]` https://simonwillison.net/guides/agentic-engineering-patterns/
+* `[fucking slop]` https://www.bassimeledath.com/blog/levels-of-agentic-engineering
+* `[fucking slop]` https://every.to/chain-of-thought/compound-engineering-how-every-codes-with-agents
+Condensed to things that I found interesting/useful. Also contains my reflections on this.
 
 ## TLDR
 * It may be worth it to err on a side it "yeah, let's build it" or "yeah, let's refactor it", if you think LLM can deal with it, and you won't need to spend much time on cleaning the slop.
@@ -11,6 +15,12 @@ Condensed to things that I found interesting. Also contains my reflections on th
 * Use red/green TDD
 * Ask agents to manually verify the code
 * Ask agents to explain unfamiliar code for you
+* Update AGENTS.md so the agent won't repeat its mistakes
+* Review code with different model or at least from a clean session
+* Launch agents in the last 30 minutes of the working day
+* Outsource the slam dunks
+* Give agents tools to verify their code
+* "Is there is something agent can do right now and run in background?"
 
 ## LLMs
 LLMs are stateless, so conversation "Hi", "yello", "How are you doing?", "fine" from the point of LLM is actually 2 requests 
