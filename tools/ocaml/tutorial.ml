@@ -14,10 +14,40 @@ let next_fn delta (module M : X_int) =
     let x = M.x + delta
   end : X_int);
 
-(* in theory first-class modules are more powerful than interfaces,
-   but nobody can tell why.
-   I need to look at https://hirrolot.github.io/posts/compiler-development-rust-or-ocaml.html#type-flexibility-first-class-modules
-   more carefully
+(*
+when we unpack first-class module, then OCaml won't reveal types that are used inside of this module, but it will
+typecheck that module uses this type correctly
+e.g. from https://hirrolot.github.io/posts/compiler-development-rust-or-ocaml.html#type-flexibility-first-class-modules
+
+let do_int_bin_op op (module S : Fixed_ints.Pair) =
+  let x, y = S.pair in
+  match op with
+  | Add -> S.add x y |> S.to_value
+  | Sub -> S.sub x y |> S.to_value
+  | Mul -> S.mul x y |> S.to_value
+  | Div -> S.div x y |> S.to_value
+  | Rem -> S.rem x y |> S.to_value
+;;
+
+Here OCaml understood that x and y are having correct type, so `S.add x y` typechecks
+
+In PseudoJava e.g if we attempt to use class similar to pair, then it won't typecheck
+class Pair<T extends PrimitiveValue> {
+    T x;
+    T y;
+    Ops<T> ops; // contains add/sub/etc over i8/i16/etc
+}
+
+Value do_int_bin_op(String op, Pair<? extends PrimitiveValue> pair) {
+   if (op == "+") {
+        pair.add(pair.x, pair.y); // doesn't typecheck, because Pair<PrimitiveValue> is not Pair<i8/i16/etc>
+   }
+}
+
+Also we needed to introduce PrimitiveValue as a base class for i8/i16/etc to even attempt something similar to OCaml.
+
+To get something similar without much boilerplate we would need to move applyOperation to Pair class when T is known.
+So OCaml first-class modules are more composable - you can insert them in more places.
 *)
 
 (* Functors have different meaning in OCaml.
