@@ -49,6 +49,12 @@ Also we needed to introduce PrimitiveValue as a base class for i8/i16/etc to eve
 To get something similar without much boilerplate we would need to move applyOperation to Pair class when T is known.
 So OCaml first-class modules are more composable - you can insert them in more places.
 C++ templates won't help here, because we want to create modules with different types and return them from a function.
+
+So to put it in abstract terms first-class modules give you:
+* abstract type t that module wraps
+* operations over type t
+* values of type t
+* type t is existential for you, you can only pass it to module
 *)
 
 (* Functors have different meaning in OCaml.
