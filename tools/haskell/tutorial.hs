@@ -51,6 +51,7 @@ data Requested
 data Riding
 data Completed
 
+
 data Trip a where
    -- RequestedTrip, RidingTrip, CompletedTrip are data constructors and can be used in pattern matching
    -- Each trip will carry a String at runtime and will have a different type
@@ -66,7 +67,9 @@ startRiding (RequestedTrip s) = RidingTrip s
 
 completeTrip :: Trip Riding -> Trip Completed
 completeTrip (RidingTrip s) = CompletedTrip s
-
+-- if we'll try to use ADT for a fsm, then to have type-safety we would need to have different types
+-- for different states (like RequestedTrip|RidingTrip|CompletedTrip) and it would be hard to implement
+-- generic function on all trips (let's say extract String)
 
 instance Show (Trip a) where
  show (RequestedTrip x) = show x
