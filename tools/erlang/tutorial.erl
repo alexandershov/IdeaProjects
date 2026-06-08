@@ -28,6 +28,13 @@ main() ->
             % {ok, Result} -> io:format("Result = ~B~n", [Result])
         end
     end),
-    % hack to wait for child processes
-    timer:sleep(100),
+
+    receive
+        Msg ->
+            io:format("[main] received ~p~n", [Msg])
+    after
+        % this will trigger if no messages arrived in 100ms
+        100 ->
+            io:format("timeout!~n")
+    end,
     io:format("main pid done!~n").
