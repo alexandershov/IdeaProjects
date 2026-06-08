@@ -1,7 +1,10 @@
 -module(tutorial).
 
 % /0 is function arity
--export([main/0]).
+-export([main/0, sum/2]).
+
+sum(X, Y) ->
+    X + Y.
 
 main() ->
     % spawn creates a lightweight process, it's not an OS process, it's managed by Erlang VM (called BEAM)
@@ -34,7 +37,7 @@ main() ->
             io:format("[main] received ~p~n", [Msg])
     after
         % this will trigger if no messages arrived in 100ms
-        100 ->
+        100000 ->
             io:format("timeout!~n")
     end,
     io:format("main pid done!~n").
