@@ -46,6 +46,33 @@ eval (IntLiteral x) = x
 eval (StringLiteral s) = s
 eval (Funcall _ f args) = f $ map eval args
 
+-- GADTs can be used to have compiletime-checked fsm
+data Requested
+data Riding
+data Completed
+
+data Trip a where
+   -- RequestedTrip, RidingTrip, CompletedTrip are data constructors and can be used in pattern matching
+   -- Each trip will carry a String at runtime and will have a different type
+   RequestedTrip :: String -> Trip Requested
+   RidingTrip :: String -> Trip Riding
+   CompletedTrip :: String -> Trip Completed
+
+requestTrip :: String -> Trip Requested
+requestTrip s = RequestedTrip s
+
+startRiding :: Trip Requested -> Trip Riding
+startRiding (RequestedTrip s) = RidingTrip s
+
+completeTrip :: Trip Riding -> Trip Completed
+completeTrip (RidingTrip s) = CompletedTrip s
+
+
+instance Show (Trip a) where
+ show (RequestedTrip x) = show x
+ show (RidingTrip x) = show x
+ show (CompletedTrip x) = show x
+
 
 instance Show (Expr a) where
  show (IntLiteral x) = show x
@@ -66,4 +93,9 @@ main = do
     putStrLn (show (eval $ Funcall "+" sum [IntLiteral 8, IntLiteral 9]))
     -- next line will fail at compile-time, that's the power the GADTs give us
     --  putStrLn (show (eval $ Funcall "+" sum [StringLiteral "try this", IntLiteral 9]))
+    putStrLn (show $ requestTrip "my trip")
+    putStrLn (show $ startRiding $ requestTrip "my trip")
+    -- next line fails to compile, because completeTrip expects RidingTrip
+    -- putStrLn (show $ completeTrip $ requestTrip "my trip")
+
     putStrLn "done!"
