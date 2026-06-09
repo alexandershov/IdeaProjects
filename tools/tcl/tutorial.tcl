@@ -56,6 +56,23 @@ my_while {$i < 3} {
     incr i
 }
 
+# also, there's no nil in tcl!
+
+package require Tk
+
+# tk is a graphics toolkit
+
+label .msg -text "Hello, Tcl/Tk!"
+button .btn -text "Click Me" -command {
+    .msg configure -text "Button clicked!"
+}
+
+pack .msg -padx 20 -pady 10
+pack .btn -padx 20 -pady 10
+
+wm title . "Simple Tcl/Tk App"
+
+
 # tcl comes with the event loop and simple way to do socket programming
 # here's async network application in 7 lines of code (you can connect to it with `nc localhost 9999`)
 socket -server handler 9999
