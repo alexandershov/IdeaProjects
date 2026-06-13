@@ -11,5 +11,5 @@ brew install icon
 
 ## Usage
 ```shell
-icon main.icn
+icon tutorial.icn
 ```

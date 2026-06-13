@@ -1,0 +1,39 @@
+procedure main()
+    local x
+    local line
+
+    x := 8;
+    # icon has interesting evaluation model, each expression can either succeed or fail
+    # here syntax is similar to python, but the way it works is actually:
+    # first 3 < x is evaluated, it succeeds and return value is x
+    # then x < 9 is evaluated it succeeds and return value is 9
+    # so we print 9 in the next line
+    write(3 < x < 9)
+    # this fails and doesn't print anything
+    write(3 < (x + 10) < 9)
+    # icon has some kinda backtracking on an expression level
+    # first it tries x + 10 and fails
+    # then it tries and succeeds (this is called goal-oriented execution)
+    # | is called generator in icon
+    write(3 < ((x + 10) | 7) < 9)
+    write("done!")
+
+    line := "to be or not to be"
+    # find generates positions of "be" in line
+    # every iterates over every successful match
+    # `str ?` establishes "str" as a subject for all string operations
+    # `every` is a way to exhaust generators
+    every pos := (line ? find("be")) do write(pos)
+
+    # this exhausts range(3, 5) generator
+    every write(range(3, 5))
+end
+
+procedure range(i, j)
+    while i <= j do {
+        # generators
+        suspend i
+        i +:= 1
+    }
+    fail
+end
