@@ -7,6 +7,10 @@ reliable distributed systems.
 Although Erlang itself is quite slow, it cares about latency: 
 e.g. there's no global GC, but there's per-process GC, so there are no big GC pauses.  
 
+It's an interesting runtime, but holy fuck the language is unfriendly:
+* error messages are terse: 1 / 0 doesn't tell that it's division by zero, just "an error occurred"
+* syntax is insane (prolog), where you need to do comma-period accounting
+
 ## Install
 ```shell
 brew install erlang
