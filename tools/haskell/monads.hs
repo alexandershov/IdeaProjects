@@ -1,4 +1,4 @@
--- this is the walkthrough of https://blog.sigfpe.com/2006/08/you-could-have-invented-monads-and.html
+-- this is mostly the walkthrough of https://blog.sigfpe.com/2006/08/you-could-have-invented-monads-and.html
 
 import Text.Printf
 
@@ -54,6 +54,8 @@ lift f = unit . f
 -- bind :: (Complex Float -> [Complex Float]) -> [Complex Float] -> [Complex Float]
 -- bind f resG = apply f to each resG and concatenate
 -- unit x = [x]
+-- that's a list monad for you, essentially it represents computations that can produce
+-- several values (also called non-deterministic computations)
 
 -- so monad is a triple of (m, bind, unit) and this triple must obey laws
 -- bind f x is written as x >>= f (we pass monad into a function that works on ordinary values)
@@ -79,6 +81,16 @@ lift f = unit . f
 -- because it would be useless! it's just a function application!
 -- In that case every function would still need to extract value from monad.
 
+-- think of monad as an interface (unit & bind)
+-- each specific monad interface implementation needs to be understood on its own merit
+-- e.g. Maybe & List monads are different, they just implement the same interface
+
+-- given a monad we can implement a functor (but not vice verca!)
+-- functor interface
+-- >>= :: m a -> (a -> m b) -> m b
+-- fmap :: (a -> b) -> f a -> f b
+-- fmap f fa =
+--   fa >>= (\x -> unit $ f fa)
 
 main = do
     let (dd_result_1, dd_msg_1) = (debuggingDouble 8)
