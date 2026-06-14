@@ -75,6 +75,10 @@ lift f = unit . f
 -- Now: why there's no function extract :: m a -> a?
 -- because monad contains more information that just an `a` (e.g. Maybe contains None)
 
+-- why there's no function bind :: m a -> (m a -> m b) -> m b?
+-- because it would be useless! it's just a function application!
+-- In that case every function would still need to extract value from monad.
+
 
 main = do
     let (dd_result_1, dd_msg_1) = (debuggingDouble 8)
