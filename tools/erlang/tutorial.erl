@@ -23,7 +23,13 @@ adder_loop() ->
 main() ->
     % spawn creates a lightweight process, it's not an OS process, it's managed by Erlang VM (called BEAM)
     AdderPid = spawn(fun() -> adder_loop() end),
-
+    % now we can send messages by name, also from other OS processes
+    % erl -sname debug -setcookie secret
+    % and then {adder, 'myapp@Mac'} ! {add, self(), 10, 20} will send erlang message to this worker!
+    % it works cross OS-processes and cross hosts!
+    % e.g. here's a log: adder: received [<10877.90.0>, 10, 20]
+    register(adder, AdderPid),
+    io:format("AdderPid = ~p~n", [AdderPid]),
     spawn(fun Loop() ->
         % ! sends a message to pid, it sends a message asynchronously
         % self() is pid of the current erlang process
@@ -36,6 +42,7 @@ main() ->
                 io:format("before~n"),
                 io:format("received ~p~n", [Msg]),
                 io:format("after~n"),
+                timer:sleep(10000),
                 Loop()
             % {ok, Result} -> io:format("Result = ~B~n", [Result])
         end
