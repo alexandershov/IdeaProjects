@@ -1,6 +1,12 @@
 % so constraints over integers (like #=, #>) work
 :- use_module(library(clpz)).
 
+% for maplist
+:- use_module(library(lists)).
+
+% for if_
+:- use_module(library(reif)).
+
 % these are simple facts
 % atoms start with the lowercase
 father(nikolai, sasha).
@@ -42,3 +48,9 @@ list_length([_|Ls], Length) :-
 % it even finds negative SomeZ which I totally forgot about!
 % label is multivariable version of indomain
 % SomeX #= SomeY * SomeY * SomeY, SomeX #> 0, SomeX in 0..1000000, SomeX #= SomeZ * SomeZ, label([SomeX, SomeY, SomeZ]).
+
+% There also higher-order predicate
+% maplist(#>, [3, 2, 1], [2, 1, 0]).
+% what's cool is that we can have variables:
+% maplist(#>, [3, X, 1], [X, 1, 0]).
+% and prolog is able to figure out that X must be equal to 2! (3 > X and X > 1) Awesome!
