@@ -10,6 +10,9 @@
 % for *
 :- use_module(library(debug)).
 
+% for dif
+:- use_module(library(dif)).
+
 % these are simple facts
 % atoms start with the lowercase
 father(nikolai, sasha).
@@ -107,3 +110,34 @@ number_number_pair_and_sum(X, Y, X-Y, S) :-
 % ;  X = 0, Y = 2, Z = 1
 % ;  X = 1, Y = 0, Z = 2
 % etc
+
+% you should think declaratively when writing prolog
+% think in terms of relations, not in terms of what's getting calculated
+% remember, prolog predicate work in all directions
+% here's "remove element from a list" (why in quotes) will be clear a bit alter
+list_element_filtered_list([], _, []).
+
+list_element_filtered_list([H|Ls], E, [H|F]) :-
+    % dif means 'different'
+    dif(E, H),
+    list_element_filtered_list(Ls, E, F).
+
+list_element_filtered_list([E|Ls], E, F) :-
+    list_element_filtered_list(Ls, E, F).
+
+% let's "remove" element from a list
+% ?- list_element_filtered_list([a, b, c, a], a, F).
+%   F = "bc"
+% it works as expected, but actually it's not remove!
+% it's a relation between 3 things!
+% we can find "what element was removed" between 2 lists!
+% ?- list_element_filtered_list([a, b, c, a], X, [b, c]).
+%   X = a
+% wow!
+% we can find "from what list we can remove a and get [b, c]"
+% ?- list_element_filtered_list(Ls, a, [b, c]).
+%    Ls = "bc"
+% ;  Ls = "bca"
+% ;  Ls = "bcaa"
+% so this predicate works in all directions!
+% granted direction to find Ls is not very interesting, but "which element was removed" is super nice!
