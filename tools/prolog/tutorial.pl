@@ -97,3 +97,13 @@ number_number_pair_and_sum(X, Y, X-Y, S) :-
 % ?- number_number_pair_and_sum(X, Y, P, 9), X in 0..100, Y in 0..100, indomain(X).
 % X = 0, Y = 9, P = 0-9
 % X = 1, Y = 8, P = 1-8
+
+
+% all_distinct is true when all elements are all_distinct
+% ins is a list version of in
+% this finds all distinct triplets of numbers between 0 and 2
+% all_distinct([X, Y, Z]), [X, Y, Z] ins 0..2, label([X, Y, Z]).
+%   X = 0, Y = 1, Z = 2
+% ;  X = 0, Y = 2, Z = 1
+% ;  X = 1, Y = 0, Z = 2
+% etc
