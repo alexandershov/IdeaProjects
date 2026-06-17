@@ -7,6 +7,9 @@
 % for if_
 :- use_module(library(reif)).
 
+% for *
+:- use_module(library(debug)).
+
 % these are simple facts
 % atoms start with the lowercase
 father(nikolai, sasha).
@@ -54,3 +57,43 @@ list_length([_|Ls], Length) :-
 % what's cool is that we can have variables:
 % maplist(#>, [3, X, 1], [X, 1, 0]).
 % and prolog is able to figure out that X must be equal to 2! (3 > X and X > 1) Awesome!
+
+broken_list_length([], 0).
+broken_list_length([_|T], N) :-
+    N #= N0 + 2,
+    broken_list_length(T, N0).
+
+% broken_list_length is, ahem, broken
+% with prolog we can find a counterexample
+% broken_list_length(Ls, N), broken_list_length([_|Ls], N1), N1 #\= N + 1.
+% here are the counterexamples, that prolog finds:
+% Ls = [], N = 0, N1 = 2
+%  ;  Ls = [_A], N = 2, N1 = 4
+
+% you can have two types of problems in your prolog programs:
+% 1. your program are too generic - they find extra solutions
+% 2. your program are too specific - they don't find all solutions
+% problem 1. is fixed by adding more goals
+% problem 2. is fixed by adding more rules
+% adding just more rules will not solve problem 1 - you'll just get more solutions, still too generic
+
+another_broken_list_length([], 0).
+another_broken_list_length([_|T], N) :-
+    N #= N0 + 1,
+    % * is not exactly a comment, it makes a goal to disappear
+    % it's kinda like comment, even better, because it works on a last goal (comment will also remove trailing .)
+    % with * we can exclude goals from search, thus making our program more general and find a problematic goal
+    * N0 #= X * 2,
+    * X in 1..N,
+    another_broken_list_length(T, N0).
+
+% prolog has pairs, - constructs a pair
+number_number_pair_and_sum(X, Y, X-Y, S) :-
+    S #= X + Y.
+
+% ?- number_number_pair_and_sum(3, 2, P, S).
+%   P = 3-2, S = 5.
+% it works in all directions!
+% ?- number_number_pair_and_sum(X, Y, P, 9), X in 0..100, Y in 0..100, indomain(X).
+% X = 0, Y = 9, P = 0-9
+% X = 1, Y = 8, P = 1-8
