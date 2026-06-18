@@ -141,3 +141,20 @@ list_element_filtered_list([E|Ls], E, F) :-
 % ;  Ls = "bcaa"
 % so this predicate works in all directions!
 % granted direction to find Ls is not very interesting, but "which element was removed" is super nice!
+
+% prolog is actually quite lispy, you can get canonical/lispy form of the expression with write_canonical
+% ?- write_canonical( (my_sum(X, Y, Z) :- Z #= X + Y) ).
+% :-(my_sum(_612322,_612323,_612324),#=(_612324,+(_612322,_612323)))   true.
+% note that there's no infix notation in canonical form
+
+int_int_sum(X, Y, Z) :- Z #= X + Y.
+
+% now prolog will rewrite terms that look like term_expansion first argument into second
+% this is prolog answer to lisp macros
+user:term_expansion(
+    (wrong_int_int_sum(X, Y, Z) :- X #= Y + Z),
+    (wrong_int_int_sum(X, Y, Z) :- int_int_sum(X, Y, Z))
+).
+
+% this definition will rewritten using user:term_expansion
+wrong_int_int_sum(X, Y, Z) :- X #= Y + Z.
