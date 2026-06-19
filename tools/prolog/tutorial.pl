@@ -13,6 +13,9 @@
 % for dif
 :- use_module(library(dif)).
 
+% for table
+:- use_module(library(tabling)).
+
 % these are simple facts
 % atoms start with the lowercase
 father(nikolai, sasha).
@@ -159,6 +162,39 @@ user:term_expansion(
 % this definition will rewritten using user:term_expansion
 wrong_int_int_sum(X, Y, Z) :- X #= Y + Z.
 
+% prolog has built-in memoization
+% we need to declare table before n_fib/2 is defined
+% :- table n_fib/2.
+
+% fibonacci numbers
+n_fib(1, 1).
+n_fib(2, 1).
+n_fib(N, F) :-
+    N #> 2,
+    N_1 #= N - 1,
+    N_2 #= N - 2,
+    n_fib(N_1, F_1),
+    n_fib(N_2, F_2),
+    F #= F_1 + F_2.
+% it works, but it is visibly slow
+% ?- n_fib(31, F).
+%    F = 1346269
+
+% see table n_fib/2 call before n_fib definition
+% if you uncomment it, then n_fib calls will be memoized and this is fast
+% ?- n_fib(31, F).
+%    F = 1346269
+
+% by the way n_fib(N, F) works as general query
+% ?- n_fib(N, F).
+%    N = 1, F = 1
+% ;  N = 2, F = 1
+% ;  N = 3, F = 2
+% ;  N = 4, F = 3
+% etc
+% it also works as "find which n is the given fibonacci number"
+% ?- n_fib(N, 55).
+%   N = 10
 
 % cuts (!) allow you to skip backtracking.
 % but cuts are not-declarative and harmful!
