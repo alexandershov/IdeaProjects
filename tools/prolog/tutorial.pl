@@ -158,3 +158,26 @@ user:term_expansion(
 
 % this definition will rewritten using user:term_expansion
 wrong_int_int_sum(X, Y, Z) :- X #= Y + Z.
+
+
+% cuts (!) allow you to skip backtracking.
+% but cuts are not-declarative and harmful!
+% let's take this example
+% the idea is to have a predicate for a list construction
+broken_list([]) :- !.  % it looks like this cut will save us backtracking
+broken_list([_|Ls]) :- broken_list(Ls).
+
+% but this cut actually harms generality
+% ?- broken_list(Ls).
+%    Ls = [].
+% it generates just one example!
+% this cut only works when list is instantiated.
+% But prolog predicates are more general - they should generate solution
+correct_list([]).
+correct_list([_|Ls]) :- correct_list(Ls).
+% ?- correct_list(Ls).
+%    Ls = []
+% ;  Ls = [_A]
+% ;  Ls = [_A,_B]
+% ;  Ls = [_A,_B,_C]
+% etc
