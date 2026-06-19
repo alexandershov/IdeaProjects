@@ -16,6 +16,9 @@
 % for table
 :- use_module(library(tabling)).
 
+% for time
+:- use_module(library(time)).
+
 % these are simple facts
 % atoms start with the lowercase
 father(nikolai, sasha).
@@ -176,14 +179,20 @@ n_fib(N, F) :-
     n_fib(N_1, F_1),
     n_fib(N_2, F_2),
     F #= F_1 + F_2.
-% it works, but it is visibly slow
-% ?- n_fib(31, F).
+% it works, but it is slow (btw time is scryer way of timing & profiling)
+% ?- time(n_fib(31, F)).
+%    % CPU time: 0.991s, 17_501_518 inferences
 %    F = 1346269
+% ;  % CPU time: 0.270s, 1_346_271 inferences
+%    false.
 
 % see table n_fib/2 call before n_fib definition
 % if you uncomment it, then n_fib calls will be memoized and this is fast
-% ?- n_fib(31, F).
+% ?- time(n_fib(31, F)).
+%    % CPU time: 0.019s, 129_125 inferences
 %    F = 1346269
+% ;  % CPU time: 0.000s, 21 inferences
+%    false.
 
 % by the way n_fib(N, F) works as general query
 % ?- n_fib(N, F).
