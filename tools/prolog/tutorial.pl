@@ -323,3 +323,27 @@ palindrome --> [E], palindrome, [E].
 % complete
 % ?- phrase(palindrome, [Y, b, X, a]).
 %   Y = a, X = b
+
+% semicontext notation allows you to prepend elements to the remaining list after parsing
+look_ahead(T), [T] --> [T].
+% look_ahead consumes term T from a list and then prepends it
+% ?- phrase(look_ahead(T), "a", Rest).
+%   T = a, Rest = "a".
+% phrase//3 have Rest that is the unparsed remainder of the list
+
+% we can use semicontext notation to pass the state around
+
+tree_leaves(Tree, N) :-
+    % using phrase//3 to get the remainder of the list
+    phrase(tree_leaves_(Tree), [0], [N]).
+
+% consume N0 and put N0 + 1
+% with {Goal} we can add ordinary prolog goals to DCG
+tree_leaves_(nil), [N] --> [N0], { N #= N0 + 1}.
+
+tree_leaves_(node(_, Left, Right)) -->
+    tree_leaves_(Left),
+    tree_leaves_(Right).
+
+% ?- tree_leaves(node(_, nil, node(_, nil, nil)), N).
+%    N = 3.
