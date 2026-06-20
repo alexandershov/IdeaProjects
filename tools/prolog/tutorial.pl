@@ -293,3 +293,33 @@ seqq([L|Ls]) --> seq(L), seqq(Ls).
 % length(Ls, _), phrase((...,[E,E],...), Ls).
 
 % iterative deepening is an useful technique to built-in prolog dfs.
+
+% DCGs are very useful when working with lists
+
+my_reversal([]) --> [].
+% abcd --> dcba
+my_reversal([L|Ls]) --> my_reversal(Ls), [L].
+
+palindrome --> [].
+palindrome --> [_].
+palindrome --> [E], palindrome, [E].
+
+% with this definition of palindrome we can check, generate, and complete palindromes
+% check
+% ?- phrase(palindrome, "abba").
+%    true
+% ;  ... .
+% ?- phrase(palindrome, "abbak").
+%    false.
+% ?-
+
+% generate
+% ?- phrase(palindrome, Ls).
+%    Ls = []
+% ;  Ls = [_A]
+% ;  Ls = [_A,_A]
+% ;  Ls = [_A,_B,_A]
+
+% complete
+% ?- phrase(palindrome, [Y, b, X, a]).
+%   Y = a, X = b
