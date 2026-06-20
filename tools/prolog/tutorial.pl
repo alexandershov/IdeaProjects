@@ -226,3 +226,70 @@ correct_list([_|Ls]) :- correct_list(Ls).
 % ;  Ls = [_A,_B]
 % ;  Ls = [_A,_B,_C]
 % etc
+
+% DCG (Definite Clause Grammar) describe a sequence
+
+% dcg_as describe a sequence
+% empty sequence is our sequence
+dcg_as --> [].
+
+% [a] and then (comma means "and then", essentially concatenation) dcg_as is our sequence
+dcg_as --> [a], dcg_as.
+
+% dcg_as describes a sequence consisting of atoms == a.
+
+% phrase/2 allows us to invoke rules:
+% the most general query:
+% ?- phrase(dcg_as, Ls).
+%    Ls = []
+% ;  Ls = "a"
+% ;  Ls = "aa"
+% etc
+% btw "aa" is a short notation for [a, a] in Scryer Prolog.
+
+% specific query
+% ?- phrase(dcg_as, "aaa").
+%    true
+% ;  ... .
+% ?- phrase(dcg_as, "aab").
+%    false.
+% kinda general query: we can find missing elements!
+% ?- phrase(dcg_as, [a, X, a]).
+%   X = a
+
+% seq//1 (note that DCG's arity is referred with // instead of / for predicates)
+% defines a sequence that is it's arguments
+seq([]) --> [].
+seq([E|Ls]) --> [E], seq(Ls).
+
+% we can't just write seq(Ls) --> Ls. because ... reasons.
+% we can use seq//1 to extract parts of texts
+% ?- phrase(("hello ", seq(Who), "!"), "hello world!").
+%    Who = "world"
+
+% seqq//2 describes a sequence of sequences
+seqq([]) --> [].
+seqq([L|Ls]) --> seq(L), seqq(Ls).
+
+% seqq a concatenation of lists
+% ?- phrase(seqq(["ab", "cd"]), Ls).
+%     Ls = "abcd".
+
+% seq(_) describes "any sequence at all"
+
+% we can use it to find the last element of the sequence
+% ?- phrase((seq(_),[Last]), "hello").
+%   Last = o
+
+% seq & seqq give nice pattern matching capabilities on lists
+% here's general query on finding lists where same element repeats twice in a row
+% ?- phrase((seq(_),[E, E], seq(_)), Ls).
+%    Ls = [E,E]
+% ;  Ls = [E,E,_A]
+% ;  Ls = [E,E,_A,_B]
+
+
+% using iterative deepening: first solve at depth 1, then at depth 2, results will be more faire
+% length(Ls, _), phrase((...,[E,E],...), Ls).
+
+% iterative deepening is an useful technique to built-in prolog dfs.
