@@ -347,3 +347,5 @@ tree_leaves_(node(_, Left, Right)) -->
 
 % ?- tree_leaves(node(_, nil, node(_, nil, nil)), N).
 %    N = 3.
+
+% in Scryer prolog DCG are rewritten into ordinary prolog code using term_expansion
