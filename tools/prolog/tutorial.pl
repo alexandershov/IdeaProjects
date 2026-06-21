@@ -349,3 +349,66 @@ tree_leaves_(node(_, Left, Right)) -->
 %    N = 3.
 
 % in Scryer prolog DCG are rewritten into ordinary prolog code using term_expansion
+
+% dynamic, since clause/2 works only on public predicates and dynamic also makes predicate public
+:- dynamic(natnum/1).
+:- dynamic(mi_friendly_natnum/1).
+
+% peano numbers
+natnum(0).
+natnum(s(X)) :- natnum(X).
+% ?- natnum(s(s(0))).
+%   true.
+
+% we can dynamically call prolog goals with call/1
+% ?- Goal = natnum(X), call(Goal).
+%    Goal = natnum(0), X = 0
+% ;  Goal = natnum(s(0)), X = s(0)
+% ;  Goal = natnum(s(s(0))), X = s(s(0))
+
+% with clause/2 we can inspect predicate body:
+% ?- clause(natnum(X), Body).
+%    X = 0, Body = true
+% ;  X = s(_A), Body = natnum(_A).
+
+% btw simple clauses without body (like `natnum(0)`) are translated into natnum(0) :- true.
+
+% we can define a simple prolog meta-interpreter:
+
+% helper to wrap all bodies into g(Body).
+mi_clause(G, Body) :-
+        clause(G, B),
+        defaulty_better(B, Body).
+
+defaulty_better(true, true).
+defaulty_better((A,B), (BA,BB)) :-
+        defaulty_better(A, BA),
+        defaulty_better(B, BB).
+
+% match on regular goal
+defaulty_better(G, g(G)) :-
+        % \= is "not equal"
+        G \= true,
+        G \= (_,_).
+
+% true is true
+mi2(true).
+
+% handle (A, B)
+mi2((A, B)) :-
+    mi2(A),
+    mi2(B).
+
+% wrapped in g, so we can have clean representation of goals
+mi2(g(Goal)) :-
+    % use mi_clause/2 instead of clause/2, to help us wrap clause bodies with g
+    mi_clause(Goal, Body),
+    mi2(Body).
+
+
+
+% and now we can invoke our "interpreter"
+% mi2(g(natnum(s(X)))).
+%
+
+% this interpreter is not very interesting (it does the same thing as vanilla Prolog), but it can be extended
