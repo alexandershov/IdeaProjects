@@ -391,6 +391,7 @@ defaulty_better(G, g(G)) :-
         G \= true,
         G \= (_,_).
 
+% mi stands for Meta Interpreter
 % true is true
 mi2(true).
 
@@ -405,10 +406,58 @@ mi2(g(Goal)) :-
     mi_clause(Goal, Body),
     mi2(Body).
 
-
-
 % and now we can invoke our "interpreter"
 % mi2(g(natnum(s(X)))).
 %
 
-% this interpreter is not very interesting (it does the same thing as vanilla Prolog), but it can be extended
+% this interpreter is not very interesting (it does the same thing as vanilla Prolog), but it can be extended.
+% e.g. we can switch order in mi2(A), mi2(B) to mi2(B), mi2(A), that will handle infinite left-recursive goals that are false
+% lrec :- lrec, false.
+
+% or we can create a trail of proof:
+
+% => is right associative operator with precedence of 750
+% we'll use this operator to provide a proof chain
+:- op(750, xfy, =>).
+
+% proof of true is just true
+mi2_tree(true, true).
+
+% handle (A, B)
+mi2_tree((A, B), (TA, TB)) :-
+    mi2_tree(A, TA),
+    mi2_tree(B, TB).
+
+mi2_tree(g(Goal), TBody => Goal) :-
+    mi_clause(Goal, Body),
+    mi2_tree(Body, TBody).
+
+% Now we can build a chain of proofs:
+% ?- mi2_tree(g(natnum(X)), Proof).
+%   X = 0, Proof = (true=>natnum(0))
+% ;  X = s(0), Proof = ((true=>natnum(0))=>natnum(s(0)))
+
+% we can implement new search strategies
+% e.g. here's a search strategy with a limit in dfs
+
+
+mi_limit(true, _).
+
+% handle (A, B)
+mi_limit((A, B), Max) :-
+    mi_limit(A, Max),
+    mi_limit(B, Max).
+
+mi_limit(g(Goal), Max) :-
+    Max #> 0,
+    NewMax #= Max - 1,
+    mi_clause(Goal, Body),
+    mi_limit(Body, NewMax).
+
+
+% now search is limited by max depth:
+% ?- mi_limit(g(natnum(X)), 3).
+%    X = 0
+% ;  X = s(0)
+% ;  X = s(s(0))
+% ;  false.
