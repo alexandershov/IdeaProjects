@@ -461,3 +461,20 @@ mi_limit(g(Goal), Max) :-
 % ;  X = s(0)
 % ;  X = s(s(0))
 % ;  false.
+
+% we can implement iterative deepening search (which is a kind of bfs: search at depth 0, then at depth 1, etc)
+mi_id(X) :-
+    length(_, D),
+    mi_limit(X, D).
+
+% iterative deepening is a complete search strategy:
+% ?- mi_id(g(natnum(X))).
+%    X = 0
+% ;  X = 0
+% ;  X = s(0)
+% ;  X = 0
+% ;  X = s(0)
+% ;  X = s(s(0))
+
+% note, that we find the same solution several times (because depth 1 is considered many times)
+% asympotically that's fine (bigger depths dominate complexity). Practically - need to measure
