@@ -36,6 +36,8 @@ If you have several threads then same pipeline can execute elements from instruc
 E.g. we have 2 threads. Decode #1 is not busy, because thread #1 is underusing CPU. So decode from thread #2 
 can be executed on Decode #1.
 
+Threads have their own registers, but they share everything else (even L1 cache) - they're not real cores after all.
+
 Dependant instructions actually don't need to wait for Writeback of another instruction.
 There are "bypasses" - kinda like speed lanes where instructions can feed their results to another instructions
 before Writeback finishes.
