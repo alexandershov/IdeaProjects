@@ -27,6 +27,20 @@ L1 cache are per-core, higher-level caches are shared between all cores.
 
 All data that CPU reads/writes are going through the cache. 
 So CPU doesn't even interact with the main memory directly!
+It's actually up to cache machinery to decide when 
+(or even `if` in cases when unflushed data is overwritten in cache) data written to a cache should be written to memory 
+(as long as logically CPU sees correct data).
+
+Data is written to cache by "lines". Line is usually 64 bytes.
+When CPU writes data to memory, it actually writes data to cache. 
+Until this cache line is written to a real memory, the line is considered "dirty".
+Some amount of coordination is needed for multicore systems: since each core have its own independent cache.
+This is called cache coherency.
+
+Cache lines are not written as a single operation. It's 64bytes, so it's probably eight of 64bit writes.
+Let's say we need a word somewhere in the end of cache line. In a simple case we would wait till this word will
+become available. But it's a waste! We need just 1 word, but not only we load the entire line, we also wait till
+the last word will become available. So there's critical word optimization when the word we requested can be written first.
 
 ## Sources
 * https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
