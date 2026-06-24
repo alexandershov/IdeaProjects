@@ -42,7 +42,7 @@ Let's say we need a word somewhere in the end of cache line. In a simple case we
 become available. But it's a waste! We need just 1 word, but not only we load the entire line, we also wait till
 the last word will become available. So there's critical word optimization when the word we requested can be written first.
 
-## Introspection
+## Caches Introspection
 We can inspect CPU params by querying /sys/devices/system/cpu/cpu*/cache. It works only on Linux.
 
 Each cpu has its own directory:
@@ -124,6 +124,24 @@ where executables need to aligned to a page start, so it's wasteful.
 NUMA stands for Non-Uniform Memory Access. It based on a fact that each CPU/core can have "local" memory, which is
 faster to access from this specific CPU. Note, that "local" doesn't mean tha other CPUs can't access it.
 They can, but it will be slower than local access.
+
+## NUMA Introspection
+
+I don't have NUMA on my machine (there's only `node0`)
+```shell
+ls /sys/devices/system/node/ | rg node
+node0
+```
+
+In NUMA system there would be several `node*`.
+Each node contains distances for different CPUs.
+
+```shell
+# imaginary example
+cat /sys/devices/system/node/node0/distance
+# one cpu has distance 10, other have distance 20. Less distance - faster is access.
+10 20 20 20
+```
 
 ## Sources
 * https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
