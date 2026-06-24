@@ -56,5 +56,10 @@ and caches VM translations (smth like virtual page X -> physical page Y).
 You can make pages bigger to decrease nesting of page tables, but it's not free: e.g. there are different alignment requirements,
 where executables need to aligned to a page start, so it's wasteful.
 
+## NUMA
+NUMA stands for Non-Uniform Memory Access. It based on a fact that each CPU/core can have "local" memory, which is
+faster to access from this specific CPU. Note, that "local" doesn't mean tha other CPUs can't access it.
+They can, but it will be slower than local access.
+
 ## Sources
 * https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
