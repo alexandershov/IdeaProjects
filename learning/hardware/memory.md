@@ -120,8 +120,12 @@ and caches VM translations (smth like virtual page X -> physical page Y).
 You can make pages bigger to decrease nesting of page tables, but it's not free: e.g. there are different alignment requirements,
 where executables need to aligned to a page start, so it's wasteful.
 
+There are different optimizations for TLB cache, e.g. in naive implementation if we switch to another process, then
+we would need to purge TLB, this is inefficient, so TLB cache can be additionally tagged with some kind of process id,
+so it can persist better.
+
 ## NUMA
-NUMA stands for Non-Uniform Memory Access. It based on a fact that each CPU/core can have "local" memory, which is
+NUMA stands for Non-Uniform Memory Access. It is based on the fact that each CPU/core can have "local" memory, which is
 faster to access from this specific CPU. Note, that "local" doesn't mean tha other CPUs can't access it.
 They can, but it will be slower than local access.
 
