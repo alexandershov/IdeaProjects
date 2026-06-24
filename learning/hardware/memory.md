@@ -42,6 +42,70 @@ Let's say we need a word somewhere in the end of cache line. In a simple case we
 become available. But it's a waste! We need just 1 word, but not only we load the entire line, we also wait till
 the last word will become available. So there's critical word optimization when the word we requested can be written first.
 
+## Introspection
+We can inspect CPU params by querying /sys/devices/system/cpu/cpu*/cache. It works only on Linux.
+
+Each cpu has its own directory:
+```shell
+$ ls /sys/devices/system/cpu/ | rg 'cpu\d'
+cpu0
+cpu1
+cpu2
+cpu3
+cpu4
+cpu5
+cpu6
+cpu7
+cpu8
+cpu9
+cpu10
+cpu11
+```
+It's actually "each thread", because this machine has 6 cpus and 12 threads.
+
+We can introspect caches for each cpu:
+```shell
+ls /sys/devices/system/cpu/cpu0/cache/
+index0  index1  index2  index3 uevent
+```
+We can see that cpu0 has 4 caches (each index* directory).
+index0 is L1d, index1 is L1i, index2 is L3, index3 is L3.
+
+Here's the proof:
+```
+$ cat /sys/devices/system/cpu/cpu0/cache/index0/type
+Data
+$ cat /sys/devices/system/cpu/cpu0/cache/index1/type
+Instruction
+$ cat /sys/devices/system/cpu/cpu0/cache/index0/level
+1
+$ cat /sys/devices/system/cpu/cpu0/cache/index1/level
+1
+```
+
+We can see cache sizes:
+```shell
+cat /sys/devices/system/cpu/cpu0/cache/index*/size
+32K
+32K
+512K
+16384K
+```
+
+We can see what's the sharing model for each cache:
+```shell
+
+
+cat /sys/devices/system/cpu/cpu0/cache/index*/shared_cpu_list
+0,6
+0,6
+0,6
+0-2,6-8
+```
+cpu0 & cpu6 are two threads of the same core - and they share  `L1[id]` and `L2` caches.
+L3 cache for cpu0 is shared across 6 threads (3 cores). Actually ryzen has two L3 caches, each is 16MB,
+32MB in total.
+
 ## Virtual Memory
 See description of virtual memory in [linux.md](../linux/linux.md).
 Advantage of virtual memory is that each process sees itself as it the sole user of memory on a machine.
