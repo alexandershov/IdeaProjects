@@ -42,5 +42,19 @@ Let's say we need a word somewhere in the end of cache line. In a simple case we
 become available. But it's a waste! We need just 1 word, but not only we load the entire line, we also wait till
 the last word will become available. So there's critical word optimization when the word we requested can be written first.
 
+## Virtual Memory
+See description of virtual memory in [linux.md](../linux/linux.md).
+Advantage of virtual memory is that each process sees itself as it the sole user of memory on a machine.
+Another advantage that page mapping can map different virtual pages to the same physical pages - this saves physical memory.
+
+Virtual memory is not free performance-wise: page tables are also in memory and the more nested page tables
+(and they can be really nested with 4-5 levels) - the more memory accesses you need to translate 
+virtual address to a physical address.
+And as we remember accessing memory is slow! So another cache is born. It's called TLB (translation lookaside buffer),
+and caches VM translations (smth like virtual page X -> physical page Y).
+
+You can make pages bigger to decrease nesting of page tables, but it's not free: e.g. there are different alignment requirements,
+where executables need to aligned to a page start, so it's wasteful.
+
 ## Sources
 * https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
