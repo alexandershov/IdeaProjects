@@ -148,6 +148,7 @@ cat /sys/devices/system/node/node0/distance
 ```
 
 ## Programming
+### Bypassing cache
 Let's say we write data to memory, but we don't plan to use it soon. By default when we write data to memory,
 we actually write it to cache. But to write it to cache, we need first to read the cache line into cache!
 We just waste cache and evict some useful data.
@@ -159,6 +160,10 @@ locations you're writing to a contigious. In this case several `_mm_stream_` can
 
 For non-temporal reads there's `_mm_stream_load*`, it works similar to its write counterparts with the same
 idea of "reads from contigious locations can be executed by CPU".
+
+### Writing cache-friendly code
+See [matmul.cpp](./matmul.cpp) for an example of doing more work, but making algorithm cache-friendly completely
+destroys not-cache friendly algorithms.
 
 ## Sources
 * https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
