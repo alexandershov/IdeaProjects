@@ -147,5 +147,18 @@ cat /sys/devices/system/node/node0/distance
 10 20 20 20
 ```
 
+## Programming
+Let's say we write data to memory, but we don't plan to use it soon. By default when we write data to memory,
+we actually write it to cache. But to write it to cache, we need first to read the cache line into cache!
+We just waste cache and evict some useful data.
+
+For this case `_mm_stream_*` intrinsics are provided. 
+If you know that you will have non-temporal store (== you won't access this memory location soon) then
+`_mm_stream_*` allow you to bypass cache and write directly to memory. These intrinsics work best if memory
+locations you're writing to a contigious. In this case several `_mm_stream_` can be executed by CPU in parallel.
+
+For non-temporal reads there's `_mm_stream_load*`, it works similar to its write counterparts with the same
+idea of "reads from contigious locations can be executed by CPU".
+
 ## Sources
 * https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
