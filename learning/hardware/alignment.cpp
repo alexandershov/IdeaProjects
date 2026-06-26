@@ -3,11 +3,13 @@
 typedef struct padding_t {
     char c1;
     int i;
+    char c2;
 } padding_t;
 
 typedef struct no_padding_t {
-    int i;
-    char c1;
+    int i;   // 0
+    char c1; // 4
+    char c2; // 5
 } no_padding_t;
 
 int main() {
@@ -37,9 +39,12 @@ int main() {
     Going back to our example p.i needs to be aligned, so compiler inserts 3 bytes after p.c1
     That's why pointer difference is 4
      */
-    std::cout << "padding in padding_t = " << (char*)&(p.i) - (char*)&p.c1 << "\n";
+    std::cout << "padding (i - c1) in padding_t = " << (char*)&(p.i) - (char*)&p.c1 << "\n";
     // difference between p.c1 and p.i is also 4, but there's no padding involved
     // np.c1 is placed at power ot 2 already
-    std::cout << "padding in no_padding_t = " << (char*)&(np.c1) - (char*)&np.i << "\n";
+    std::cout << "padding (c1 - i) in no_padding_t = " << (char*)&(np.c1) - (char*)&np.i << "\n";
+
+    // again, difference between c2 and c1 is 1. No padding is involved for char - it's 1 bytea and it's always aligned
+    std::cout << "padding (c2 - c1) in no_padding_t = " << (char*)&(np.c2) - (char*)&np.c1 << "\n";
     std::cout << "done!\n";
 }
