@@ -31,7 +31,18 @@ It's actually up to cache machinery to decide when
 (or even `if` in cases when unflushed data is overwritten in cache) data written to a cache should be written to memory 
 (as long as logically CPU sees correct data).
 
-Data is written to cache by "lines". Line is usually 64 bytes.
+Data is written to cache by "lines". Line is usually 64 bytes. You can get actual cache line size with getconf on Linux:
+```shell
+getconf LEVEL1_DCACHE_LINESIZE
+64
+```
+
+That was ryzen, interestingly that on M2 Max it's 128 bytes:
+```shell
+sysctl -n hw.cachelinesize
+128
+```
+
 When CPU writes data to memory, it actually writes data to cache. 
 Until this cache line is written to a real memory, the line is considered "dirty".
 Some amount of coordination is needed for multicore systems: since each core have its own independent cache.
@@ -162,7 +173,7 @@ For non-temporal reads there's `_mm_stream_load*`, it works similar to its write
 idea of "reads from contigious locations can be executed by CPU".
 
 ### Writing cache-friendly code
-See [matmul.cpp](./matmul.cpp) for an example of doing more work, but making algorithm cache-friendly completely
+See [matmul.cpp](./matmul.cpp) for an example of how doing more work, but making algorithm cache-friendly completely
 destroys not-cache friendly algorithms.
 
 ## Sources
