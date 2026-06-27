@@ -172,7 +172,7 @@ locations you're writing to a contigious. In this case several `_mm_stream_` can
 For non-temporal reads there's `_mm_stream_load*`, it works similar to its write counterparts with the same
 idea of "reads from contigious locations can be executed by CPU".
 
-### Writing data-cache friendly code
+### Writing L1d cache friendly code
 See [matmul.cpp](./matmul.cpp) for an example of how doing more work, but making algorithm cache-friendly completely
 destroys not-cache-friendly algorithms.
 
@@ -191,6 +191,13 @@ not the entire struct itself.
 Caveat: your struct should be aligned at cache-line size (it's not a default!) for the reorder of elements to have performance (and not just memory footprint) benefits.
 You can change alignment of the structure with the __attribute__((aligned(64))) - it works both for struct definitions and for variable definitions.
 Caveat #2: different CPUs have different cache line sizes, so don't hardcode 64.
+
+### Writing L1i cache friendly code
+Code is linear between jumps, so L1i is effectively utilized between jumps. 
+Since jumps can be dynamic branch prediction (BP) tries to predict jump location so CPU pipeline is not stalled.
+If your jumps are random, then you'll pay for it. E.g. regular loops are BP-friendly.
+
+The smaller your code, the more it'll be L1i friendly.
 
 
 ## Sources
