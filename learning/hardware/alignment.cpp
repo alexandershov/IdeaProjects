@@ -56,5 +56,15 @@ int main() {
     // alignment of structure is alignment of its largest because:
     // if structure is aligned at the alignment of its largest element, then
     // all internal elements are guaranteed to be aligned (since structure is guaranteed to start at multiple of each of its elements)
+
+    // now, since we want all structs in array of structs to be aligned as well
+    // this means in some cases we need padding at the end of the struct
+    // and sizeof struct will need to a multiple of its alignment
+
+    // 12 bytes for padding_t: 3-byte padding after c1 and 3-byte padding after c2
+    std::cout << "sizeof in padding_t = " << sizeof(padding_t) << "\n";
+
+    // 8 bytes for padding_t: 2-bytes padding after c2
+    std::cout << "sizeof in no_padding_t = " << sizeof(no_padding_t) << "\n";
     std::cout << "done!\n";
 }
