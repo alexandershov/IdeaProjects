@@ -6,6 +6,13 @@ typedef struct padding_t {
     char c2;
 } padding_t;
 
+typedef struct __attribute__((packed)) packed_t {
+    char c1;
+    int i;
+    char c2;
+} packed_t;
+
+
 typedef struct no_padding_t {
     int i;   // 0
     char c1; // 4
@@ -66,5 +73,10 @@ int main() {
 
     // 8 bytes for padding_t: 2-bytes padding after c2
     std::cout << "sizeof in no_padding_t = " << sizeof(no_padding_t) << "\n";
+
+    // packed structures don't have any padding: you save in size, but take a hit in memory access time,
+    // because structure elements are not aligned
+    // 6 bytes for padding_t: just a sum of its elements: 4 (int) + 1 (char) + 1 (char)
+    std::cout << "sizeof in packed_t = " << sizeof(packed_t) << "\n";
     std::cout << "done!\n";
 }
