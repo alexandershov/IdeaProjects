@@ -213,6 +213,10 @@ That was hardware prefetch so programmer can't control. Actually there's also so
 `_mm_prefetch`, it can be useful in pointer chasing code, where you e.g. prefetch node->next. 
 But it's hard to get right (e.g. is your current node processing code slow enough for prefetch to help?),
 so advice is to measure.
+There's also a possibility to prefetch in a separate thread! One thread is processing the list as usual,
+and other thread (let's say it's executed on a hyperthread) prefetches some amount of elements ahead.
+Threads need to syncrhonized though, e.g. with futex.
+Advantage of this approach is that we can look more elements ahead in another thread without polluting the main code.
 
 ## Sources
 * What every programmer should know about memory: https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
