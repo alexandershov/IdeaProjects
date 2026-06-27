@@ -13,6 +13,14 @@ typedef struct __attribute__((packed)) packed_t {
 } packed_t;
 
 
+// 64-byte alignment, can be used e.g. to align on a cache-line
+typedef struct __attribute__((aligned(64))) aligned_t {
+    char c1;
+    int i;
+    char c2;
+} aligned_t;
+
+
 typedef struct no_padding_t {
     int i;   // 0
     char c1; // 4
@@ -78,5 +86,9 @@ int main() {
     // because structure elements are not aligned
     // 6 bytes for padding_t: just a sum of its elements: 4 (int) + 1 (char) + 1 (char)
     std::cout << "sizeof in packed_t = " << sizeof(packed_t) << "\n";
+
+    // 64 bytes - since it has align attribute
+    std::cout << "sizeof in aligned_t = " << sizeof(aligned_t) << "\n";
+
     std::cout << "done!\n";
 }

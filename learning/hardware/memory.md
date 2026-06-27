@@ -172,9 +172,27 @@ locations you're writing to a contigious. In this case several `_mm_stream_` can
 For non-temporal reads there's `_mm_stream_load*`, it works similar to its write counterparts with the same
 idea of "reads from contigious locations can be executed by CPU".
 
-### Writing cache-friendly code
+### Writing data-cache friendly code
 See [matmul.cpp](./matmul.cpp) for an example of how doing more work, but making algorithm cache-friendly completely
-destroys not-cache friendly algorithms.
+destroys not-cache-friendly algorithms.
+
+Decrease memory footprint of your structs:
+* Avoid holes in your structs, see [alignment.cpp](./alignment.cpp) for a description of alignment rules - e.g. reorder elements of structs.
+* Store booleans out of band (e.g. separate array just with bools) instead of bool field in a struct, that will be padded
+* more general to storing booleans out of band is struct of arrays instead of array of structs: ECS-like.
+  * this way you don't fetch data you won't use, so prefetch and L1 are more effective.
+* Handlers (regular u32) instead of points - saves 64bit -> 32bit, but makes your code less typesafe
+
+Decreasing memory footprint makes you to use less cache lines, so L1 is having less evictions and is used more efficiently.
+Critical Word Optimization mentioned earlier means that accessing struct elements that are defined first is more performant.
+Also accessing struct elements in the order they are defined is more performant!
+If your struct is bigger than a cache line, then apply above rules on a level of cache-line sized chunks of the struct,
+not the entire struct itself.
+Caveat: your struct should be aligned at cache-line size (it's not a default!) for the reorder of elements to have performance (and not just memory footprint) benefits.
+You can change alignment of the structure with the __attribute__((aligned(64))) - it works both for struct definitions and for variable definitions.
+Caveat #2: different CPUs have different cache line sizes, so don't hardcode 64.
+
 
 ## Sources
-* https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
+* What every programmer should know about memory: https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
+* Practical data-oriented design: https://www.youtube.com/watch?v=IroPQ150F6c
