@@ -46,5 +46,15 @@ int main() {
 
     // again, difference between c2 and c1 is 1. No padding is involved for char - it's 1 bytea and it's always aligned
     std::cout << "padding (c2 - c1) in no_padding_t = " << (char*)&(np.c2) - (char*)&np.c1 << "\n";
+
+    // now, structures also have alignment
+    // the rule is as such: alignment of the structure is alignment of its largest element
+    // alignment is 4 for both padding_t and no_padding_t: it's an alignment of int
+    std::cout << "alignment in padding_t = " << alignof(padding_t) << "\n";
+    std::cout << "alignment in no_padding_t = " << alignof(no_padding_t) << "\n";
+
+    // alignment of structure is alignment of its largest because:
+    // if structure is aligned at the alignment of its largest element, then
+    // all internal elements are guaranteed to be aligned (since structure is guaranteed to start at multiple of each of its elements)
     std::cout << "done!\n";
 }
