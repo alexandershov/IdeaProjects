@@ -199,6 +199,20 @@ If your jumps are random, then you'll pay for it. E.g. regular loops are BP-frie
 
 The smaller your code, the more it'll be L1i friendly.
 
+### Writing `L[23]` cache friendly code
+Essentially the same tips as for L1d. Keep in mind that caches misses at the last cache level are fantastically expensive: since we'd need to fetch from memory.
+Also keep in mind that `L[23]` caches are shared between several cores.
+
+
+### Prefetching
+After 2 cache misses (not sure how much 2 is true today) CPU starts prefetching data from memory.
+Prefetcher can recognize simple linear patterns and in general it cannot cross page boundary - so prefetch only
+works at 4kb level.
+
+That was hardware prefetch so programmer can't control. Actually there's also software prefetch with
+`_mm_prefetch`, it can be useful in pointer chasing code, where you e.g. prefetch node->next. 
+But it's hard to get right (e.g. is your current node processing code slow enough for prefetch to help?),
+so advice is to measure.
 
 ## Sources
 * What every programmer should know about memory: https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
