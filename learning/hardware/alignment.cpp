@@ -33,8 +33,8 @@ int main() {
     Proof: if our data is word, then it's trivial.
     If our data is less than word, then our address is k * 2^z, our size is 2^z
     this means our data is at the interval [k * 2^z; k * 2^z + 2^z) == [k * 2^z; (k + 1)* 2^z)
-    this interval is 2 consecutive powers of 2. There can be no word boundary between these numbers,
-    because word boundary is power of two
+    this interval is two consecutive multipliers of 2^z. There can be no word boundary between these numbers,
+    because word boundary is a multiplier of 2^z.
 
     Going back to our example p.i needs to be aligned, so compiler inserts 3 bytes after p.c1
     That's why pointer difference is 4
