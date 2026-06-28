@@ -233,6 +233,29 @@ variables to different cachelines; that's not always possible, but you can try.
 For an array example it makes sense to split workload between threads in a different cache lines.
 Instead of handling nearby elements we can give each thread a cache-line-size-multiple chunks.
 
+#### Atomicity
+Let's say two threads execute `count++`. By default, CPU doesn't guarantee any atomicity,
+so first thread can read `count` from cache line, second thread can read the same `count` from cache line,
+both threads will increment count and store it, for writes each thread will get cache line into exclusive state,
+but it doesn't matter, because we incremented count only once, so we'll lose one increment.
+
+Note, that when each thread write to a cache line, then cache line will be in E (exclusive) state, so writes
+by themselves _are_ atomic, it's the combination of read-write is not atomic.
+
+Solution is to use atomic operations: fetch_add (add and return new value), add_fetch (add and return old value),
+CAS (set if value is the same).
+CAS is the most universal, but also is the slowest, it needs to do more work:
+
+```c
+do {
+old = read_old()
+new = old + x;
+} while  CAS(old, new) is failing
+```
+
+Compared to simple `add_fetch` (pseudocode-style name), in CAS we have a loop, extra memory read.
+So prefer atomic add to CAS.
+
 ## Sources
 * What every programmer should know about memory: https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
 * Practical data-oriented design: https://www.youtube.com/watch?v=IroPQ150F6c
