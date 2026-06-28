@@ -218,6 +218,21 @@ and other thread (let's say it's executed on a hyperthread) prefetches some amou
 Threads need to syncrhonized though, e.g. with futex.
 Advantage of this approach is that we can look more elements ahead in another thread without polluting the main code.
 
+
+### Multithreading
+
+#### False sharing
+Let's say we have 2 threads and some array, the first one is writing to `array[0]`, the second is writing to 
+`array[1]`. Although threads are writing to different memory locations, we'll get contention at cache line level.
+(assuming that `array[0]` and `array[1]` are located at the same cacheline): each thread will get exclusive lock
+to cache line (lock at hardware/cpu level) and only one thread will be able to write.
+This is called "false sharing" - when threads don't share "logical" write slots (e.g. different items in array, different variables), 
+but share "physical" write slots - cache line. 
+False sharing is not great - since writes will be essentially serialized. Solution is to move heavily contented
+variables to different cachelines; that's not always possible, but you can try.
+For an array example it makes sense to split workload between threads in a different cache lines.
+Instead of handling nearby elements we can give each thread a cache-line-size-multiple chunks.
+
 ## Sources
 * What every programmer should know about memory: https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
 * Practical data-oriented design: https://www.youtube.com/watch?v=IroPQ150F6c
