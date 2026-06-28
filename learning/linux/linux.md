@@ -566,6 +566,58 @@ Linker uses this information to construct the correct final binary:
 
 We see that now we call at location 1147, which is the location of `f` in the final binary.
 
+Or more concise with `nm` (show names with offsets):
+```shell
+nm elf | rg '(main|f)$'
+0000000000001147 T f
+0000000000001129 T main
+```
+
+`T` means that it's in the Text section (text section contains executable code)
+
+Let's see the headers if the ELF file:
+```shell
+objdump -h elf | rg 'Idx|.text'
+Idx Name          Size      VMA               LMA               File off  Algn
+13 .text         00000116  0000000000001040  0000000000001040  00001040  2**4
+```
+
+So .text segment starts at address `0x1040` (btw it's not location in a file, it's virtual address when program will be executed).
+So when OS executes ELF, these addresses are set up for you!
+
+`/proc/{pid}/maps` contains memory layout of the process, it shows you dynamic libraries locations, stack, heap:
+```shell
+strace cat /proc/self/maps
+openat(AT_FDCWD, "/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+<redacted>
+mmap(NULL, 2170256, PROT_READ, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7d141f800000
+<redacted>
+7d141f800000-7d141f828000 r--p 00000000 09:02 16011950                   /usr/lib/x86_64-linux-gnu/libc.so.6
+<redacted>
+```
+
+We see that we open `libc.so.6`, mmap it into process space, and address `7d141f800000` is where this dynamic library
+is loaded.
+
+Each ELF file contains .interp section that describe how to interpret this file:
+```shell
+objdump -h elf
+
+elf:     file format elf64-x86-64
+
+Sections:
+Idx Name          Size      VMA               LMA               File off  Algn
+  0 .interp       0000001c  0000000000000318  0000000000000318  00000318  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+```
+
+We see that tinterpreter is defined at file offset 318 and this interpreter is:
+```shell
+python3 -c 'print(open("elf", "rb").read()[0x318:0x318 + 0x1c])'
+b'/lib64/ld-linux-x86-64.so.2\x00'
+```
+
+
 #### Source
 * https://lewinb.net/posts/24_elf_linking_and_loading/
 
