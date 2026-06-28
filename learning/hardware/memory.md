@@ -1,5 +1,12 @@
 # Memory
 
+## TLDR
+CPU is so much faster than memory, so memory access is often the bottleneck.
+Write cache-friendly code to avoid this bottleneck:
+* smaller object sizes (be aware of struct alignment/padding, war on booleans)
+* temporal locality (access the same location over and over again)
+* spatial locality (predictably access Loc + X, after you access Loc)
+
 ## Caches
 Historically CPU speed and memory bus speed were comparable.
 Then starting at 1990s, CPUs became faster & faster. 
@@ -267,7 +274,21 @@ Not much you can do about it (you can't increase bandwidth), but:
 
 Scheduling threads on specific CPUs is done by CPU affinity API.
 
+## Data-oriented design
+In addition to all of this, it's useful to see the amount of information consumed logically and the amount
+of information consumed on a hardware level (e.g. with cache lines evictions, etc).
+Let's say you consume 1 bit of information each frame, but because of cache line evictions you consume
+64bytes of information per frame. Thats almost 3 orders of magnitute waste (8 * 64)
+The main idea is to get these numbers close to each other by using the knowledge of the underlying hardware:
+e.g. instead of handling objects one-by-one handle them in chunks.
 
-## Sources
-* What every programmer should know about memory: https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
-* Practical data-oriented design: https://www.youtube.com/watch?v=IroPQ150F6c
+Another useful way of looking at it is: back-of-the-envelope calculations on how much time processor is
+spends on waiting for memory and how much time it spends on actually doing calculating. 
+Your goal should be increase ratio DoingActualWork/WaitingForMemory
+
+
+
+## Sources (all golden)
+* Ulrich Drepper - What every programmer should know about memory: https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
+* Andrew Kelley - Practical data-oriented design: https://www.youtube.com/watch?v=IroPQ150F6c
+* Mike Acton - Data-oriented design and C++ https://www.youtube.com/watch?v=rX0ItVEVjHc
