@@ -483,6 +483,92 @@ Dynamic linking uses mmap, so a popular shared library is loaded into physical m
 Instead of a file descriptor can pass -1 to `mmap`, and it will create anonymous mmap, that you can share
 with a child.
 
+
+### ELF
+ELF (Executable and Linkable Format) is modern Linux binary format.
+
+We have two C files: [elf.c](./src/elf.c) (contains `main` function) and [linked.c](./src/linked.c) (contains `f` function that is called from `main`)
+
+We can compile these source files separately:
+```shell
+gcc -c src/elf.c
+gcc -c src/linked.c
+```
+And then link them into a binary:
+```shell
+gcc -o src/elf src/elf.o src/linked.o
+```
+
+Let's disassemble `main` function in `elf.o`:
+```shell
+objdump --disassemble=main elf.o
+
+elf.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <main>:
+   0:	f3 0f 1e fa          	endbr64
+   4:	55                   	push   %rbp
+   5:	48 89 e5             	mov    %rsp,%rbp
+   8:	48 83 ec 10          	sub    $0x10,%rsp
+   c:	b8 00 00 00 00       	mov    $0x0,%eax
+  11:	e8 00 00 00 00       	call   16 <main+0x16>
+  16:	89 45 fc             	mov    %eax,-0x4(%rbp)
+  19:	8b 45 fc             	mov    -0x4(%rbp),%eax
+  1c:	c9                   	leave
+  1d:	c3                   	ret
+```
+
+`11:` is the most interesting part here: it tells us "call function defined at offset 16 in main".
+(btw `e8` is code for a `call` instruction and this call instruction takes 5 bytes)
+Offset 11 is where we want to call `f()` from [linked.c](./src/linked.c). 
+but offset 16 in main is actually next (11 + 5) instruction in `main`! It's not a function we want to call.
+
+The way it works is via relocation tables (`objdump -r` is the way to show them):
+```shell
+objdump -r elf.o
+
+elf.o:     file format elf64-x86-64
+
+RELOCATION RECORDS FOR [.text]:
+OFFSET           TYPE              VALUE
+0000000000000012 R_X86_64_PLT32    f-0x0000000000000004
+```
+
+This means "at offset 12" replace with the value of "location of f minus 4 bytes".
+
+Linker uses this information to construct the correct final binary:
+```shell
+% objdump --disassemble=main elf
+0000000000001129 <main>:
+    1129:	f3 0f 1e fa          	endbr64
+    112d:	55                   	push   %rbp
+    112e:	48 89 e5             	mov    %rsp,%rbp
+    1131:	48 83 ec 10          	sub    $0x10,%rsp
+    1135:	b8 00 00 00 00       	mov    $0x0,%eax
+    113a:	e8 08 00 00 00       	call   1147 <f>
+    113f:	89 45 fc             	mov    %eax,-0x4(%rbp)
+    1142:	8b 45 fc             	mov    -0x4(%rbp),%eax
+    1145:	c9                   	leave
+    1146:	c3                   	ret
+
+% objdump --disassemble=f elf
+0000000000001147 <f>:
+    1147:	f3 0f 1e fa          	endbr64
+    114b:	55                   	push   %rbp
+    114c:	48 89 e5             	mov    %rsp,%rbp
+    114f:	b8 17 00 00 00       	mov    $0x17,%eax
+    1154:	5d                   	pop    %rbp
+    1155:	c3                   	ret
+```
+
+We see that now we call at location 1147, which is the location of `f` in the final binary.
+
+#### Source
+* https://lewinb.net/posts/24_elf_linking_and_loading/
+
 ### Linking
 You can have dynamic and static linking.
 With static linking, you add all library dependencies inline to your binary.

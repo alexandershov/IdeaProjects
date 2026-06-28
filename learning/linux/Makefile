@@ -14,3 +14,12 @@ dynamic-linking-run:
 
 static-linking-run:
 	go build -o src/static src/static.go && (ldd src/static || true)
+
+elf-compile:
+	gcc -c src/elf.c
+
+elf-link:
+	gcc -o src/elf elf.o
+
+elf-run:
+	gcc -o src/elf src/elf.c
