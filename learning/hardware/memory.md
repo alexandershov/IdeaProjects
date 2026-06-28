@@ -256,6 +256,18 @@ new = old + x;
 Compared to simple `add_fetch` (pseudocode-style name), in CAS we have a loop, extra memory read.
 So prefer atomic add to CAS.
 
+#### Bandwidth
+Memory bandwidth is limited, so if your program is utilizing caches well, then bandwidth will become a bottleneck.
+Not much you can do about it (you can't increase bandwidth), but:
+* If your threads are working on the same data, then it makes sense to schedule them on the same hyperthreads or on the cores that share the same `L[23]` cache
+  This means that you'll data from memory once (to load it into latest level cache), so it'll save bandwidth.  
+* If your threads are working on different data, then it makes sense to schedule them on different cores that don't share the latest level cache.
+  this way cache will be utilized more effectively, there'll be less cache line evictions, and as a result
+  less reads from memory, so it'll save bandwidth.
+
+Scheduling threads on specific CPUs is done by CPU affinity API.
+
+
 ## Sources
 * What every programmer should know about memory: https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
 * Practical data-oriented design: https://www.youtube.com/watch?v=IroPQ150F6c
