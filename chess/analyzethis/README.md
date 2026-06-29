@@ -25,4 +25,7 @@ cp node_modules/@lichess-org/chessground/dist/chessground.min.js vendor/chessgro
 
 Chessground is chess board that is used in lichess.
 
-
+Run the project with 
+```shell
+uv run main.py
+```
