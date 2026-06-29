@@ -29,3 +29,5 @@ Run the project with
 ```shell
 uv run main.py
 ```
+
+and go to http://127.0.0.1:8000
