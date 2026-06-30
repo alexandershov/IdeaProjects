@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "chess>=1.11.2",
     "fastapi>=0.138.2",
     "uvicorn>=0.49.0",
 ]
