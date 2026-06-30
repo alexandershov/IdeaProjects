@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <title>Chessground + FastAPI</title>
@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/frontend/vendor/chessground/chessground.base.css">
     <link rel="stylesheet" href="/frontend/vendor/chessground/chessground.brown.css">
     <link rel="stylesheet" href="/frontend/vendor/chessground/chessground.cburnett.css">
-
+    <script src="https://unpkg.com/htmx.org@2.0.9"></script>
     <style>
         #board {
             width: 500px;
@@ -18,5 +18,12 @@
 <body>
 <div id="board"></div>
 <script type="module" src="/frontend/app.js"></script>
+<form data-hx-get="/games" data-hx-target="#games" data-hx-swap="outerHTML">
+    <label>
+        Max games: <input name="max" value="5"/>
+    </label>
+    <button>search</button>
+</form>
+<div id="games"></div>
 </body>
 </html>
