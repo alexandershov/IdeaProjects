@@ -9,7 +9,7 @@ On backend this project was created with:
 ```shell
 uv init analyzethis --vcs none
 cd analyzethis
-uv add fastapi uvicorn
+uv add fastapi uvicorn chess python-dotenv httpx ...
 ```
 
 On frontend this project was created with:
@@ -24,6 +24,9 @@ cp node_modules/@lichess-org/chessground/dist/chessground.min.js vendor/chessgro
 ```
 
 Chessground is chess board that is used in lichess.
+
+You need to get lichess API token from https://lichess.org/account/oauth/token.
+Put it to `.env` file as `LICHESS_API_TOKEN`
 
 Run the project with 
 ```shell
