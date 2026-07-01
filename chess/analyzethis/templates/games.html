@@ -1,3 +1,9 @@
 {% for game in games %}
-    <div>{{ game.pgn }}</div>
+    {% set _ = board.reset() %}
+    <div>
+        {% for move in game.mainline_moves() %}
+            {% set _ = board.push(move) %}
+            <button data-hx-on:click="chessground.set({fen: '{{ board.fen() }}'});">{{ move }}</button>
+        {% endfor %}
+    </div>
 {% endfor %}

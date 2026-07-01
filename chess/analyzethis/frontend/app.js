@@ -2,7 +2,8 @@ import {Chessground} from './vendor/chessground/chessground.min.js';
 
 const boardElement = document.getElementById('board');
 
-Chessground(boardElement, {
+// assigning to window.chessground to make it globally accessible
+window.chessground = Chessground(boardElement, {
     coordinates: true,
 
     movable: {

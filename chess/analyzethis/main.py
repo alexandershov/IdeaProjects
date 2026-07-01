@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+import io
+import chess.pgn
 import dotenv
 import httpx
 import json
@@ -40,9 +42,11 @@ async def download_games(request: Request, max: int = 5):
                 "Authorization": f"Bearer {lichess_api_token}"
             })
         async for line in response.aiter_lines():
-            game = json.loads(line)
+            pgn = json.loads(line)["pgn"]
+            game = chess.pgn.read_game(io.StringIO(pgn))
             games.append(game)
-    return templates.TemplateResponse(request=request, name="games.html", context={"games": games})
+    return templates.TemplateResponse(request=request, name="games.html", context={
+        "games": games, "board": chess.Board()})
 
 
 if __name__ == "__main__":
