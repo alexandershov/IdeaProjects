@@ -3,7 +3,11 @@
     <div>
         {% for move in game.mainline_moves() %}
             {% set _ = board.push(move) %}
-            <button data-hx-on:click="chessground.set({fen: '{{ board.fen() }}'});">{{ move }}</button>
+            <button hx-on:click="chessground.set({fen: '{{ board.fen() }}'});"
+                    hx-get="/analyze/fen?fen={{ board.fen() }}"
+                    hx-target="#eval"
+                    hx-swap="outerHTML"
+            >{{ move }}</button>
         {% endfor %}
     </div>
 {% endfor %}

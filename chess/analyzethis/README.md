@@ -26,7 +26,13 @@ cp node_modules/@lichess-org/chessground/dist/chessground.min.js vendor/chessgro
 Chessground is chess board that is used in lichess.
 
 You need to get lichess API token from https://lichess.org/account/oauth/token.
-Put it to `.env` file as `LICHESS_API_TOKEN`. Also put your lichess user name as `LICHESS_USER_NAME`.
+Put it to `.env` file as `LICHESS_API_TOKEN`. 
+Also put your lichess user name as `LICHESS_USER_NAME` and path to engine in `ENGINE`, e.g.
+```
+ENGINE=/opt/homebrew/bin/stockfish
+```
+
+Install stockfish with `brew install stockfish`, so it passes macOS malware checks.
 
 Run the project with 
 ```shell

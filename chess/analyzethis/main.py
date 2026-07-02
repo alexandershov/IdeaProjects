@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 import io
+import chess.engine
 import chess.pgn
 import dotenv
 import httpx
@@ -47,6 +48,17 @@ async def download_games(request: Request, max: int = 5):
             games.append(game)
     return templates.TemplateResponse(request=request, name="games.html", context={
         "games": games, "board": chess.Board()})
+
+@app.get("/analyze/fen/")
+def analyze_fen(fen: str):
+    board = chess.Board(fen)
+    with chess.engine.SimpleEngine.popen_uci(os.environ["ENGINE"]) as engine:
+        analysis = engine.analyse(board, chess.engine.Limit(depth=16))
+        float_score = analysis['score'].white().score() / 100
+        if float_score > 0:
+            return "+" + str(float_score)
+        else:
+            return float_score
 
 
 if __name__ == "__main__":
