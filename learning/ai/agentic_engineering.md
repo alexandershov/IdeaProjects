@@ -15,11 +15,12 @@ Condensed to things that I found interesting/useful. Also contains my reflection
 * Use red/green TDD
 * Ask agents to manually verify the code
 * Ask agents to explain unfamiliar code for you
-* Update AGENTS.md so the agent won't repeat its mistakes
+* Update AGENTS.md so the agent won't repeat its mistakes (ask agent to do it itself)
 * Review code with different model or at least from a clean session
 * Launch agents in the last 30 minutes of the working day
 * Outsource the slam dunks
 * Give agents tools to verify their code
+* Try to use parallel agent sessions
 * "Is there is something agent can do right now and run in background?"
 
 ## LLMs
@@ -61,3 +62,12 @@ take shortcuts (e.g. not splitting commits or not using bisect). With agents, yo
 ## Codebase Exploration
 Ask agents to explain unfamiliar code for you, it will be sloppy, but may save you some time.
 
+## Claude
+Configure Claude memory with `/memory`.
+`/simplify` to, ahem, simplify code with parallel agents.
+
+You can add hooks to claude to e.g. run linters after specific tool use (e.g. Write or Edit) to a file.
+
+With `/terminal-setup` command you can set Shift-Enter to enter a newline.
+
+`--add-dir` flag allows you to do multi-repo work.
