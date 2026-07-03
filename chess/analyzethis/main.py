@@ -1,3 +1,4 @@
+import pathlib
 from dataclasses import dataclass
 
 import io
@@ -34,18 +35,21 @@ async def download_games(request: Request, max: int = 5):
     lichess_api_token = os.environ["LICHESS_API_TOKEN"]
     lichess_user_name = os.environ["LICHESS_USER_NAME"]
     games = []
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"https://lichess.org/api/games/user/{lichess_user_name}",
-            params={"max": max, "pgnInJson": "true"},
-            headers={
-                "Accept": "application/x-ndjson",
-                "Authorization": f"Bearer {lichess_api_token}"
-            })
-        async for line in response.aiter_lines():
-            pgn = json.loads(line)["pgn"]
-            game = chess.pgn.read_game(io.StringIO(pgn))
-            games.append(game)
+    pgn = (pathlib.Path(__file__).parent / "game.pgn").read_text()
+    game = chess.pgn.read_game(io.StringIO(pgn))
+    games.append(game)
+    # async with httpx.AsyncClient() as client:
+    #     response = await client.get(
+    #         f"https://lichess.org/api/games/user/{lichess_user_name}",
+    #         params={"max": max, "pgnInJson": "true"},
+    #         headers={
+    #             "Accept": "application/x-ndjson",
+    #             "Authorization": f"Bearer {lichess_api_token}"
+    #         })
+    #     async for line in response.aiter_lines():
+    #         pgn = json.loads(line)["pgn"]
+    #         game = chess.pgn.read_game(io.StringIO(pgn))
+    #         games.append(game)
     return templates.TemplateResponse(request=request, name="games.html", context={
         "games": games, "board": chess.Board()})
 
