@@ -1,0 +1,4 @@
+{# template_context is cp_score (centipawns), e.g. 150 for +1.5 #}
+<div id="eval">
+    {% if cp_score > 0 %}<span>+</span>{% endif %}<span>{{ cp_score / 100 }}</span>
+</div>

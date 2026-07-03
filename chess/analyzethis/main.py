@@ -54,16 +54,12 @@ async def download_games(request: Request, max: int = 5):
         "games": games, "board": chess.Board()})
 
 @app.get("/analyze/fen/")
-def analyze_fen(fen: str):
+def analyze_fen(fen: str, request: Request):
     board = chess.Board(fen)
     with chess.engine.SimpleEngine.popen_uci(os.environ["ENGINE"]) as engine:
         analysis = engine.analyse(board, chess.engine.Limit(depth=16))
-        float_score = analysis['score'].white().score() / 100
-        if float_score > 0:
-            return "+" + str(float_score)
-        else:
-            return float_score
-
+        cp_score = analysis['score'].white().score()
+        return templates.TemplateResponse(request=request, name="eval.html", context={"cp_score": cp_score})
 
 if __name__ == "__main__":
     # load .env file into environment

@@ -6,7 +6,7 @@
             <button hx-on:click="chessground.set({fen: '{{ board.fen() }}'});"
                     hx-get="/analyze/fen?fen={{ board.fen() }}"
                     hx-target="#eval"
-                    hx-swap="innerHTML"
+                    hx-swap="outerHTML"
             >{{ move }}</button>
         {% endfor %}
     </div>
