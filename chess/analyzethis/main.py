@@ -1,3 +1,4 @@
+import itertools
 import pathlib
 from dataclasses import dataclass
 
@@ -17,7 +18,6 @@ templates = templating.Jinja2Templates(directory='templates')
 
 app = FastAPI()
 app.mount("/frontend", StaticFiles(directory="frontend", html=True), name="static")
-
 
 @dataclass(frozen=True)
 class MoveRequest:
@@ -64,10 +64,38 @@ def analyze_fen(fen: str, request: Request):
 
 @app.get("/analyze/pgn")
 def analyze_pgn(pgn: str, request: Request) -> Response:
+    # TODO: take pgn & pov from the parameters
+    pgn = (pathlib.Path(__file__).parent / "game.pgn").read_text()
+    pov = chess.BLACK
     game = chess.pgn.read_game(io.StringIO(pgn))
+    move_order = itertools.cycle([chess.WHITE, chess.BLACK])
+    # TODO: is there an async version of chess.engine.SimpleEngine?
     with chess.engine.SimpleEngine.popen_uci(os.environ["ENGINE"]) as engine:
+        messages = []
+        board = game.board()
+        for i, move in enumerate(game.mainline_moves(), start=2):
+            cur_player = next(move_order)
+            if cur_player == pov:
+                before_analysis = engine.analyse(board, chess.engine.Limit(depth=14))
+                # TODO: unhardcode white
+                before_score = before_analysis['score'].white().score()
+                board.push(move)
+                # TODO: unhardcode white
+                after_analysis = engine.analyse(board, chess.engine.Limit(depth=14))
+                after_score = after_analysis['score'].white().score()
+                if before_score is None or after_score is None:
+                    # TODO: handle mates (this is when scores are None)
+                    continue
+                loss = after_score - before_score
+                print(f"{loss=}")
+                # 0.5 pawn loss
+                if loss >= 50:
+                    messages.append(f"{i // 2}. {move.uci()} was an error with the {loss=}. " 
+                                    f"best move was {before_analysis['pv'][0].uci()}")
+            else:
+                board.push(move)
         return templates.TemplateResponse(
-            request=request, name="analysis.html", context={"messages": ["test message"]}
+            request=request, name="analysis.html", context={"messages": messages}
         )
 
 if __name__ == "__main__":
