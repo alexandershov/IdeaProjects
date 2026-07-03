@@ -1,4 +1,11 @@
 {% for game in games %}
+    <div>
+        <button hx-get="/analyze/pgn?pgn={{ game }}"
+                hx-target="#analysis"
+                hx-swap="outerHTML"
+        >analyze game
+        </button>
+    </div>
     {% set _ = board.reset() %}
     <div>
         {% for move in game.mainline_moves() %}

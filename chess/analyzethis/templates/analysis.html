@@ -1,0 +1,6 @@
+{# template_context is `messages` with a list of messages to render #}
+<ul id="analysis">
+    {% for a_message in messages %}
+        <li>{{ a_message }}</li>
+    {% endfor %}
+</ul>

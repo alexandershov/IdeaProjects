@@ -9,7 +9,7 @@ import httpx
 import json
 import os
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi import templating
 
@@ -60,6 +60,15 @@ def analyze_fen(fen: str, request: Request):
         analysis = engine.analyse(board, chess.engine.Limit(depth=16))
         cp_score = analysis['score'].white().score()
         return templates.TemplateResponse(request=request, name="eval.html", context={"cp_score": cp_score})
+
+
+@app.get("/analyze/pgn")
+def analyze_pgn(pgn: str, request: Request) -> Response:
+    game = chess.pgn.read_game(io.StringIO(pgn))
+    with chess.engine.SimpleEngine.popen_uci(os.environ["ENGINE"]) as engine:
+        return templates.TemplateResponse(
+            request=request, name="analysis.html", context={"messages": ["test message"]}
+        )
 
 if __name__ == "__main__":
     # load .env file into environment
