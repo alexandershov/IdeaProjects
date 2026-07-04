@@ -1,16 +1,18 @@
 import argparse
 import asyncio
+import itertools
 import json
 import os
 import pathlib
 import sys
 
+import chess.engine
+import chess.pgn
 import dotenv
 import httpx
 
 
 async def download_games(args) -> None:
-    dotenv.load_dotenv()
     lichess_api_token = os.environ["LICHESS_API_TOKEN"]
     lichess_user_name = os.environ["LICHESS_USER_NAME"]
     with args.output.open("w") as fileobj:
@@ -32,25 +34,67 @@ async def download_games(args) -> None:
 
 
 async def analyze_games(args):
-    raise RuntimeError("not implemented yet")
+    with open(args.input) as fileobj:
+        transport, engine = await chess.engine.popen_uci(os.environ["ENGINE"])
+        i = 0
+        while i < args.max:
+            game = chess.pgn.read_game(fileobj)
+            if game is None:
+                break
+            verdict = await analyze_one_game(engine, game, os.environ["LICHESS_USER_NAME"])
+            i += 1
+            if verdict:
+                game_id = game.headers["GameId"]
+                print(f"analysis of game http://lichess.org/{game_id}\n{verdict}")
+
+
+async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, player: str):
+    assert game is not None
+    player_by_color = {
+        chess.WHITE: game.headers["White"],
+        chess.BLACK: game.headers["Black"],
+    }
+    move_order = itertools.cycle([chess.WHITE, chess.BLACK])
+    messages = []
+    board = game.board()
+    for i, move in enumerate(game.mainline_moves(), start=2):
+        cur_color = next(move_order)
+        if player_by_color[cur_color] == player:
+            before_analysis = await engine.analyse(board, chess.engine.Limit(depth=14))
+            expectation_before = before_analysis['score'].wdl().pov(cur_color).expectation()
+            board.push(move)
+            after_analysis = await engine.analyse(board, chess.engine.Limit(depth=14))
+            expectation_after = after_analysis['score'].wdl().pov(cur_color).expectation()
+            loss = expectation_before - expectation_after
+            if loss >= 0.2:
+                messages.append(f"{i // 2}. {move.uci()} was an error with the expectation {loss=:.2f}. "
+                                f"best move was {before_analysis['pv'][0].uci()}")
+        else:
+            board.push(move)
+    return "\n".join(messages)
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(required=True)
+
+    # parser to download games from lichess
     download_parser = subparsers.add_parser("download")
     download_parser.add_argument("--max", type=int, default=5)
     download_parser.add_argument("--output", default='/dev/stdout', type=pathlib.Path)
     download_parser.set_defaults(func=download_games)
 
-    analysis_parser = subparsers.add_parser("analysis")
-    analysis_parser.add_argument("pgn")
+    # parser to analyze games from the local pgn file from the pov of the given player
+    analysis_parser = subparsers.add_parser("analyze")
+    analysis_parser.add_argument("input")
+    analysis_parser.add_argument("--max", type=int, default=float('inf'))
     analysis_parser.set_defaults(func=analyze_games)
     return parser.parse_args()
 
 
 async def amain():
     args = parse_args()
+    dotenv.load_dotenv()
     await args.func(args)
 
 
