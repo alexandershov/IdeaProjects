@@ -1,23 +1,22 @@
+import io
 import itertools
+import os
 import pathlib
 from dataclasses import dataclass
 
-import io
 import chess.engine
 import chess.pgn
 import dotenv
-import httpx
-import json
-import os
 import uvicorn
 from fastapi import FastAPI, Request, Response
-from fastapi.staticfiles import StaticFiles
 from fastapi import templating
+from fastapi.staticfiles import StaticFiles
 
 templates = templating.Jinja2Templates(directory='templates')
 
 app = FastAPI()
 app.mount("/frontend", StaticFiles(directory="frontend", html=True), name="static")
+
 
 @dataclass(frozen=True)
 class MoveRequest:
@@ -53,6 +52,7 @@ async def download_games(request: Request, max: int = 5):
     return templates.TemplateResponse(request=request, name="games.html", context={
         "games": games, "board": chess.Board()})
 
+
 @app.get("/analyze/fen/")
 def analyze_fen(fen: str, request: Request):
     board = chess.Board(fen)
@@ -77,26 +77,21 @@ def analyze_pgn(pgn: str, request: Request) -> Response:
             cur_player = next(move_order)
             if cur_player == pov:
                 before_analysis = engine.analyse(board, chess.engine.Limit(depth=14))
-                # TODO: unhardcode white
-                before_score = before_analysis['score'].white().score()
+                expectation_before = before_analysis['score'].wdl().pov(pov).expectation()
                 board.push(move)
-                # TODO: unhardcode white
                 after_analysis = engine.analyse(board, chess.engine.Limit(depth=14))
-                after_score = after_analysis['score'].white().score()
-                if before_score is None or after_score is None:
-                    # TODO: handle mates (this is when scores are None)
-                    continue
-                loss = after_score - before_score
+                expectation_after = after_analysis['score'].wdl().pov(pov).expectation()
+                loss = expectation_before - expectation_after
                 print(f"{loss=}")
-                # 0.5 pawn loss
-                if loss >= 50:
-                    messages.append(f"{i // 2}. {move.uci()} was an error with the {loss=}. " 
+                if loss >= 0.2:
+                    messages.append(f"{i // 2}. {move.uci()} was an error with the expectation {loss=:.2f}. "
                                     f"best move was {before_analysis['pv'][0].uci()}")
             else:
                 board.push(move)
         return templates.TemplateResponse(
             request=request, name="analysis.html", context={"messages": messages}
         )
+
 
 if __name__ == "__main__":
     # load .env file into environment
