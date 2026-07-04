@@ -3,6 +3,7 @@ import asyncio
 import json
 import os
 import pathlib
+import sys
 
 import dotenv
 import httpx
@@ -21,9 +22,13 @@ async def download_games(args) -> None:
                     "Accept": "application/x-ndjson",
                     "Authorization": f"Bearer {lichess_api_token}"
                 })
+            num_saved_games = 0
             async for line in response.aiter_lines():
                 pgn = json.loads(line)["pgn"]
                 fileobj.write(pgn)
+                num_saved_games += 1
+                if num_saved_games % 10 == 0:
+                    print(f"saved {num_saved_games} games", file=sys.stderr)
 
 
 async def analyze_games(args):
