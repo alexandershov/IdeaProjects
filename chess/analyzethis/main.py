@@ -26,7 +26,7 @@ class MoveRequest:
 
 
 @app.post("/move")
-async def move(request: MoveRequest):
+async def move_callback(request: MoveRequest):
     return {"from": "server", "orig": request.orig, "dest": request.dest}
 
 
@@ -63,7 +63,7 @@ def analyze_fen(fen: str, request: Request):
 
 
 @app.get("/analyze/pgn")
-def analyze_pgn(pgn: str, player: str, request: Request) -> Response:
+async def analyze_pgn(pgn: str, player: str, request: Request) -> Response:
     game = chess.pgn.read_game(io.StringIO(json.loads(pgn)))
     assert game is not None
     player_by_color = {
@@ -71,28 +71,27 @@ def analyze_pgn(pgn: str, player: str, request: Request) -> Response:
         chess.BLACK: game.headers["Black"],
     }
     move_order = itertools.cycle([chess.WHITE, chess.BLACK])
-    # TODO: is there an async version of chess.engine.SimpleEngine?
-    with chess.engine.SimpleEngine.popen_uci(os.environ["ENGINE"]) as engine:
-        messages = []
-        board = game.board()
-        for i, move in enumerate(game.mainline_moves(), start=2):
-            cur_color = next(move_order)
-            if player_by_color[cur_color] == player:
-                before_analysis = engine.analyse(board, chess.engine.Limit(depth=14))
-                expectation_before = before_analysis['score'].wdl().pov(cur_color).expectation()
-                board.push(move)
-                after_analysis = engine.analyse(board, chess.engine.Limit(depth=14))
-                expectation_after = after_analysis['score'].wdl().pov(cur_color).expectation()
-                loss = expectation_before - expectation_after
-                print(f"{loss=}")
-                if loss >= 0.2:
-                    messages.append(f"{i // 2}. {move.uci()} was an error with the expectation {loss=:.2f}. "
-                                    f"best move was {before_analysis['pv'][0].uci()}")
-            else:
-                board.push(move)
-        return templates.TemplateResponse(
-            request=request, name="analysis.html", context={"messages": messages}
-        )
+    transport, engine = await chess.engine.popen_uci(os.environ["ENGINE"])
+    messages = []
+    board = game.board()
+    for i, move in enumerate(game.mainline_moves(), start=2):
+        cur_color = next(move_order)
+        if player_by_color[cur_color] == player:
+            before_analysis = await engine.analyse(board, chess.engine.Limit(depth=14))
+            expectation_before = before_analysis['score'].wdl().pov(cur_color).expectation()
+            board.push(move)
+            after_analysis = await engine.analyse(board, chess.engine.Limit(depth=14))
+            expectation_after = after_analysis['score'].wdl().pov(cur_color).expectation()
+            loss = expectation_before - expectation_after
+            print(f"{loss=}")
+            if loss >= 0.2:
+                messages.append(f"{i // 2}. {move.uci()} was an error with the expectation {loss=:.2f}. "
+                                f"best move was {before_analysis['pv'][0].uci()}")
+        else:
+            board.push(move)
+    return templates.TemplateResponse(
+        request=request, name="analysis.html", context={"messages": messages}
+    )
 
 
 if __name__ == "__main__":
