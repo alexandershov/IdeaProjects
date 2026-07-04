@@ -1,12 +1,13 @@
 import io
 import itertools
+import json
 import os
-import pathlib
 from dataclasses import dataclass
 
 import chess.engine
 import chess.pgn
 import dotenv
+import httpx
 import uvicorn
 from fastapi import FastAPI, Request, Response
 from fastapi import templating
@@ -34,23 +35,22 @@ async def download_games(request: Request, max: int = 5):
     lichess_api_token = os.environ["LICHESS_API_TOKEN"]
     lichess_user_name = os.environ["LICHESS_USER_NAME"]
     games = []
-    pgn = (pathlib.Path(__file__).parent / "game.pgn").read_text()
-    game = chess.pgn.read_game(io.StringIO(pgn))
-    games.append(game)
-    # async with httpx.AsyncClient() as client:
-    #     response = await client.get(
-    #         f"https://lichess.org/api/games/user/{lichess_user_name}",
-    #         params={"max": max, "pgnInJson": "true"},
-    #         headers={
-    #             "Accept": "application/x-ndjson",
-    #             "Authorization": f"Bearer {lichess_api_token}"
-    #         })
-    #     async for line in response.aiter_lines():
-    #         pgn = json.loads(line)["pgn"]
-    #         game = chess.pgn.read_game(io.StringIO(pgn))
-    #         games.append(game)
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"https://lichess.org/api/games/user/{lichess_user_name}",
+            params={"max": max, "pgnInJson": "true"},
+            headers={
+                "Accept": "application/x-ndjson",
+                "Authorization": f"Bearer {lichess_api_token}"
+            })
+        async for line in response.aiter_lines():
+            pgn = json.loads(line)["pgn"]
+            game = chess.pgn.read_game(io.StringIO(pgn))
+            games.append(game)
     return templates.TemplateResponse(request=request, name="games.html", context={
-        "games": games, "board": chess.Board()})
+        "games": games, "board": chess.Board(),
+        "player": lichess_user_name,
+    })
 
 
 @app.get("/analyze/fen/")
@@ -63,24 +63,26 @@ def analyze_fen(fen: str, request: Request):
 
 
 @app.get("/analyze/pgn")
-def analyze_pgn(pgn: str, request: Request) -> Response:
-    # TODO: take pgn & pov from the parameters
-    pgn = (pathlib.Path(__file__).parent / "game.pgn").read_text()
-    pov = chess.BLACK
-    game = chess.pgn.read_game(io.StringIO(pgn))
+def analyze_pgn(pgn: str, player: str, request: Request) -> Response:
+    game = chess.pgn.read_game(io.StringIO(json.loads(pgn)))
+    assert game is not None
+    player_by_color = {
+        chess.WHITE: game.headers["White"],
+        chess.BLACK: game.headers["Black"],
+    }
     move_order = itertools.cycle([chess.WHITE, chess.BLACK])
     # TODO: is there an async version of chess.engine.SimpleEngine?
     with chess.engine.SimpleEngine.popen_uci(os.environ["ENGINE"]) as engine:
         messages = []
         board = game.board()
         for i, move in enumerate(game.mainline_moves(), start=2):
-            cur_player = next(move_order)
-            if cur_player == pov:
+            cur_color = next(move_order)
+            if player_by_color[cur_color] == player:
                 before_analysis = engine.analyse(board, chess.engine.Limit(depth=14))
-                expectation_before = before_analysis['score'].wdl().pov(pov).expectation()
+                expectation_before = before_analysis['score'].wdl().pov(cur_color).expectation()
                 board.push(move)
                 after_analysis = engine.analyse(board, chess.engine.Limit(depth=14))
-                expectation_after = after_analysis['score'].wdl().pov(pov).expectation()
+                expectation_after = after_analysis['score'].wdl().pov(cur_color).expectation()
                 loss = expectation_before - expectation_after
                 print(f"{loss=}")
                 if loss >= 0.2:

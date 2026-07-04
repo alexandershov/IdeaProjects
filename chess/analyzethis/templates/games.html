@@ -1,6 +1,10 @@
 {% for game in games %}
     <div>
-        <button hx-get="/analyze/pgn?pgn={{ game }}"
+{#    put pgn itself into textarea instead of an attribute, so we don't need to care about quoting etc #}
+        <textarea hidden id="pgn-{{ loop.index }}" name="pgn">{{ game|string|tojson }}</textarea>
+        <input type="hidden" id="player-{{ loop.index }}" name="player" value="{{ player }}">
+        <button hx-get="/analyze/pgn?"
+                hx-include="#pgn-{{ loop.index }}, #player-{{ loop.index }}"
                 hx-target="#analysis"
                 hx-swap="outerHTML"
         >analyze game
