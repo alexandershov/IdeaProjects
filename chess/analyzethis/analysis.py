@@ -64,10 +64,10 @@ async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, 
             break
         cur_color = next(move_order)
         if player_by_color[cur_color] == player:
-            before_analysis = await engine.analyse(board, chess.engine.Limit(args.depth))
+            before_analysis = await engine.analyse(board, chess.engine.Limit(depth=args.depth))
             expectation_before = before_analysis['score'].wdl().pov(cur_color).expectation()
             board.push(move)
-            after_analysis = await engine.analyse(board, chess.engine.Limit(args.depth))
+            after_analysis = await engine.analyse(board, chess.engine.Limit(depth=args.depth))
             expectation_after = after_analysis['score'].wdl().pov(cur_color).expectation()
             loss = expectation_before - expectation_after
             if loss >= 0.2:
