@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+import collections
 import itertools
 import json
 import os
@@ -34,6 +35,7 @@ async def download_games(args) -> None:
 
 
 async def analyze_games(args):
+    counts = collections.Counter()
     with open(args.input) as fileobj:
         transport, engine = await chess.engine.popen_uci(os.environ["ENGINE"])
         i = 0
@@ -41,15 +43,16 @@ async def analyze_games(args):
             game = chess.pgn.read_game(fileobj)
             if game is None:
                 break
-            verdict = await analyze_one_game(engine, game, os.environ["LICHESS_USER_NAME"], args)
+            verdict = await analyze_one_game(engine, game, os.environ["LICHESS_USER_NAME"], args, counts)
             i += 1
             print(f"analyzed {i} games", file=sys.stderr)
             if verdict:
                 game_id = game.headers["GameId"]
                 print(f"analysis of game http://lichess.org/{game_id}\n{verdict}")
+    print(counts.most_common(10))
 
 
-async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, player: str, args):
+async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, player: str, args, counts):
     assert game is not None
     player_by_color = {
         chess.WHITE: game.headers["White"],
@@ -71,6 +74,7 @@ async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, 
             expectation_after = after_analysis['score'].wdl().pov(cur_color).expectation()
             loss = expectation_before - expectation_after
             if loss >= 0.2:
+                counts[board.fen()] += 1
                 messages.append(f"{move_number}. {move.uci()} was an error with the expectation {loss=:.2f}. "
                                 f"best move was {before_analysis['pv'][0].uci()}")
         else:
