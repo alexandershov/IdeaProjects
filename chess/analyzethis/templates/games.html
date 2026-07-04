@@ -18,7 +18,7 @@
                     hx-get="/analyze/fen?fen={{ board.fen() }}"
                     hx-target="#eval"
                     hx-swap="outerHTML"
-            >{{ move }}</button>
+            >{{ (loop.index + 2) // 2 }}. {{ move }}</button>
         {% endfor %}
     </div>
 {% endfor %}
