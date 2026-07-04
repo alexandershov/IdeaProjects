@@ -43,6 +43,7 @@ async def analyze_games(args):
                 break
             verdict = await analyze_one_game(engine, game, os.environ["LICHESS_USER_NAME"])
             i += 1
+            print(f"analyzed {i} games", file=sys.stderr)
             if verdict:
                 game_id = game.headers["GameId"]
                 print(f"analysis of game http://lichess.org/{game_id}\n{verdict}")
