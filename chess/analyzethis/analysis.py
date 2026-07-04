@@ -41,7 +41,7 @@ async def analyze_games(args):
             game = chess.pgn.read_game(fileobj)
             if game is None:
                 break
-            verdict = await analyze_one_game(engine, game, os.environ["LICHESS_USER_NAME"])
+            verdict = await analyze_one_game(engine, game, os.environ["LICHESS_USER_NAME"], args)
             i += 1
             print(f"analyzed {i} games", file=sys.stderr)
             if verdict:
@@ -49,7 +49,7 @@ async def analyze_games(args):
                 print(f"analysis of game http://lichess.org/{game_id}\n{verdict}")
 
 
-async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, player: str):
+async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, player: str, args):
     assert game is not None
     player_by_color = {
         chess.WHITE: game.headers["White"],
@@ -59,16 +59,19 @@ async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, 
     messages = []
     board = game.board()
     for i, move in enumerate(game.mainline_moves(), start=2):
+        move_number = i // 2
+        if move_number > args.max_move:
+            break
         cur_color = next(move_order)
         if player_by_color[cur_color] == player:
-            before_analysis = await engine.analyse(board, chess.engine.Limit(depth=14))
+            before_analysis = await engine.analyse(board, chess.engine.Limit(args.depth))
             expectation_before = before_analysis['score'].wdl().pov(cur_color).expectation()
             board.push(move)
-            after_analysis = await engine.analyse(board, chess.engine.Limit(depth=14))
+            after_analysis = await engine.analyse(board, chess.engine.Limit(args.depth))
             expectation_after = after_analysis['score'].wdl().pov(cur_color).expectation()
             loss = expectation_before - expectation_after
             if loss >= 0.2:
-                messages.append(f"{i // 2}. {move.uci()} was an error with the expectation {loss=:.2f}. "
+                messages.append(f"{move_number}. {move.uci()} was an error with the expectation {loss=:.2f}. "
                                 f"best move was {before_analysis['pv'][0].uci()}")
         else:
             board.push(move)
@@ -89,6 +92,8 @@ def parse_args():
     analysis_parser = subparsers.add_parser("analyze")
     analysis_parser.add_argument("input")
     analysis_parser.add_argument("--max", type=int, default=float('inf'))
+    analysis_parser.add_argument("--depth", type=int, default=14)
+    analysis_parser.add_argument("--max-move", type=int, default=float('inf'))
     analysis_parser.set_defaults(func=analyze_games)
     return parser.parse_args()
 
