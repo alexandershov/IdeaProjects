@@ -53,7 +53,7 @@ async def download_games(request: Request, max: int = 5):
     })
 
 
-@app.get("/analyze/fen/")
+@app.get("/analyze/fen")
 def analyze_fen(fen: str, request: Request):
     board = chess.Board(fen)
     with chess.engine.SimpleEngine.popen_uci(os.environ["ENGINE"]) as engine:
