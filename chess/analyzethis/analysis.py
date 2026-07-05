@@ -59,7 +59,7 @@ async def analyze_games(args):
     await queue.join()
     await asyncio.gather(*workers)
     print("counts of common mistakes", file=sys.stderr)
-    print(json.dumps({str(key): [m.uci() for m in moves] for key, moves in mistakes.items() if len(moves) >= 2}), file=sys.stderr)
+    print(json.dumps({fen: [m.uci() for m in moves] for fen, moves in mistakes.items() if len(moves) >= 2}), file=sys.stderr)
 
 
 async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, player: str, args, mistakes):
@@ -85,7 +85,7 @@ async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, 
             expectation_after = after_analysis['score'].wdl().pov(cur_color).expectation()
             loss = expectation_before - expectation_after
             if loss >= 0.2:
-                mistakes[(before_fen, move_number)].append(move)
+                mistakes[before_fen].append(move)
                 messages.append(f"{move_number}. {move.uci()} was an error with the expectation {loss=:.2f}. "
                                 f"best move was {before_analysis['pv'][0].uci()}")
         else:
