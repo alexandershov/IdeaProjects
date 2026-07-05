@@ -11,6 +11,7 @@ import urllib.parse
 
 import chess.engine
 import chess.pgn
+import chess.polyglot
 import dotenv
 import httpx
 
@@ -110,17 +111,30 @@ def _is_clowning_around(board: chess.Board, moves) -> bool:
     return False
 
 
+def _exclude_theory(reader: chess.polyglot.MemoryMappedReader, board: chess.Board, moves: list[str]) -> list[str]:
+    not_theoretical_moves = []
+    for a_move in moves:
+        move = chess.Move.from_uci(a_move)
+        board_copy = chess.Board(board.fen())
+        board_copy.push(move)
+        if reader.get(board) is None:
+            not_theoretical_moves.append(a_move)
+    return not_theoretical_moves
+
+
 async def summarize(args):
-    # TODO: test excludes on janish: r1bqkbnr/pppp2pp/2n5/1B2p3/4N3/5N2/PPPP1PPP/R1BQK2R b KQkq - 0 5
-    # TODO: or on traxler: r1bqkb1r/pppp1ppp/2n2n2/4p1N1/2B1P3/8/PPPP1PPP/RNBQK2R b KQkq - 5 4
-    mistakes = json.loads(args.analysis.read_text())
-    filtered_mistakes = {}
-    for fen, moves in mistakes.items():
-        board = chess.Board(fen)
-        if _is_clowning_around(board, moves):
-            continue
-        filtered_mistakes[fen] = [f"https://lichess.org/analysis/fromPosition/{urllib.parse.quote(fen)}", moves]
-    print(json.dumps(filtered_mistakes, indent=2))
+    with chess.polyglot.open_reader("gm2600.bin") as reader:
+        mistakes = json.loads(args.analysis.read_text())
+        filtered_mistakes = {}
+        for fen, moves in mistakes.items():
+            board = chess.Board(fen)
+            if _is_clowning_around(board, moves):
+                continue
+            not_theoretical_moves = _exclude_theory(reader, board, moves)
+            if not not_theoretical_moves:
+                continue
+            filtered_mistakes[fen] = [f"https://lichess.org/analysis/fromPosition/{urllib.parse.quote(fen)}", not_theoretical_moves]
+        print(json.dumps(filtered_mistakes, indent=2))
 
 
 async def analysis_worker(queue: asyncio.Queue, args, counts):
