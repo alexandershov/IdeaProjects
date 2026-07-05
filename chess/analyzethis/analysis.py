@@ -59,7 +59,7 @@ async def analyze_games(args):
     await queue.join()
     await asyncio.gather(*workers)
     print("counts of common mistakes", file=sys.stderr)
-    print(json.dumps({str(key): [m.uci() for m in moves] for key, moves in mistakes.items() if len(moves) >= 1}), file=sys.stderr)
+    print(json.dumps({str(key): [m.uci() for m in moves] for key, moves in mistakes.items() if len(moves) >= 2}), file=sys.stderr)
 
 
 async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, player: str, args, mistakes):
