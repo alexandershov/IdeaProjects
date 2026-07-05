@@ -13,6 +13,7 @@ import chess.pgn
 import dotenv
 import httpx
 
+NUM_ANALYZED_GAMES = 0
 
 async def download_games(args) -> None:
     lichess_api_token = os.environ["LICHESS_API_TOKEN"]
@@ -43,24 +44,25 @@ async def download_games(args) -> None:
 
 
 async def analyze_games(args):
-    counts = collections.Counter()
     with open(args.input) as fileobj:
-        transport, engine = await chess.engine.popen_uci(os.environ["ENGINE"])
+        queue = asyncio.Queue()
+        mistakes = collections.defaultdict(list)
+        workers = [asyncio.create_task(analysis_worker(queue, args, mistakes)) for _ in range(args.workers)]
         i = 0
         while i < args.max:
             game = chess.pgn.read_game(fileobj)
             if game is None:
                 break
-            verdict = await analyze_one_game(engine, game, os.environ["LICHESS_USER_NAME"], args, counts)
+            await queue.put(game)
             i += 1
-            print(f"analyzed {i} games", file=sys.stderr)
-            if verdict:
-                game_id = game.headers["GameId"]
-                print(f"analysis of game http://lichess.org/{game_id}\n{verdict}")
-    print(counts.most_common(10))
+    queue.shutdown()
+    await queue.join()
+    await asyncio.gather(*workers)
+    print("counts of common mistakes", file=sys.stderr)
+    print(json.dumps({str(key): [m.uci() for m in moves] for key, moves in mistakes.items() if len(moves) >= 1}), file=sys.stderr)
 
 
-async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, player: str, args, counts):
+async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, player: str, args, mistakes):
     assert game is not None
     player_by_color = {
         chess.WHITE: game.headers["White"],
@@ -75,6 +77,7 @@ async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, 
             break
         cur_color = next(move_order)
         if player_by_color[cur_color] == player:
+            before_fen = board.fen()
             before_analysis = await engine.analyse(board, chess.engine.Limit(depth=args.depth))
             expectation_before = before_analysis['score'].wdl().pov(cur_color).expectation()
             board.push(move)
@@ -82,12 +85,29 @@ async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, 
             expectation_after = after_analysis['score'].wdl().pov(cur_color).expectation()
             loss = expectation_before - expectation_after
             if loss >= 0.2:
-                counts[board.fen()] += 1
+                mistakes[(before_fen, move_number)].append(move)
                 messages.append(f"{move_number}. {move.uci()} was an error with the expectation {loss=:.2f}. "
                                 f"best move was {before_analysis['pv'][0].uci()}")
         else:
             board.push(move)
     return "\n".join(messages)
+
+
+async def analysis_worker(queue: asyncio.Queue, args, counts):
+    transport, engine = await chess.engine.popen_uci(os.environ["ENGINE"])
+    while True:
+        try:
+            game: chess.pgn.Game = await queue.get()
+        except asyncio.QueueShutDown:
+            break
+        verdict = await analyze_one_game(engine, game, os.environ["LICHESS_USER_NAME"], args, counts)
+        if verdict:
+            game_id = game.headers["GameId"]
+            print(f"analysis of game https://lichess.org/{game_id}\n{verdict}")
+        global NUM_ANALYZED_GAMES
+        NUM_ANALYZED_GAMES += 1
+        print(f"analyzed {NUM_ANALYZED_GAMES} games")
+        queue.task_done()
 
 
 def parse_args():
@@ -106,6 +126,7 @@ def parse_args():
     analysis_parser.add_argument("input")
     analysis_parser.add_argument("--max", type=int, default=float('inf'))
     analysis_parser.add_argument("--depth", type=int, default=14)
+    analysis_parser.add_argument("--workers", type=int, default=12)
     analysis_parser.add_argument("--max-move", type=int, default=float('inf'))
     analysis_parser.set_defaults(func=analyze_games)
     return parser.parse_args()
