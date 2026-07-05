@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import collections
+import datetime as dt
 import itertools
 import json
 import os
@@ -18,9 +19,16 @@ async def download_games(args) -> None:
     lichess_user_name = os.environ["LICHESS_USER_NAME"]
     with args.output.open("w") as fileobj:
         async with httpx.AsyncClient() as client:
+            params = {
+                "pgnInJson": "true",
+            }
+            if args.max is not None:
+                params["max"] = str(args.max)
+            if args.since is not None:
+                params["since"] = str(int(args.since.timestamp() * 1000))
             response = await client.get(
                 f"https://lichess.org/api/games/user/{lichess_user_name}",
-                params={"max": args.max, "pgnInJson": "true"},
+                params=params,
                 headers={
                     "Accept": "application/x-ndjson",
                     "Authorization": f"Bearer {lichess_api_token}"
@@ -88,7 +96,8 @@ def parse_args():
 
     # parser to download games from lichess
     download_parser = subparsers.add_parser("download")
-    download_parser.add_argument("--max", type=int, default=5)
+    download_parser.add_argument("--max", type=int)
+    download_parser.add_argument("--since", type=dt.datetime.fromisoformat)
     download_parser.add_argument("--output", default='/dev/stdout', type=pathlib.Path)
     download_parser.set_defaults(func=download_games)
 
