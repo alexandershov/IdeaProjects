@@ -7,6 +7,7 @@ import json
 import os
 import pathlib
 import sys
+import urllib.parse
 
 import chess.engine
 import chess.pgn
@@ -14,6 +15,7 @@ import dotenv
 import httpx
 
 NUM_ANALYZED_GAMES = 0
+
 
 async def download_games(args) -> None:
     lichess_api_token = os.environ["LICHESS_API_TOKEN"]
@@ -59,7 +61,8 @@ async def analyze_games(args):
     await queue.join()
     await asyncio.gather(*workers)
     print("counts of common mistakes", file=sys.stderr)
-    print(json.dumps({fen: [m.uci() for m in moves] for fen, moves in mistakes.items() if len(moves) >= 2}), file=sys.stderr)
+    print(json.dumps({fen: [m.uci() for m in moves] for fen, moves in mistakes.items() if len(moves) >= 2}),
+          file=sys.stderr)
 
 
 async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, player: str, args, mistakes):
@@ -91,6 +94,33 @@ async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, 
         else:
             board.push(move)
     return "\n".join(messages)
+
+
+def _is_clowning_around(board: chess.Board, moves) -> bool:
+    """detect knight dance and bongcloud"""
+    moves = set(moves)
+    if board.fullmove_number <= 3:
+        return True
+    if moves == {"g8f6"} or moves == {"f6g8"} or moves == {"b8c6"} or moves == {"c6b8"}:
+        return True
+    if moves == {"g1f3"} or moves == {"f3g1"} or moves == {"b1c3"} or moves == {"c3b1"}:
+        return True
+    if board.fullmove_number == 2 and (moves == {"e1e2"} or moves == "e8e7"):
+        return True
+    return False
+
+
+async def summarize(args):
+    # TODO: test excludes on janish: r1bqkbnr/pppp2pp/2n5/1B2p3/4N3/5N2/PPPP1PPP/R1BQK2R b KQkq - 0 5
+    # TODO: or on traxler: r1bqkb1r/pppp1ppp/2n2n2/4p1N1/2B1P3/8/PPPP1PPP/RNBQK2R b KQkq - 5 4
+    mistakes = json.loads(args.analysis.read_text())
+    filtered_mistakes = {}
+    for fen, moves in mistakes.items():
+        board = chess.Board(fen)
+        if _is_clowning_around(board, moves):
+            continue
+        filtered_mistakes[fen] = [f"https://lichess.org/analysis/fromPosition/{urllib.parse.quote(fen)}", moves]
+    print(json.dumps(filtered_mistakes, indent=2))
 
 
 async def analysis_worker(queue: asyncio.Queue, args, counts):
@@ -129,6 +159,11 @@ def parse_args():
     analysis_parser.add_argument("--workers", type=int, default=12)
     analysis_parser.add_argument("--max-move", type=int, default=float('inf'))
     analysis_parser.set_defaults(func=analyze_games)
+
+    # parser to summarize result of analysis
+    summarise_parser = subparsers.add_parser("summarize")
+    summarise_parser.add_argument("analysis", type=pathlib.Path)
+    summarise_parser.set_defaults(func=summarize)
     return parser.parse_args()
 
 
