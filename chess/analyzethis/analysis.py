@@ -88,7 +88,7 @@ async def analyze_one_game(engine: chess.engine.Protocol, game: chess.pgn.Game, 
             after_analysis = await engine.analyse(board, chess.engine.Limit(depth=args.depth))
             expectation_after = after_analysis['score'].wdl().pov(cur_color).expectation()
             loss = expectation_before - expectation_after
-            print(f"{loss=} for {move=}", file=sys.stderr)
+            print(f"{loss=} ({expectation_before} - {expectation_after}) for {move=}", file=sys.stderr)
             if loss >= 0.2:
                 mistakes[before_fen].append(move)
                 messages.append(f"{move_number}. {move.uci()} was an error with the expectation {loss=:.2f}. "
