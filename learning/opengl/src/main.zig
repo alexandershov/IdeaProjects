@@ -7,7 +7,7 @@ pub export fn hello_gl() void {
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_CONTEXT_MINOR_VERSION, 1);
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_CONTEXT_PROFILE_MASK, g.SDL_GL_CONTEXT_PROFILE_CORE);
-    var window: ?*SDL_Window = g.SDL_CreateWindow("Testing OpenGL", @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), 800, 600, g.SDL_WINDOW_OPENGL);
+    var window: ?*g.SDL_Window = g.SDL_CreateWindow("Testing OpenGL", @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), 800, 600, g.SDL_WINDOW_OPENGL);
     _ = &window;
     var context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
     _ = &context;
@@ -21,8 +21,8 @@ pub export fn hello_gl() void {
     _ = &vertexShaderCompiled;
     g.glGetShaderiv(vertexShader, g.GL_COMPILE_STATUS, &vertexShaderCompiled);
     if (!(vertexShaderCompiled != 0)) {
-        _ = printf("vertex shader failed to compile!\n");
-        exit(1);
+        _ = g.printf("vertex shader failed to compile!\n");
+        g.exit(1);
     }
     var fragmentShaderSource: [*c]const u8 = "#version 410 core\nin vec4 vertexColor;\nout vec4 Color;\nvoid main()\n{\n Color = vertexColor;\n}\n";
     _ = &fragmentShaderSource;
@@ -34,8 +34,8 @@ pub export fn hello_gl() void {
     _ = &fragmentShaderCompiled;
     g.glGetShaderiv(fragmentShader, g.GL_COMPILE_STATUS, &fragmentShaderCompiled);
     if (!(fragmentShaderCompiled != 0)) {
-        _ = printf("fragment shader failed to compile!\n");
-        exit(1);
+        _ = g.printf("fragment shader failed to compile!\n");
+        g.exit(1);
     }
     var shaderProgram: c_uint = g.glCreateProgram();
     _ = &shaderProgram;
@@ -46,14 +46,14 @@ pub export fn hello_gl() void {
     _ = &programLinked;
     g.glGetProgramiv(shaderProgram, g.GL_LINK_STATUS, &programLinked);
     if (!(programLinked != 0)) {
-        _ = printf("shader program failed to link!\n");
-        exit(1);
+        _ = g.printf("shader program failed to link!\n");
+        g.exit(1);
     }
     g.glDeleteShader(vertexShader);
     g.glDeleteShader(fragmentShader);
     var VBO: c_uint = undefined;
     _ = &VBO;
-    glGenBuffers(1, &VBO);
+    g.glGenBuffers(1, &VBO);
     var VAO: c_uint = undefined;
     _ = &VAO;
     g.glGenVertexArrays(1, &VAO);
@@ -87,7 +87,7 @@ pub export fn hello_gl() void {
     g.glEnableVertexAttribArray(1);
     g.glBindBuffer(g.GL_ARRAY_BUFFER, 0);
     g.glBindVertexArray(0);
-    var running: bool = @"true" != 0;
+    var running: bool = g.true != 0;
     _ = &running;
     var event: g.SDL_Event = undefined;
     _ = &event;
@@ -95,8 +95,8 @@ pub export fn hello_gl() void {
     _ = &redDelta;
     while (running) {
         while (g.SDL_PollEvent(&event) != 0) {
-            if (event.type == @as(Uint32, g.SDL_QUIT)) {
-                running = @"false" != 0;
+            if (event.type == @as(g.Uint32, g.SDL_QUIT)) {
+                running = g.false != 0;
             }
         }
         g.glClearColor(0.2, 0.3, 0.3, 1.0);
@@ -120,7 +120,7 @@ pub export fn hello_gl() void {
 
 pub fn main(init: std.process.Init) !void {
     // Prints to stderr, unbuffered, ignoring potential errors.
-    hellogl.hello_gl();
+    hello_gl();
     std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
 
     // This is appropriate for anything that lives as long as the process.
