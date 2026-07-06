@@ -18,7 +18,10 @@ pub export fn hello_gl() void {
     var context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
     _ = &context;
     var vertexShaderSource: [*c]const u8 = @embedFile("./vertex_shader.glsl");
+    // vertex shader operates, ahem, on vertices
     var vertexShader: c_uint = g.glCreateShader(g.GL_VERTEX_SHADER);
+    // set source code to a shader, it takes an array of string, we pass just 1 string
+    // NULL means that strings are null-terminated
     _ = &vertexShader;
     g.glShaderSource(vertexShader, 1, &vertexShaderSource, null);
     g.glCompileShader(vertexShader);
