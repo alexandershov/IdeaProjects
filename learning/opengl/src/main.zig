@@ -1,8 +1,10 @@
 const std = @import("std");
 const Io = std.Io;
+const hellogl = @import("hellogl.zig");
 
 pub fn main(init: std.process.Init) !void {
     // Prints to stderr, unbuffered, ignoring potential errors.
+    hellogl.hello_gl();
     std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
 
     // This is appropriate for anything that lives as long as the process.
