@@ -18,9 +18,12 @@ brew install sdl2 pkg-config
 
 `pkg-config` helps to configure compiler/linker flags.
 
-See [hellogl.c](./hellogl.c) for an example.
+See [hellogl.c](./src/hellogl.c) for an example.
 
 Run it with `make run`
+
+zig version was generated with zig translate-c -I /opt/homebrew/include -I /opt/homebrew/include/SDL2 src/hellogl.c > src/hellogl.zig.
+Run it with `make run-zig`
 
 ### Fundamentals
 
