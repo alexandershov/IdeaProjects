@@ -29,13 +29,15 @@ pub export fn hello_gl() void {
     _ = &vertexShaderCompiled;
     g.glGetShaderiv(vertexShader, g.GL_COMPILE_STATUS, &vertexShaderCompiled);
     if (!(vertexShaderCompiled != 0)) {
-        _ = g.printf("vertex shader failed to compile!\n");
-        g.exit(1);
+        std.debug.print("vertex shader failed to compile!\n", .{});
+        std.process.exit(1);
     }
-    var fragmentShaderSource: [*c]const u8 = "#version 410 core\nin vec4 vertexColor;\nout vec4 Color;\nvoid main()\n{\n Color = vertexColor;\n}\n";
+    var fragmentShaderSource: [*c]const u8 = @embedFile("./fragment_shader.glsl");
     _ = &fragmentShaderSource;
+    // fragment shader operates, ahem, on fragments (of a screen) e.g. group of pixels
     var fragmentShader: c_uint = g.glCreateShader(g.GL_FRAGMENT_SHADER);
     _ = &fragmentShader;
+    // compilation process is the same as for vertexShader
     g.glShaderSource(fragmentShader, 1, &fragmentShaderSource, null);
     g.glCompileShader(fragmentShader);
     var fragmentShaderCompiled: c_int = undefined;
@@ -45,6 +47,7 @@ pub export fn hello_gl() void {
         _ = g.printf("fragment shader failed to compile!\n");
         g.exit(1);
     }
+    // shader program contains several shaders
     var shaderProgram: c_uint = g.glCreateProgram();
     _ = &shaderProgram;
     g.glAttachShader(shaderProgram, vertexShader);
@@ -54,46 +57,71 @@ pub export fn hello_gl() void {
     _ = &programLinked;
     g.glGetProgramiv(shaderProgram, g.GL_LINK_STATUS, &programLinked);
     if (!(programLinked != 0)) {
-        _ = g.printf("shader program failed to link!\n");
-        g.exit(1);
+        std.debug.print("shader program failed to link!\n", .{});
+        std.process.exit(1);
     }
+
+    // we don't need shader objects after we've linked them into a program
     g.glDeleteShader(vertexShader);
     g.glDeleteShader(fragmentShader);
+
+    // Vertex Buffer Object, used to send vertices to GPU memory
     var VBO: c_uint = undefined;
-    _ = &VBO;
+    // init 1 buffer object
     g.glGenBuffers(1, &VBO);
+    // Vertex Array Object - holds VBO and its attribute configuration
+    // Essentially it's a way to store VBO and its configuration done by *AttribPointer* functions
+    // in one place and then use this place to draw
+    // OpenGL core platform actually requires VAO to draw
     var VAO: c_uint = undefined;
-    _ = &VAO;
+
+    // init 1 VAO object
     g.glGenVertexArrays(1, &VAO);
+    // after call to glBindVertexArray VAO will remember *AttribPointer* functions
     g.glBindVertexArray(VAO);
+    // from now on all operations on GL_ARRAY_BUFFER will operate on VBO
+    // this is kinda like binding of variable (think `let` in Common Lisp)
     g.glBindBuffer(g.GL_ARRAY_BUFFER, VBO);
+    // Coordinates are in Normalized Device Coordinates - range is [-1.0; 1.0]
     var vertices: [18]f32 = [18]f32{
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        0.5,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.5,
-        0.5,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
+        //x    y    z    r    g    b
+        0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+        0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
+        0.5, 0.5, 0.0, 0.0, 0.0, 1.0,
     };
     _ = &vertices;
+    // copy data in the currently bound buffer
+    // GL_STATIC_DRAW means - data will be set only once and used many times
     g.glBufferData(g.GL_ARRAY_BUFFER, @bitCast(@as(c_ulong, @truncate(@sizeOf(@TypeOf(vertices))))), @ptrCast(@alignCast(@as([*c]f32, @ptrCast(@alignCast(&vertices))))), g.GL_STATIC_DRAW);
-    g.glVertexAttribPointer(0, 3, g.GL_FLOAT, g.GL_FALSE, @bitCast(@as(c_uint, @truncate(@as(c_ulong, 6) *% @sizeOf(f32)))), null);
+
+    // tell OpenGL how to extract positions from our vector data (array of 18 floats)
+
+    g.glVertexAttribPointer(0, // attribute position, same as location value in vertex shader
+        3, // attribute size, it's a vec3 in vertex shader
+        g.GL_FLOAT, // attribute type
+        g.GL_FALSE, // normalize data
+        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 6) *% @sizeOf(f32)))), // stride: distance between consecutive attributes
+        null // offset of data in the buffer
+    );
+    // enable attribute at location 0
     g.glEnableVertexAttribArray(0);
-    g.glVertexAttribPointer(1, 3, g.GL_FLOAT, g.GL_FALSE, @bitCast(@as(c_uint, @truncate(@as(c_ulong, 6) *% @sizeOf(f32)))), @ptrFromInt(@as(c_ulong, 3) *% @sizeOf(f32)));
+    // tell OpenGL how to extract colors from our vector data (array of 18 floats)
+    g.glVertexAttribPointer(1, // attribute position, same as location value in vertex shader
+        3, // attribute size, it's a vec3 in vertex shader
+        g.GL_FLOAT, // attribute type
+        g.GL_FALSE, // normalize data
+        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 6) *% @sizeOf(f32)))), // normalize data
+        @ptrFromInt(@as(c_ulong, 3) *% @sizeOf(f32)) // offset of data in the buffer
+    );
+    // enable attribute at location 1
     g.glEnableVertexAttribArray(1);
+
+    // we'll have 3 vertices with 3 colors, but fragment shader output will be quite colorful
+    // because it'll interpolate colors
+
+    // unbind VBO
     g.glBindBuffer(g.GL_ARRAY_BUFFER, 0);
+    // unbind current VAO
     g.glBindVertexArray(0);
     var running: bool = g.true != 0;
     _ = &running;
@@ -107,20 +135,33 @@ pub export fn hello_gl() void {
                 running = g.false != 0;
             }
         }
+        // clear color buffers, this is OpenGL function
+        // As I understand this is to reset OpenGL state machine on each frame
+        // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glClear.xhtml
         g.glClearColor(0.2, 0.3, 0.3, 1.0);
         g.glClear(g.GL_COLOR_BUFFER_BIT);
         g.glUseProgram(shaderProgram);
+        // assigning uniform (aka global) value
         var colorDeltaLocation: c_int = g.glGetUniformLocation(shaderProgram, "colorDelta");
+        // 4f is like hungarian notation, here it means assign vec4 to a location
         _ = &colorDeltaLocation;
         redDelta -= 0.0001;
         if (redDelta < -@as(f32, 0.999)) {
             redDelta = 0.0;
         }
         g.glUniform4f(colorDeltaLocation, redDelta, 0.0, 0.0, 0.0);
+        // use VAO
         g.glBindVertexArray(VAO);
-        g.glDrawArrays(g.GL_TRIANGLES, 0, 3);
+        // draw triangles
+        g.glDrawArrays(g.GL_TRIANGLES, 0, // starting index of vertex array
+            3 // how many vertices to draw, there are 3 vertices in a triangle
+        );
+        // update a window with OpenGL rendering
+        // default OpenGL context uses double buffering, hence "swap" of the background/in-progress buffer
+        // to the "active/screen" buffer
         g.SDL_GL_SwapWindow(window);
     }
+    // clean up & exit
     g.SDL_GL_DeleteContext(context);
     g.SDL_DestroyWindow(window);
     g.SDL_Quit();
