@@ -13,48 +13,39 @@ pub export fn hello_gl() void {
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_CONTEXT_PROFILE_MASK, g.SDL_GL_CONTEXT_PROFILE_CORE);
 
     // title, x, y, width, height, use opengl
-    var window: ?*g.SDL_Window = g.SDL_CreateWindow("Testing OpenGL with zig", @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), 800, 600, g.SDL_WINDOW_OPENGL);
-    _ = &window;
-    var context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
-    _ = &context;
+    const window: ?*g.SDL_Window = g.SDL_CreateWindow("Testing OpenGL with zig", @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), 800, 600, g.SDL_WINDOW_OPENGL);
+    const context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
     var vertexShaderSource: [*c]const u8 = @embedFile("./vertex_shader.glsl");
     // vertex shader operates, ahem, on vertices
-    var vertexShader: c_uint = g.glCreateShader(g.GL_VERTEX_SHADER);
+    const vertexShader: c_uint = g.glCreateShader(g.GL_VERTEX_SHADER);
     // set source code to a shader, it takes an array of string, we pass just 1 string
     // NULL means that strings are null-terminated
-    _ = &vertexShader;
     g.glShaderSource(vertexShader, 1, &vertexShaderSource, null);
     g.glCompileShader(vertexShader);
     var vertexShaderCompiled: c_int = undefined;
-    _ = &vertexShaderCompiled;
     g.glGetShaderiv(vertexShader, g.GL_COMPILE_STATUS, &vertexShaderCompiled);
     if (!(vertexShaderCompiled != 0)) {
         std.debug.print("vertex shader failed to compile!\n", .{});
         std.process.exit(1);
     }
     var fragmentShaderSource: [*c]const u8 = @embedFile("./fragment_shader.glsl");
-    _ = &fragmentShaderSource;
     // fragment shader operates, ahem, on fragments (of a screen) e.g. group of pixels
-    var fragmentShader: c_uint = g.glCreateShader(g.GL_FRAGMENT_SHADER);
-    _ = &fragmentShader;
+    const fragmentShader: c_uint = g.glCreateShader(g.GL_FRAGMENT_SHADER);
     // compilation process is the same as for vertexShader
     g.glShaderSource(fragmentShader, 1, &fragmentShaderSource, null);
     g.glCompileShader(fragmentShader);
     var fragmentShaderCompiled: c_int = undefined;
-    _ = &fragmentShaderCompiled;
     g.glGetShaderiv(fragmentShader, g.GL_COMPILE_STATUS, &fragmentShaderCompiled);
     if (!(fragmentShaderCompiled != 0)) {
-        _ = g.printf("fragment shader failed to compile!\n");
-        g.exit(1);
+        _ = std.debug.print("fragment shader failed to compile!\n", .{});
+        std.process.exit(1);
     }
     // shader program contains several shaders
-    var shaderProgram: c_uint = g.glCreateProgram();
-    _ = &shaderProgram;
+    const shaderProgram: c_uint = g.glCreateProgram();
     g.glAttachShader(shaderProgram, vertexShader);
     g.glAttachShader(shaderProgram, fragmentShader);
     g.glLinkProgram(shaderProgram);
     var programLinked: c_int = undefined;
-    _ = &programLinked;
     g.glGetProgramiv(shaderProgram, g.GL_LINK_STATUS, &programLinked);
     if (!(programLinked != 0)) {
         std.debug.print("shader program failed to link!\n", .{});
@@ -124,11 +115,8 @@ pub export fn hello_gl() void {
     // unbind current VAO
     g.glBindVertexArray(0);
     var running: bool = g.true != 0;
-    _ = &running;
     var event: g.SDL_Event = undefined;
-    _ = &event;
     var redDelta: f32 = 0.0;
-    _ = &redDelta;
     while (running) {
         while (g.SDL_PollEvent(&event) != 0) {
             if (event.type == @as(g.Uint32, g.SDL_QUIT)) {
@@ -142,9 +130,8 @@ pub export fn hello_gl() void {
         g.glClear(g.GL_COLOR_BUFFER_BIT);
         g.glUseProgram(shaderProgram);
         // assigning uniform (aka global) value
-        var colorDeltaLocation: c_int = g.glGetUniformLocation(shaderProgram, "colorDelta");
+        const colorDeltaLocation: c_int = g.glGetUniformLocation(shaderProgram, "colorDelta");
         // 4f is like hungarian notation, here it means assign vec4 to a location
-        _ = &colorDeltaLocation;
         redDelta -= 0.0001;
         if (redDelta < -@as(f32, 0.999)) {
             redDelta = 0.0;
