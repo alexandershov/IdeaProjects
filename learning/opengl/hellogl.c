@@ -5,12 +5,14 @@
 // IMPORTANT: don't include OpenGL/gl.h - it's a legacy header
 // IMPORTANT: don't include SDL_opengl.h - it includes OpenGL/gl.h
 #include <OpenGL/gl3.h>
+// zig translate-c cannot handle SDL's arm_neon.h
+#define SDL_DISABLE_ARM_NEON_H
 #include <SDL.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char* argv[]) {
+void hello_gl() {
     SDL_Init(SDL_INIT_VIDEO);
 
     // use opengl 4.1
@@ -225,6 +227,9 @@ int main(int argc, char* argv[]) {
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(window);
     SDL_Quit();
+}
 
-    return 0;
+int main(int argc, char* argv[]) {
+  hello_gl();
+  return 0;
 }
