@@ -17,19 +17,7 @@ pub export fn hello_gl() void {
     _ = &window;
     var context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
     _ = &context;
-    var vertexShaderSource: [*c]const u8 =
-        \\#version 410 core
-        \\layout (location = 0) in vec3 aPos;
-        \\layout (location = 1) in vec3 aColor;
-        \\out vec4 vertexColor;
-        \\uniform vec4 colorDelta;
-        \\void main() {
-        \\ vec3 tmpPos = aPos.zyx;
-        \\ gl_Position = vec4(tmpPos.zyx, 1.0);
-        \\ vertexColor = vec4(aColor, 1.0f) + colorDelta;
-        \\}
-    ;
-    _ = &vertexShaderSource;
+    var vertexShaderSource: [*c]const u8 = @embedFile("./vertex_shader.glsl");
     var vertexShader: c_uint = g.glCreateShader(g.GL_VERTEX_SHADER);
     _ = &vertexShader;
     g.glShaderSource(vertexShader, 1, &vertexShaderSource, null);
