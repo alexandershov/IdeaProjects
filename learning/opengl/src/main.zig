@@ -4,14 +4,31 @@ const g = @import("hellogl.zig");
 
 pub export fn hello_gl() void {
     _ = g.SDL_Init(g.SDL_INIT_VIDEO);
+
+    // use opengl 4.1
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_CONTEXT_MINOR_VERSION, 1);
+
+    // core profile (i.e. "New way of doing OpenGL"): usage of glBegin/glEnd is forbidden
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_CONTEXT_PROFILE_MASK, g.SDL_GL_CONTEXT_PROFILE_CORE);
-    var window: ?*g.SDL_Window = g.SDL_CreateWindow("Testing OpenGL", @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), 800, 600, g.SDL_WINDOW_OPENGL);
+
+    // title, x, y, width, height, use opengl
+    var window: ?*g.SDL_Window = g.SDL_CreateWindow("Testing OpenGL with zig", @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), 800, 600, g.SDL_WINDOW_OPENGL);
     _ = &window;
     var context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
     _ = &context;
-    var vertexShaderSource: [*c]const u8 = "#version 410 core\nlayout (location = 0) in vec3 aPos;\nlayout (location = 1) in vec3 aColor;\nout vec4 vertexColor;\nuniform vec4 colorDelta;\nvoid main()\n{\nvec3 tmpPos = aPos.zyx;\n  gl_Position = vec4(tmpPos.zyx, 1.0);\n  vertexColor = vec4(aColor, 1.0f) + colorDelta;\n}\n";
+    var vertexShaderSource: [*c]const u8 =
+        \\#version 410 core
+        \\layout (location = 0) in vec3 aPos;
+        \\layout (location = 1) in vec3 aColor;
+        \\out vec4 vertexColor;
+        \\uniform vec4 colorDelta;
+        \\void main() {
+        \\ vec3 tmpPos = aPos.zyx;
+        \\ gl_Position = vec4(tmpPos.zyx, 1.0);
+        \\ vertexColor = vec4(aColor, 1.0f) + colorDelta;
+        \\}
+    ;
     _ = &vertexShaderSource;
     var vertexShader: c_uint = g.glCreateShader(g.GL_VERTEX_SHADER);
     _ = &vertexShader;
