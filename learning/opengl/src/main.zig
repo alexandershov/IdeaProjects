@@ -12,8 +12,13 @@ pub export fn hello_gl() void {
     // core profile (i.e. "New way of doing OpenGL"): usage of glBegin/glEnd is forbidden
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_CONTEXT_PROFILE_MASK, g.SDL_GL_CONTEXT_PROFILE_CORE);
 
-    // title, x, y, width, height, use opengl
-    const window: ?*g.SDL_Window = g.SDL_CreateWindow("Testing OpenGL with zig", @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), 800, 600, g.SDL_WINDOW_OPENGL);
+    const window: ?*g.SDL_Window = g.SDL_CreateWindow("Testing OpenGL with zig", // window title
+        @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), // x position of the window
+        @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), // y position of the window
+        800, // width
+        600, // height
+        g.SDL_WINDOW_OPENGL // window is usable with OpenGL
+    );
     const context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
     var vertexShaderSource: [*c]const u8 = @embedFile("./vertex_shader.glsl");
     // vertex shader operates, ahem, on vertices
@@ -74,6 +79,8 @@ pub export fn hello_gl() void {
     // this is kinda like binding of variable (think `let` in Common Lisp)
     g.glBindBuffer(g.GL_ARRAY_BUFFER, VBO);
     // Coordinates are in Normalized Device Coordinates - range is [-1.0; 1.0]
+    // our window is 800x600, this means that x == 0 will be translated to 400
+    // and y == 0 will be translated to 300 - it's lerp
     var vertices: [18]f32 = [18]f32{
         //x    y    z    r    g    b
         0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
