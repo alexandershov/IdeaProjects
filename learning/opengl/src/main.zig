@@ -13,8 +13,8 @@ pub export fn hello_gl() void {
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_CONTEXT_PROFILE_MASK, g.SDL_GL_CONTEXT_PROFILE_CORE);
 
     const window: ?*g.SDL_Window = g.SDL_CreateWindow("Testing OpenGL with zig", // window title
-        @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), // x position of the window
-        @bitCast(@as(c_uint, @truncate(g.SDL_WINDOWPOS_CENTERED_MASK | @as(c_uint, @bitCast(@as(c_int, @as(c_int, 0))))))), // y position of the window
+        g.SDL_WINDOWPOS_CENTERED, // x position of the window
+        g.SDL_WINDOWPOS_CENTERED, // y position of the window
         800, // width
         600, // height
         g.SDL_WINDOW_OPENGL // window is usable with OpenGL
