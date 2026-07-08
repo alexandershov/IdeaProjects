@@ -87,10 +87,9 @@ pub export fn hello_gl() void {
         0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
         0.5, 0.5, 0.0, 0.0, 0.0, 1.0,
     };
-    _ = &vertices;
     // copy data in the currently bound buffer
     // GL_STATIC_DRAW means - data will be set only once and used many times
-    g.glBufferData(g.GL_ARRAY_BUFFER, @bitCast(@as(c_ulong, @truncate(@sizeOf(@TypeOf(vertices))))), @ptrCast(@alignCast(@as([*c]f32, @ptrCast(@alignCast(&vertices))))), g.GL_STATIC_DRAW);
+    g.glBufferData(g.GL_ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), @ptrCast(@alignCast(@as([*c]f32, @ptrCast(@alignCast(&vertices))))), g.GL_STATIC_DRAW);
 
     // tell OpenGL how to extract positions from our vector data (array of 18 floats)
 
