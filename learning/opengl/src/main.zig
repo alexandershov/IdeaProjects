@@ -30,7 +30,10 @@ pub export fn hello_gl() void {
     var vertexShaderCompiled: c_int = undefined;
     g.glGetShaderiv(vertexShader, g.GL_COMPILE_STATUS, &vertexShaderCompiled);
     if (!(vertexShaderCompiled != 0)) {
-        std.debug.print("vertex shader failed to compile!\n", .{});
+        var shaderCompileError: [512]u8 = undefined;
+        var shaderCompileErrorLen: i32 = undefined;
+        g.glGetShaderInfoLog(vertexShader, shaderCompileError.len, &shaderCompileErrorLen, &shaderCompileError);
+        std.debug.print("vertex shader failed to compile! {s}\n", .{shaderCompileError[0..@intCast(shaderCompileErrorLen)]});
         std.process.exit(1);
     }
     var fragmentShaderSource: [*c]const u8 = @embedFile("./fragment_shader.glsl");
