@@ -18,7 +18,8 @@ void main() {
     // you can also create new vectors from it and rearrange components
     // here I rearrange components twice just for the kicks of it
     vec3 tmpPos = aPos.zyx;
-    gl_Position = vec4(tmpPos.zyx, 1.0);
+    // `tmpPos.zyx + 0.3` adds 0.3 to every component
+    gl_Position = vec4(tmpPos.zyx + 0.3, 1.0);
     // GLSL supports arithmetic operations on vectors
     vertexColor = vec4(aColor, 1.0f) + colorDelta;
 }
