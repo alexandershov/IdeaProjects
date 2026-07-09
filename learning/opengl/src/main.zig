@@ -2,7 +2,7 @@ const std = @import("std");
 const Io = std.Io;
 const g = @import("hellogl.zig");
 
-pub export fn hello_gl() void {
+pub fn hello_gl() u8 {
     _ = g.SDL_Init(g.SDL_INIT_VIDEO);
 
     // use opengl 4.1
@@ -34,7 +34,7 @@ pub export fn hello_gl() void {
         var shaderCompileErrorLen: i32 = undefined;
         g.glGetShaderInfoLog(vertexShader, shaderCompileError.len, &shaderCompileErrorLen, &shaderCompileError);
         std.debug.print("vertex shader failed to compile! {s}\n", .{shaderCompileError[0..@intCast(shaderCompileErrorLen)]});
-        std.process.exit(1);
+        return 1;
     }
     var fragmentShaderSource: [*c]const u8 = @embedFile("./fragment_shader.glsl");
     // fragment shader operates, ahem, on fragments (of a screen) e.g. group of pixels
@@ -46,7 +46,7 @@ pub export fn hello_gl() void {
     g.glGetShaderiv(fragmentShader, g.GL_COMPILE_STATUS, &fragmentShaderCompiled);
     if (!(fragmentShaderCompiled != 0)) {
         _ = std.debug.print("fragment shader failed to compile!\n", .{});
-        std.process.exit(1);
+        return 1;
     }
     // shader program contains several shaders
     const shaderProgram: c_uint = g.glCreateProgram();
@@ -161,8 +161,9 @@ pub export fn hello_gl() void {
     g.SDL_GL_DeleteContext(context);
     g.SDL_DestroyWindow(window);
     g.SDL_Quit();
+    return 0;
 }
 
-pub fn main() !void {
-    hello_gl();
+pub fn main() !u8 {
+    return hello_gl();
 }
