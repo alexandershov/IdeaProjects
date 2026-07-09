@@ -2,10 +2,12 @@
 // this will be taken from the out of vertex shader
 // if output of one shader matches type & name for the input another shader
 // then the input and output become linked into pipeline
+// in our case output variable vertexColor from vertex shader will be an input for vertexColor in fragment shader
 #version 410 core
 in vec4 vertexColor;
 out vec4 Color;
 void main() {
-   Color = vertexColor;
+   // rgb is the same as xyz, works on any vector
+  Color = vec4(vertexColor.rgb, 1.0);
 }
 
