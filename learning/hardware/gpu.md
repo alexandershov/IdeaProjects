@@ -33,3 +33,5 @@ When thread A gets to line 4, then thread B will also execute it. This means tha
 in your shaders, then GPU will not use it's cores efficiently: lots of threads will be masked out and will do nothing.
 
 Memory latency on GPU is high, so if warp is waiting on memory it can be swapped by another warp.
+But memory throuput on GPU is great! Like I said: GPUs are optimized for throughput instead of latency.
+Memory locality also works for GPUs: memory is a grid (row/column), so if you access memory row by row, then you're golden.
