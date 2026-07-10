@@ -30,10 +30,7 @@ pub fn hello_gl() u8 {
     var vertexShaderCompiled: c_int = undefined;
     g.glGetShaderiv(vertexShader, g.GL_COMPILE_STATUS, &vertexShaderCompiled);
     if (!(vertexShaderCompiled != 0)) {
-        var shaderCompileError: [512]u8 = undefined;
-        var shaderCompileErrorLen: i32 = undefined;
-        g.glGetShaderInfoLog(vertexShader, shaderCompileError.len, &shaderCompileErrorLen, &shaderCompileError);
-        std.debug.print("vertex shader failed to compile! {s}\n", .{shaderCompileError[0..@intCast(shaderCompileErrorLen)]});
+        printShaderCompileError(vertexShader);
         return 1;
     }
     var fragmentShaderSource: [*c]const u8 = @embedFile("./fragment_shader.glsl");
@@ -45,7 +42,7 @@ pub fn hello_gl() u8 {
     var fragmentShaderCompiled: c_int = undefined;
     g.glGetShaderiv(fragmentShader, g.GL_COMPILE_STATUS, &fragmentShaderCompiled);
     if (!(fragmentShaderCompiled != 0)) {
-        _ = std.debug.print("fragment shader failed to compile!\n", .{});
+        printShaderCompileError(fragmentShader);
         return 1;
     }
     // shader program contains several shaders
@@ -162,6 +159,23 @@ pub fn hello_gl() u8 {
     g.SDL_DestroyWindow(window);
     g.SDL_Quit();
     return 0;
+}
+
+fn printShaderCompileError(shader: c_uint) void {
+    var shaderCompileError: [512]u8 = undefined;
+    var shaderCompileErrorLen: i32 = undefined;
+    g.glGetShaderInfoLog(shader, shaderCompileError.len, &shaderCompileErrorLen, &shaderCompileError);
+
+    // determine shader type
+    var shaderTypeCode: i32 = undefined;
+    g.glGetShaderiv(shader, g.GL_SHADER_TYPE, &shaderTypeCode);
+    var shaderType: []const u8 = "<unknown shader type>";
+    if (shaderTypeCode == g.GL_VERTEX_SHADER) {
+        shaderType = "vertex";
+    } else if (shaderTypeCode == g.GL_FRAGMENT_SHADER) {
+        shaderType = "fragment";
+    }
+    std.debug.print("{s} shader failed to compile! {s}\n", .{ shaderType, shaderCompileError[0..@intCast(shaderCompileErrorLen)] });
 }
 
 pub fn main() !u8 {
