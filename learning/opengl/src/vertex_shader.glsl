@@ -17,9 +17,17 @@ void main() {
     // it's called swizzling
     // you can also create new vectors from it and rearrange components
     // here I rearrange components twice just for the kicks of it
+
+    // scale by 2 and translate
+    mat4 transform = mat4(
+    2, 0, 0, 0.0,
+    0, 2, 0, 2.0,
+    0, 0, 2, 2.0,
+    0, 0, 0, 1
+    );
     vec3 tmpPos = aPos.zyx;
     // `tmpPos.zyx + 0.3` adds 0.3 to every component
-    gl_Position = vec4(tmpPos.zyx + 0.3, 1.0);
+    gl_Position = transform * vec4(tmpPos.zyx + 0.3, 1.0);
     // GLSL supports arithmetic operations on vectors
     vertexColor = vec4(aColor, 1.0f) + colorDelta;
 }
