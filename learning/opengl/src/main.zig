@@ -3,6 +3,13 @@ const Io = std.Io;
 const g = @import("hellogl.zig");
 
 pub fn hello_gl() u8 {
+    var debug_allocator: std.heap.DebugAllocator(.{}) = .init;
+    const gpa = debug_allocator.allocator();
+
+    var threaded: std.Io.Threaded = .init(gpa, std.Io.Threaded.InitOptions{});
+    defer threaded.deinit();
+    const io = threaded.io();
+
     _ = g.SDL_Init(g.SDL_INIT_VIDEO);
 
     // use opengl 4.1
@@ -26,7 +33,16 @@ pub fn hello_gl() u8 {
     // set source code to a shader, it takes an array of string, we pass just 1 string
     // NULL means that strings are null-terminated
     g.glShaderSource(vertexShader, 1, &vertexShaderSource, null);
+
+    var start: std.Io.Timestamp = std.Io.Timestamp.now(io, std.Io.Clock.awake);
+    var end: std.Io.Timestamp = undefined;
+
     g.glCompileShader(vertexShader);
+    end = std.Io.Timestamp.now(io, std.Io.Clock.awake);
+    var duration: i64 = std.Io.Duration.toMicroseconds(start.durationTo(end));
+    // vertex shader compilation is ~600us
+    std.debug.print("vertex shader compilation took {}us\n", .{duration});
+
     var vertexShaderCompiled: c_int = undefined;
     g.glGetShaderiv(vertexShader, g.GL_COMPILE_STATUS, &vertexShaderCompiled);
     if (!(vertexShaderCompiled != 0)) {
@@ -38,7 +54,14 @@ pub fn hello_gl() u8 {
     const fragmentShader: c_uint = g.glCreateShader(g.GL_FRAGMENT_SHADER);
     // compilation process is the same as for vertexShader
     g.glShaderSource(fragmentShader, 1, &fragmentShaderSource, null);
+
+    start = std.Io.Timestamp.now(io, std.Io.Clock.awake);
     g.glCompileShader(fragmentShader);
+    end = std.Io.Timestamp.now(io, std.Io.Clock.awake);
+    duration = std.Io.Duration.toMicroseconds(start.durationTo(end));
+    // fragment shader compilation is ~150us
+    std.debug.print("fragment shader compilation took {}us\n", .{duration});
+
     var fragmentShaderCompiled: c_int = undefined;
     g.glGetShaderiv(fragmentShader, g.GL_COMPILE_STATUS, &fragmentShaderCompiled);
     if (!(fragmentShaderCompiled != 0)) {
