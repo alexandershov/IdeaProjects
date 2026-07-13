@@ -135,11 +135,11 @@ pub fn hello_gl() u8 {
     // Coordinates are in Normalized Device Coordinates - range is [-1.0; 1.0]
     // our window is 800x600, this means that x == 0 will be translated to 400
     // and y == 0 will be translated to 300 - it's lerp
-    var vertices: [18]f32 = [18]f32{
-        //x    y    z    r    g    b
-        0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-        0.5, 0.0, 0.0, 0.0, 1.0, 0.0,
-        0.5, 0.5, 0.0, 0.0, 0.0, 1.0,
+    var vertices: [24]f32 = [24]f32{
+        //x    y    z    r    g    b  texture coordinates
+        0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+        0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0,
+        0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
     };
     // copy data in the currently bound buffer
     // GL_STATIC_DRAW means - data will be set only once and used many times
@@ -151,7 +151,7 @@ pub fn hello_gl() u8 {
         3, // attribute size, it's a vec3 in vertex shader
         g.GL_FLOAT, // attribute type
         g.GL_FALSE, // normalize data
-        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 6) *% @sizeOf(f32)))), // stride: distance between consecutive attributes
+        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 8) *% @sizeOf(f32)))), // stride: distance between consecutive attributes
         null // offset of data in the buffer
     );
     // enable attribute at location 0
@@ -161,11 +161,22 @@ pub fn hello_gl() u8 {
         3, // attribute size, it's a vec3 in vertex shader
         g.GL_FLOAT, // attribute type
         g.GL_FALSE, // normalize data
-        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 6) *% @sizeOf(f32)))), // normalize data
+        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 8) *% @sizeOf(f32)))), // stride
         @ptrFromInt(@as(c_ulong, 3) *% @sizeOf(f32)) // offset of data in the buffer
     );
     // enable attribute at location 1
     g.glEnableVertexAttribArray(1);
+
+    // tell OpenGL how to extract textures from our vector data (array of 18 floats)
+    g.glVertexAttribPointer(2, // attribute position, same as location value in vertex shader
+        3, // attribute size, it's a vec3 in vertex shader
+        g.GL_FLOAT, // attribute type
+        g.GL_FALSE, // normalize data
+        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 8) *% @sizeOf(f32)))), // stride
+        @ptrFromInt(@as(c_ulong, 6) *% @sizeOf(f32)) // offset of data in the buffer
+    );
+    // enable attribute at location 2
+    g.glEnableVertexAttribArray(2);
 
     // we'll have 3 vertices with 3 colors, but fragment shader output will be quite colorful
     // because it'll interpolate colors
