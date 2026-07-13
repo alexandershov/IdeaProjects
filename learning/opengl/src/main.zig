@@ -98,11 +98,11 @@ pub fn hello_gl() u8 {
 
     var texture: u32 = undefined;
     g.glGenTextures(1, &texture);
+    g.glBindTexture(g.GL_TEXTURE_2D, texture);
     g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_S, g.GL_REPEAT);
     g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_T, g.GL_REPEAT);
     g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MIN_FILTER, g.GL_LINEAR);
     g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MAG_FILTER, g.GL_LINEAR);
-    g.glBindTexture(g.GL_TEXTURE_2D, texture);
     g.glTexImage2D(
         g.GL_TEXTURE_2D, // operate on currently bound GL_TEXTURE_2D
         0, // no mipmap
@@ -169,7 +169,7 @@ pub fn hello_gl() u8 {
 
     // tell OpenGL how to extract textures from our vector data (array of 18 floats)
     g.glVertexAttribPointer(2, // attribute position, same as location value in vertex shader
-        3, // attribute size, it's a vec3 in vertex shader
+        2, // attribute size, it's a vec2 in vertex shader
         g.GL_FLOAT, // attribute type
         g.GL_FALSE, // normalize data
         @bitCast(@as(c_uint, @truncate(@as(c_ulong, 8) *% @sizeOf(f32)))), // stride
@@ -208,6 +208,8 @@ pub fn hello_gl() u8 {
             redDelta = 0.0;
         }
         g.glUniform4f(colorDeltaLocation, redDelta, 0.0, 0.0, 0.0);
+        // g.glActiveTexture(g.GL_TEXTURE0);
+        g.glBindTexture(g.GL_TEXTURE_2D, texture);
         // use VAO
         g.glBindVertexArray(VAO);
         // draw triangles
