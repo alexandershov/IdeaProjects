@@ -13,12 +13,11 @@ pub fn hello_gl() u8 {
     defer threaded.deinit();
     const io = threaded.io();
 
-    //var texWidth: c_int = undefined;
-    //var texHeight: c_int = undefined;
-    //var numChannels: c_int = undefined;
-    //const stbResult: [*c]u8 = stb.stbi_load("wall.jpg", &texWidth, &texHeight, &numChannels, 0);
-    //std.debug.print("stbResult = {}", .{stbResult.*});
-
+    var texWidth: c_int = undefined;
+    var texHeight: c_int = undefined;
+    var numChannels: c_int = undefined;
+    const texData: [*c]u8 = stb.stbi_load("wall.jpg", &texWidth, &texHeight, &numChannels, 0);
+    defer stb.stbi_image_free(texData);
     _ = g.SDL_Init(g.SDL_INIT_VIDEO);
 
     // use opengl 4.1
@@ -92,6 +91,25 @@ pub fn hello_gl() u8 {
     // we don't need shader objects after we've linked them into a program
     g.glDeleteShader(vertexShader);
     g.glDeleteShader(fragmentShader);
+
+    var texture: u32 = undefined;
+    g.glGenTextures(1, &texture);
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_S, g.GL_REPEAT);
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_T, g.GL_REPEAT);
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MIN_FILTER, g.GL_LINEAR);
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MAG_FILTER, g.GL_LINEAR);
+    g.glBindTexture(g.GL_TEXTURE_2D, texture);
+    g.glTexImage2D(
+        g.GL_TEXTURE_2D, // operate on currently bound GL_TEXTURE_2D
+        0, // no mipmap
+        g.GL_RGB,
+        texWidth,
+        texHeight,
+        0, // always 0, legacy
+        g.GL_RGB,
+        g.GL_UNSIGNED_BYTE,
+        texData,
+    );
 
     // Vertex Buffer Object, used to send vertices to GPU memory
     var VBO: c_uint = undefined;
