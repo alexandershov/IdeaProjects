@@ -1,6 +1,10 @@
 const std = @import("std");
 const Io = std.Io;
 const g = @import("hellogl.zig");
+const stbImage = @cImport({
+    @cDefine("STB_IMAGE_IMPLEMENTATION", {});
+    @cInclude("stb_image.h");
+});
 
 pub fn hello_gl() u8 {
     var debug_allocator: std.heap.DebugAllocator(.{}) = .init;
