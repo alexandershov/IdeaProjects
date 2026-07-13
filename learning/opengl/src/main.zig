@@ -1,8 +1,7 @@
 const std = @import("std");
 const Io = std.Io;
 const g = @import("hellogl.zig");
-const stbImage = @cImport({
-    @cDefine("STB_IMAGE_IMPLEMENTATION", {});
+const stb = @cImport({
     @cInclude("stb_image.h");
 });
 
@@ -13,6 +12,12 @@ pub fn hello_gl() u8 {
     var threaded: std.Io.Threaded = .init(gpa, std.Io.Threaded.InitOptions{});
     defer threaded.deinit();
     const io = threaded.io();
+
+    //var texWidth: c_int = undefined;
+    //var texHeight: c_int = undefined;
+    //var numChannels: c_int = undefined;
+    //const stbResult: [*c]u8 = stb.stbi_load("wall.jpg", &texWidth, &texHeight, &numChannels, 0);
+    //std.debug.print("stbResult = {}", .{stbResult.*});
 
     _ = g.SDL_Init(g.SDL_INIT_VIDEO);
 
