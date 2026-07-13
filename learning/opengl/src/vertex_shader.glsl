@@ -5,8 +5,12 @@
 layout (location = 0) in vec3 aPos;
 // another input: 3d vector named aColor
 layout (location = 1) in vec3 aColor;
+// another input: 2d vector named aColor
+layout (location = 2) in vec2 aTexCoord;
+
 // output variable
 out vec4 vertexColor;
+out vec2 TexCoord;
 // uniform is like a global variable
 uniform vec4 colorDelta;
 void main() {
@@ -30,4 +34,5 @@ void main() {
     gl_Position = transform * vec4(tmpPos.zyx + 0.3, 1.0);
     // GLSL supports arithmetic operations on vectors
     vertexColor = vec4(aColor, 1.0f) + colorDelta;
+    TexCoord = aTexCoord;
 }
