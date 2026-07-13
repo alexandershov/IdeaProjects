@@ -16,7 +16,11 @@ pub fn hello_gl() u8 {
     var texWidth: c_int = undefined;
     var texHeight: c_int = undefined;
     var numChannels: c_int = undefined;
-    const texData: [*c]u8 = stb.stbi_load("wall.jpg", &texWidth, &texHeight, &numChannels, 0);
+    const texData: [*c]u8 = stb.stbi_load("src/wall.jpg", &texWidth, &texHeight, &numChannels, 0);
+    if (texData == null) {
+        std.debug.print("could not load src/wall.jpg\n", .{});
+        return 1;
+    }
     defer stb.stbi_image_free(texData);
     _ = g.SDL_Init(g.SDL_INIT_VIDEO);
 
