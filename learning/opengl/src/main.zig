@@ -98,14 +98,23 @@ pub fn hello_gl() u8 {
 
     var texture: u32 = undefined;
     g.glGenTextures(1, &texture);
+    // bind texture to GL_TEXTURE_2D variable - usual binding stuff
     g.glBindTexture(g.GL_TEXTURE_2D, texture);
+    // we control what happens when texture coordinates are outside of the [-1.0; 1.0]
+    // here we set it up to repeat texture for s (x) & t (y) axes
     g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_S, g.GL_REPEAT);
     g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_T, g.GL_REPEAT);
+    // let's say we found a texel (pixel inside of the texture) that represents our coordinates
+    // we can control the color of this texel
+    // GL_LINEAR will interpolate texel color based on the colors of its neighbours
+    // there's also GL_NEAREST, that just takes the color of nearest texel
+    // these are called texture filters and we can have different filters if our texture
+    // was upscaled or downscaled
     g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MIN_FILTER, g.GL_LINEAR);
     g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MAG_FILTER, g.GL_LINEAR);
     g.glTexImage2D(
         g.GL_TEXTURE_2D, // operate on currently bound GL_TEXTURE_2D
-        0, // no mipmap
+        0, // no mipmap, mipmaps are kinda like LOD for textures - we can have smaller textures based on a surface of the polygon
         g.GL_RGB,
         texWidth,
         texHeight,
@@ -141,6 +150,10 @@ pub fn hello_gl() u8 {
         0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0,
         0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
     };
+    // texture is a rectangle with coordinates from -1.0 to 1.0 on s (== x) and t (== y) axes.
+    // lower left is (-1.0, -1.0), upper right is (1.0, 1.0)
+    // each vertex is mapped to a position in a texture
+
     // copy data in the currently bound buffer
     // GL_STATIC_DRAW means - data will be set only once and used many times
     g.glBufferData(g.GL_ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), @ptrCast(@alignCast(@as([*c]f32, @ptrCast(@alignCast(&vertices))))), g.GL_STATIC_DRAW);

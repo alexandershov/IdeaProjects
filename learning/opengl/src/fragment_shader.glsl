@@ -17,6 +17,7 @@ void main() {
   // if (gl_FragCoord.x > 700) {
   //Color = vec4(1.0, 0.0, 0.0, 1.0);
   //}
+  // texture is GLSL built-in that does texturing for fragments
   Color = texture(ourTexture, TexCoord);
 }
 
