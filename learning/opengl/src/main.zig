@@ -98,7 +98,10 @@ pub fn hello_gl() u8 {
     var fbo: u32 = undefined;
     g.glGenFramebuffers(1, &fbo);
     // after this bind all read/write framebuffer operations will affect this framebuffer
-    // g.glBindFramebuffer(g.GL_FRAMEBUFFER, fbo);
+    g.glBindFramebuffer(g.GL_FRAMEBUFFER, fbo);
+    defer g.glDeleteFramebuffers(1, &fbo);
+    // bind default framebuffer
+    g.glBindFramebuffer(g.GL_FRAMEBUFFER, 0);
 
     var texture: u32 = undefined;
     g.glGenTextures(1, &texture);
