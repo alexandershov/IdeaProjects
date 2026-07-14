@@ -95,6 +95,10 @@ pub fn hello_gl() u8 {
     // we don't need shader objects after we've linked them into a program
     g.glDeleteShader(vertexShader);
     g.glDeleteShader(fragmentShader);
+    var fbo: u32 = undefined;
+    g.glGenFramebuffers(1, &fbo);
+    // after this bind all read/write framebuffer operations will affect this framebuffer
+    // g.glBindFramebuffer(g.GL_FRAMEBUFFER, fbo);
 
     var texture: u32 = undefined;
     g.glGenTextures(1, &texture);
