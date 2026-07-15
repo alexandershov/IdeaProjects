@@ -106,8 +106,40 @@ pub fn hello_gl() u8 {
     g.glBindFramebuffer(g.GL_FRAMEBUFFER, fbo);
     defer g.glDeleteFramebuffers(1, &fbo);
 
+    // create a texture that framebuffer will render to
+    var texColorBuffer: u32 = undefined;
+    g.glGenTextures(1, &texColorBuffer);
+    g.glBindTexture(g.GL_TEXTURE_2D, texColorBuffer);
+    g.glTexImage2D(g.GL_TEXTURE_2D, 0, g.GL_RGB, 800, 600, 0, g.GL_RGB, g.GL_UNSIGNED_BYTE, null);
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MIN_FILTER, g.GL_LINEAR);
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MAG_FILTER, g.GL_LINEAR);
+    // unbind texture
+    g.glBindTexture(g.GL_TEXTURE_2D, 0);
+    // attach texture to the bound framebuffer
+    g.glFramebufferTexture2D(g.GL_FRAMEBUFFER, g.GL_COLOR_ATTACHMENT0, g.GL_TEXTURE_2D, texColorBuffer, 0);
+
+    var rbo: u32 = undefined;
+    // renderbuffers are useful if we don't need to read from them explicitly
+    // we can use renderbuffers for depth buffer & stencil buffer
+    g.glGenRenderbuffers(1, &rbo);
+    g.glBindRenderbuffer(g.GL_RENDERBUFFER, rbo);
+    g.glRenderbufferStorage(
+        g.GL_RENDERBUFFER,
+        g.GL_DEPTH24_STENCIL8, // use 24 bits for depth and 8 bits for stencil
+        800,
+        600,
+    );
+    g.glBindRenderbuffer(g.GL_RENDERBUFFER, 0);
+    // attach renderbuffer to attachments to depth & stencil attachments of framebuffer
+    g.glFramebufferRenderbuffer(g.GL_FRAMEBUFFER, g.GL_DEPTH_STENCIL_ATTACHMENT, g.GL_RENDERBUFFER, rbo);
+
+    if (g.glCheckFramebufferStatus(g.GL_FRAMEBUFFER) != g.GL_FRAMEBUFFER_COMPLETE) {
+        std.debug.print("framebuffer is not complete", .{});
+        return 1;
+    }
+
     // bind default framebuffer
-    // g.glBindFramebuffer(g.GL_FRAMEBUFFER, 0);
+    g.glBindFramebuffer(g.GL_FRAMEBUFFER, 0);
 
     var texture: u32 = undefined;
     g.glGenTextures(1, &texture);
