@@ -95,13 +95,19 @@ pub fn hello_gl() u8 {
     // we don't need shader objects after we've linked them into a program
     g.glDeleteShader(vertexShader);
     g.glDeleteShader(fragmentShader);
+    // there's a default framebuffer and by default we render to it
+    // but we can create another framebuffer, render to it, make a texture out of it
+    // and then create quad that fills the entire screen and then
+    // apply post-processing effects when rendering quad with the texture from our framebuffer
+    // we can e.g. apply grayscale effects, motion blur, etc
     var fbo: u32 = undefined;
     g.glGenFramebuffers(1, &fbo);
     // after this bind all read/write framebuffer operations will affect this framebuffer
     g.glBindFramebuffer(g.GL_FRAMEBUFFER, fbo);
     defer g.glDeleteFramebuffers(1, &fbo);
+
     // bind default framebuffer
-    g.glBindFramebuffer(g.GL_FRAMEBUFFER, 0);
+    // g.glBindFramebuffer(g.GL_FRAMEBUFFER, 0);
 
     var texture: u32 = undefined;
     g.glGenTextures(1, &texture);
