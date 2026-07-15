@@ -165,7 +165,7 @@ pub fn hello_gl() u8 {
     // GL_STATIC_DRAW means - data will be set only once and used many times
     g.glBufferData(g.GL_ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), @ptrCast(@alignCast(@as([*c]f32, @ptrCast(@alignCast(&vertices))))), g.GL_STATIC_DRAW);
 
-    // tell OpenGL how to extract positions from our vector data (array of 18 floats)
+    // tell OpenGL how to extract positions from our vector data (array of 24 floats)
 
     g.glVertexAttribPointer(0, // attribute position, same as location value in vertex shader
         3, // attribute size, it's a vec3 in vertex shader
@@ -176,7 +176,7 @@ pub fn hello_gl() u8 {
     );
     // enable attribute at location 0
     g.glEnableVertexAttribArray(0);
-    // tell OpenGL how to extract colors from our vector data (array of 18 floats)
+    // tell OpenGL how to extract colors from our vector data (array of 24 floats)
     g.glVertexAttribPointer(1, // attribute position, same as location value in vertex shader
         3, // attribute size, it's a vec3 in vertex shader
         g.GL_FLOAT, // attribute type
@@ -187,7 +187,7 @@ pub fn hello_gl() u8 {
     // enable attribute at location 1
     g.glEnableVertexAttribArray(1);
 
-    // tell OpenGL how to extract textures from our vector data (array of 18 floats)
+    // tell OpenGL how to extract textures from our vector data (array of 24 floats)
     g.glVertexAttribPointer(2, // attribute position, same as location value in vertex shader
         2, // attribute size, it's a vec2 in vertex shader
         g.GL_FLOAT, // attribute type
