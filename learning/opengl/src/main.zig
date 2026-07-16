@@ -124,6 +124,8 @@ pub fn hello_gl() u8 {
     // depth buffer (also called z-buffer) is used by opengl to determine which fragment needs to be rendered
     // e.g. if we have two fragments at the same location, then depth buffer will be used to determine which fragment to render
     // (we should render the closest fragment)
+    // naive implementation will execute fragment shader many times at different depth
+    // better implementation will not execute fragment shader if it'll lose by depth check anyway
     g.glGenRenderbuffers(1, &rbo);
     g.glBindRenderbuffer(g.GL_RENDERBUFFER, rbo);
     g.glRenderbufferStorage(
