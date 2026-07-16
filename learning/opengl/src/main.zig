@@ -121,6 +121,9 @@ pub fn hello_gl() u8 {
     var rbo: u32 = undefined;
     // renderbuffers are useful if we don't need to read from them explicitly
     // we can use renderbuffers for depth buffer & stencil buffer
+    // depth buffer (also called z-buffer) is used by opengl to determine which fragment needs to be rendered
+    // e.g. if we have two fragments at the same location, then depth buffer will be used to determine which fragment to render
+    // (we should render the closest fragment)
     g.glGenRenderbuffers(1, &rbo);
     g.glBindRenderbuffer(g.GL_RENDERBUFFER, rbo);
     g.glRenderbufferStorage(
