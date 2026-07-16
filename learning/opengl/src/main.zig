@@ -126,6 +126,12 @@ pub fn hello_gl() u8 {
     // (we should render the closest fragment)
     // naive implementation will execute fragment shader many times at different depth
     // better implementation will not execute fragment shader if it'll lose by depth check anyway
+    // stencil buffer allows us to output fragments only if they match (or not match) value in the stencil buffer
+    // it can be used for drawing borders:
+    // * render and write to stencil buffer
+    // * disable writing to stencil buffer
+    // * scale objects and render only it doesn't match stencil value
+    // * this will give us an effect of drawing a border (because we'll render only stuff that was not rendered before)
     g.glGenRenderbuffers(1, &rbo);
     g.glBindRenderbuffer(g.GL_RENDERBUFFER, rbo);
     g.glRenderbufferStorage(
