@@ -126,80 +126,7 @@ pub fn hello_gl() u8 {
         texData,
     );
 
-    // Vertex Buffer Object, used to send vertices to GPU memory
-    var VBO: c_uint = undefined;
-    // init 1 buffer object
-    g.glGenBuffers(1, &VBO);
-    // Vertex Array Object - holds VBO and its attribute configuration
-    // Essentially it's a way to store VBO and its configuration done by *AttribPointer* functions
-    // in one place and then use this place to draw
-    // OpenGL core platform actually requires VAO to draw
-    var VAO: c_uint = undefined;
-
-    // init 1 VAO object
-    g.glGenVertexArrays(1, &VAO);
-    // after call to glBindVertexArray VAO will remember *AttribPointer* functions
-    g.glBindVertexArray(VAO);
-    // from now on all operations on GL_ARRAY_BUFFER will operate on VBO
-    // this is kinda like binding of variable (think `let` in Common Lisp)
-    g.glBindBuffer(g.GL_ARRAY_BUFFER, VBO);
-    // Coordinates are in Normalized Device Coordinates - range is [-1.0; 1.0]
-    // our window is 800x600, this means that x == 0 will be translated to 400
-    // and y == 0 will be translated to 300 - it's lerp
-    var vertices: [24]f32 = [24]f32{
-        //x    y    z    r    g    b  texture coordinates
-        0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
-        0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0,
-        0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
-    };
-    // texture is a rectangle with coordinates from -1.0 to 1.0 on s (== x) and t (== y) axes.
-    // lower left is (-1.0, -1.0), upper right is (1.0, 1.0)
-    // each vertex is mapped to a position in a texture
-
-    // copy data in the currently bound buffer
-    // GL_STATIC_DRAW means - data will be set only once and used many times
-    g.glBufferData(g.GL_ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), @ptrCast(@alignCast(@as([*c]f32, @ptrCast(@alignCast(&vertices))))), g.GL_STATIC_DRAW);
-
-    // tell OpenGL how to extract positions from our vector data (array of 24 floats)
-
-    g.glVertexAttribPointer(0, // attribute position, same as location value in vertex shader
-        3, // attribute size, it's a vec3 in vertex shader
-        g.GL_FLOAT, // attribute type
-        g.GL_FALSE, // normalize data
-        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 8) *% @sizeOf(f32)))), // stride: distance between consecutive attributes
-        null // offset of data in the buffer
-    );
-    // enable attribute at location 0
-    g.glEnableVertexAttribArray(0);
-    // tell OpenGL how to extract colors from our vector data (array of 24 floats)
-    g.glVertexAttribPointer(1, // attribute position, same as location value in vertex shader
-        3, // attribute size, it's a vec3 in vertex shader
-        g.GL_FLOAT, // attribute type
-        g.GL_FALSE, // normalize data
-        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 8) *% @sizeOf(f32)))), // stride
-        @ptrFromInt(@as(c_ulong, 3) *% @sizeOf(f32)) // offset of data in the buffer
-    );
-    // enable attribute at location 1
-    g.glEnableVertexAttribArray(1);
-
-    // tell OpenGL how to extract textures from our vector data (array of 24 floats)
-    g.glVertexAttribPointer(2, // attribute position, same as location value in vertex shader
-        2, // attribute size, it's a vec2 in vertex shader
-        g.GL_FLOAT, // attribute type
-        g.GL_FALSE, // normalize data
-        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 8) *% @sizeOf(f32)))), // stride
-        @ptrFromInt(@as(c_ulong, 6) *% @sizeOf(f32)) // offset of data in the buffer
-    );
-    // enable attribute at location 2
-    g.glEnableVertexAttribArray(2);
-
-    // we'll have 3 vertices with 3 colors, but fragment shader output will be quite colorful
-    // because it'll interpolate colors
-
-    // unbind VBO
-    g.glBindBuffer(g.GL_ARRAY_BUFFER, 0);
-    // unbind current VAO
-    g.glBindVertexArray(0);
+    const VAO: c_uint = buildVAO();
     var running: bool = g.true != 0;
     var event: g.SDL_Event = undefined;
     var redDelta: f32 = 0.0;
@@ -318,6 +245,84 @@ fn printShaderCompileError(shader: c_uint) void {
         shaderType = "fragment";
     }
     std.debug.print("{s} shader failed to compile! {s}\n", .{ shaderType, shaderCompileError[0..@intCast(shaderCompileErrorLen)] });
+}
+
+fn buildVAO() c_uint {
+    // Vertex Buffer Object, used to send vertices to GPU memory
+    var VBO: c_uint = undefined;
+    // init 1 buffer object
+    g.glGenBuffers(1, &VBO);
+    // Vertex Array Object - holds VBO and its attribute configuration
+    // Essentially it's a way to store VBO and its configuration done by *AttribPointer* functions
+    // in one place and then use this place to draw
+    // OpenGL core platform actually requires VAO to draw
+    var VAO: c_uint = undefined;
+
+    // init 1 VAO object
+    g.glGenVertexArrays(1, &VAO);
+    // after call to glBindVertexArray VAO will remember *AttribPointer* functions
+    g.glBindVertexArray(VAO);
+    // from now on all operations on GL_ARRAY_BUFFER will operate on VBO
+    // this is kinda like binding of variable (think `let` in Common Lisp)
+    g.glBindBuffer(g.GL_ARRAY_BUFFER, VBO);
+    // Coordinates are in Normalized Device Coordinates - range is [-1.0; 1.0]
+    // our window is 800x600, this means that x == 0 will be translated to 400
+    // and y == 0 will be translated to 300 - it's lerp
+    var vertices: [24]f32 = [24]f32{
+        //x    y    z    r    g    b  texture coordinates
+        0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+        0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0,
+        0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+    };
+    // texture is a rectangle with coordinates from -1.0 to 1.0 on s (== x) and t (== y) axes.
+    // lower left is (-1.0, -1.0), upper right is (1.0, 1.0)
+    // each vertex is mapped to a position in a texture
+
+    // copy data in the currently bound buffer
+    // GL_STATIC_DRAW means - data will be set only once and used many times
+    g.glBufferData(g.GL_ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), @ptrCast(@alignCast(@as([*c]f32, @ptrCast(@alignCast(&vertices))))), g.GL_STATIC_DRAW);
+
+    // tell OpenGL how to extract positions from our vector data (array of 24 floats)
+
+    g.glVertexAttribPointer(0, // attribute position, same as location value in vertex shader
+        3, // attribute size, it's a vec3 in vertex shader
+        g.GL_FLOAT, // attribute type
+        g.GL_FALSE, // normalize data
+        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 8) *% @sizeOf(f32)))), // stride: distance between consecutive attributes
+        null // offset of data in the buffer
+    );
+    // enable attribute at location 0
+    g.glEnableVertexAttribArray(0);
+    // tell OpenGL how to extract colors from our vector data (array of 24 floats)
+    g.glVertexAttribPointer(1, // attribute position, same as location value in vertex shader
+        3, // attribute size, it's a vec3 in vertex shader
+        g.GL_FLOAT, // attribute type
+        g.GL_FALSE, // normalize data
+        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 8) *% @sizeOf(f32)))), // stride
+        @ptrFromInt(@as(c_ulong, 3) *% @sizeOf(f32)) // offset of data in the buffer
+    );
+    // enable attribute at location 1
+    g.glEnableVertexAttribArray(1);
+
+    // tell OpenGL how to extract textures from our vector data (array of 24 floats)
+    g.glVertexAttribPointer(2, // attribute position, same as location value in vertex shader
+        2, // attribute size, it's a vec2 in vertex shader
+        g.GL_FLOAT, // attribute type
+        g.GL_FALSE, // normalize data
+        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 8) *% @sizeOf(f32)))), // stride
+        @ptrFromInt(@as(c_ulong, 6) *% @sizeOf(f32)) // offset of data in the buffer
+    );
+    // enable attribute at location 2
+    g.glEnableVertexAttribArray(2);
+
+    // we'll have 3 vertices with 3 colors, but fragment shader output will be quite colorful
+    // because it'll interpolate colors
+
+    // unbind VBO
+    g.glBindBuffer(g.GL_ARRAY_BUFFER, 0);
+    // unbind current VAO
+    g.glBindVertexArray(0);
+    return VAO;
 }
 
 pub fn main() !u8 {
