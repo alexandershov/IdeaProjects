@@ -40,7 +40,7 @@ pub fn hello_gl() u8 {
     );
     const context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
 
-    const shaderProgram: c_uint = buildShaderProgram(io);
+    const shaderProgram: c_uint = buildShaderProgram(io, "./vertex_shader.glsl", "./fragment_shader.glsl");
     // there's a default framebuffer and by default we render to it
     // but we can create another framebuffer, render to it, make a texture out of it
     // and then create quad that fills the entire screen and then
@@ -243,8 +243,8 @@ pub fn hello_gl() u8 {
     return 0;
 }
 
-pub fn buildShaderProgram(io: std.Io) c_uint {
-    var vertexShaderSource: [*c]const u8 = @embedFile("./vertex_shader.glsl");
+pub fn buildShaderProgram(io: std.Io, comptime vertexShaderPath: []const u8, comptime fragmentShaderPath: []const u8) c_uint {
+    var vertexShaderSource: [*c]const u8 = @embedFile(vertexShaderPath);
     // vertex shader operates, ahem, on vertices
     const vertexShader: c_uint = g.glCreateShader(g.GL_VERTEX_SHADER);
     // set source code to a shader, it takes an array of string, we pass just 1 string
@@ -266,7 +266,7 @@ pub fn buildShaderProgram(io: std.Io) c_uint {
         printShaderCompileError(vertexShader);
         return 1;
     }
-    var fragmentShaderSource: [*c]const u8 = @embedFile("./fragment_shader.glsl");
+    var fragmentShaderSource: [*c]const u8 = @embedFile(fragmentShaderPath);
     // fragment shader operates, ahem, on fragments (of a screen) e.g. group of pixels
     const fragmentShader: c_uint = g.glCreateShader(g.GL_FRAGMENT_SHADER);
     // compilation process is the same as for vertexShader
