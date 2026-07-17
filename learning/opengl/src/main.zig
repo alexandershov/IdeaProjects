@@ -106,7 +106,7 @@ pub fn hello_gl() u8 {
     // here we set it up to repeat texture for s (x) & t (y) axes
     g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_S, g.GL_REPEAT);
     g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_T, g.GL_REPEAT);
-    // let's say we found a texel (pixel inside of the texture) that represents our coordinates
+    // let's say we found a texel (pixel inside of the texture: "TEXture ELement") that represents our coordinates
     // we can control the color of this texel
     // GL_LINEAR will interpolate texel color based on the colors of its neighbours
     // there's also GL_NEAREST, that just takes the color of nearest texel
