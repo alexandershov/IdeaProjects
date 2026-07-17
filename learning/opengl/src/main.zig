@@ -39,62 +39,8 @@ pub fn hello_gl() u8 {
         g.SDL_WINDOW_OPENGL // window is usable with OpenGL
     );
     const context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
-    var vertexShaderSource: [*c]const u8 = @embedFile("./vertex_shader.glsl");
-    // vertex shader operates, ahem, on vertices
-    const vertexShader: c_uint = g.glCreateShader(g.GL_VERTEX_SHADER);
-    // set source code to a shader, it takes an array of string, we pass just 1 string
-    // NULL means that strings are null-terminated
-    g.glShaderSource(vertexShader, 1, &vertexShaderSource, null);
 
-    var start: std.Io.Timestamp = std.Io.Timestamp.now(io, std.Io.Clock.awake);
-    var end: std.Io.Timestamp = undefined;
-
-    g.glCompileShader(vertexShader);
-    end = std.Io.Timestamp.now(io, std.Io.Clock.awake);
-    var duration: i64 = std.Io.Duration.toMicroseconds(start.durationTo(end));
-    // vertex shader compilation is ~600us
-    std.debug.print("vertex shader compilation took {}us\n", .{duration});
-
-    var vertexShaderCompiled: c_int = undefined;
-    g.glGetShaderiv(vertexShader, g.GL_COMPILE_STATUS, &vertexShaderCompiled);
-    if (!(vertexShaderCompiled != 0)) {
-        printShaderCompileError(vertexShader);
-        return 1;
-    }
-    var fragmentShaderSource: [*c]const u8 = @embedFile("./fragment_shader.glsl");
-    // fragment shader operates, ahem, on fragments (of a screen) e.g. group of pixels
-    const fragmentShader: c_uint = g.glCreateShader(g.GL_FRAGMENT_SHADER);
-    // compilation process is the same as for vertexShader
-    g.glShaderSource(fragmentShader, 1, &fragmentShaderSource, null);
-
-    start = std.Io.Timestamp.now(io, std.Io.Clock.awake);
-    g.glCompileShader(fragmentShader);
-    end = std.Io.Timestamp.now(io, std.Io.Clock.awake);
-    duration = std.Io.Duration.toMicroseconds(start.durationTo(end));
-    // fragment shader compilation is ~150us
-    std.debug.print("fragment shader compilation took {}us\n", .{duration});
-
-    var fragmentShaderCompiled: c_int = undefined;
-    g.glGetShaderiv(fragmentShader, g.GL_COMPILE_STATUS, &fragmentShaderCompiled);
-    if (!(fragmentShaderCompiled != 0)) {
-        printShaderCompileError(fragmentShader);
-        return 1;
-    }
-    // shader program contains several shaders
-    const shaderProgram: c_uint = g.glCreateProgram();
-    g.glAttachShader(shaderProgram, vertexShader);
-    g.glAttachShader(shaderProgram, fragmentShader);
-    g.glLinkProgram(shaderProgram);
-    var programLinked: c_int = undefined;
-    g.glGetProgramiv(shaderProgram, g.GL_LINK_STATUS, &programLinked);
-    if (!(programLinked != 0)) {
-        std.debug.print("shader program failed to link!\n", .{});
-        std.process.exit(1);
-    }
-
-    // we don't need shader objects after we've linked them into a program
-    g.glDeleteShader(vertexShader);
-    g.glDeleteShader(fragmentShader);
+    const shaderProgram: c_uint = buildShaderProgram(io);
     // there's a default framebuffer and by default we render to it
     // but we can create another framebuffer, render to it, make a texture out of it
     // and then create quad that fills the entire screen and then
@@ -295,6 +241,66 @@ pub fn hello_gl() u8 {
     g.SDL_DestroyWindow(window);
     g.SDL_Quit();
     return 0;
+}
+
+pub fn buildShaderProgram(io: std.Io) c_uint {
+    var vertexShaderSource: [*c]const u8 = @embedFile("./vertex_shader.glsl");
+    // vertex shader operates, ahem, on vertices
+    const vertexShader: c_uint = g.glCreateShader(g.GL_VERTEX_SHADER);
+    // set source code to a shader, it takes an array of string, we pass just 1 string
+    // NULL means that strings are null-terminated
+    g.glShaderSource(vertexShader, 1, &vertexShaderSource, null);
+
+    var start: std.Io.Timestamp = std.Io.Timestamp.now(io, std.Io.Clock.awake);
+    var end: std.Io.Timestamp = undefined;
+
+    g.glCompileShader(vertexShader);
+    end = std.Io.Timestamp.now(io, std.Io.Clock.awake);
+    var duration: i64 = std.Io.Duration.toMicroseconds(start.durationTo(end));
+    // vertex shader compilation is ~600us
+    std.debug.print("vertex shader compilation took {}us\n", .{duration});
+
+    var vertexShaderCompiled: c_int = undefined;
+    g.glGetShaderiv(vertexShader, g.GL_COMPILE_STATUS, &vertexShaderCompiled);
+    if (!(vertexShaderCompiled != 0)) {
+        printShaderCompileError(vertexShader);
+        return 1;
+    }
+    var fragmentShaderSource: [*c]const u8 = @embedFile("./fragment_shader.glsl");
+    // fragment shader operates, ahem, on fragments (of a screen) e.g. group of pixels
+    const fragmentShader: c_uint = g.glCreateShader(g.GL_FRAGMENT_SHADER);
+    // compilation process is the same as for vertexShader
+    g.glShaderSource(fragmentShader, 1, &fragmentShaderSource, null);
+
+    start = std.Io.Timestamp.now(io, std.Io.Clock.awake);
+    g.glCompileShader(fragmentShader);
+    end = std.Io.Timestamp.now(io, std.Io.Clock.awake);
+    duration = std.Io.Duration.toMicroseconds(start.durationTo(end));
+    // fragment shader compilation is ~150us
+    std.debug.print("fragment shader compilation took {}us\n", .{duration});
+
+    var fragmentShaderCompiled: c_int = undefined;
+    g.glGetShaderiv(fragmentShader, g.GL_COMPILE_STATUS, &fragmentShaderCompiled);
+    if (!(fragmentShaderCompiled != 0)) {
+        printShaderCompileError(fragmentShader);
+        return 1;
+    }
+    // shader program contains several shaders
+    const shaderProgram: c_uint = g.glCreateProgram();
+    g.glAttachShader(shaderProgram, vertexShader);
+    g.glAttachShader(shaderProgram, fragmentShader);
+    g.glLinkProgram(shaderProgram);
+    var programLinked: c_int = undefined;
+    g.glGetProgramiv(shaderProgram, g.GL_LINK_STATUS, &programLinked);
+    if (!(programLinked != 0)) {
+        std.debug.print("shader program failed to link!\n", .{});
+        std.process.exit(1);
+    }
+
+    // we don't need shader objects after we've linked them into a program
+    g.glDeleteShader(vertexShader);
+    g.glDeleteShader(fragmentShader);
+    return shaderProgram;
 }
 
 fn printShaderCompileError(shader: c_uint) void {
