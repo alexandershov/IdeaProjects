@@ -241,7 +241,7 @@ pub fn buildShaderProgram(io: std.Io, comptime vertexShaderPath: []const u8, com
     end = std.Io.Timestamp.now(io, std.Io.Clock.awake);
     var duration: i64 = std.Io.Duration.toMicroseconds(start.durationTo(end));
     // vertex shader compilation is ~600us
-    std.debug.print("vertex shader compilation took {}us\n", .{duration});
+    std.debug.print("{s} compilation took {}us\n", .{vertexShaderPath, duration});
 
     var vertexShaderCompiled: c_int = undefined;
     g.glGetShaderiv(vertexShader, g.GL_COMPILE_STATUS, &vertexShaderCompiled);
@@ -260,7 +260,7 @@ pub fn buildShaderProgram(io: std.Io, comptime vertexShaderPath: []const u8, com
     end = std.Io.Timestamp.now(io, std.Io.Clock.awake);
     duration = std.Io.Duration.toMicroseconds(start.durationTo(end));
     // fragment shader compilation is ~150us
-    std.debug.print("fragment shader compilation took {}us\n", .{duration});
+    std.debug.print("{s} compilation took {}us\n", .{fragmentShaderPath, duration});
 
     var fragmentShaderCompiled: c_int = undefined;
     g.glGetShaderiv(fragmentShader, g.GL_COMPILE_STATUS, &fragmentShaderCompiled);
