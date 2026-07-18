@@ -137,7 +137,7 @@ pub fn hello_gl() u8 {
         0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0,
         0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
     };
-    const VAO: c_uint = buildVAO(&triangleVertices, .{
+    const triangleVAO: c_uint = buildVAO(&triangleVertices, .{
         // we tell OpenGL how to extract positions from our vector data (array of 24 floats)
         // stride: distance between consecutive attributes is 8 for triangleVertices
         // internally buildVAO will multiply it by @sizeOf(f32)
@@ -174,7 +174,7 @@ pub fn hello_gl() u8 {
         // g.glActiveTexture(g.GL_TEXTURE0);
         g.glBindTexture(g.GL_TEXTURE_2D, texture);
         // use VAO
-        g.glBindVertexArray(VAO);
+        g.glBindVertexArray(triangleVAO);
         // draw triangles
         g.glDrawArrays(g.GL_TRIANGLES, 0, // starting index of vertex array
             3 // how many vertices to draw, there are 3 vertices in a triangle
