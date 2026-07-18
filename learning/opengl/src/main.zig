@@ -280,7 +280,7 @@ fn buildVAO() c_uint {
 
     // copy data in the currently bound buffer
     // GL_STATIC_DRAW means - data will be set only once and used many times
-    g.glBufferData(g.GL_ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), @ptrCast(@alignCast(@as([*c]f32, @ptrCast(@alignCast(&vertices))))), g.GL_STATIC_DRAW);
+    g.glBufferData(g.GL_ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), &vertices, g.GL_STATIC_DRAW);
 
     // tell OpenGL how to extract positions from our vector data (array of 24 floats)
 
@@ -288,7 +288,7 @@ fn buildVAO() c_uint {
         3, // attribute size, it's a vec3 in vertex shader
         g.GL_FLOAT, // attribute type
         g.GL_FALSE, // normalize data
-        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 8) *% @sizeOf(f32)))), // stride: distance between consecutive attributes
+        8 * @sizeOf(f32), // stride: distance between consecutive attributes
         null // offset of data in the buffer
     );
     // enable attribute at location 0
@@ -298,8 +298,8 @@ fn buildVAO() c_uint {
         3, // attribute size, it's a vec3 in vertex shader
         g.GL_FLOAT, // attribute type
         g.GL_FALSE, // normalize data
-        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 8) *% @sizeOf(f32)))), // stride
-        @ptrFromInt(@as(c_ulong, 3) *% @sizeOf(f32)) // offset of data in the buffer
+        8 * @sizeOf(f32), // stride
+        @ptrFromInt(3 * @sizeOf(f32)) // offset of data in the buffer
     );
     // enable attribute at location 1
     g.glEnableVertexAttribArray(1);
@@ -309,8 +309,8 @@ fn buildVAO() c_uint {
         2, // attribute size, it's a vec2 in vertex shader
         g.GL_FLOAT, // attribute type
         g.GL_FALSE, // normalize data
-        @bitCast(@as(c_uint, @truncate(@as(c_ulong, 8) *% @sizeOf(f32)))), // stride
-        @ptrFromInt(@as(c_ulong, 6) *% @sizeOf(f32)) // offset of data in the buffer
+        8 * @sizeOf(f32), // stride
+        @ptrFromInt(6 * @sizeOf(f32)) // offset of data in the buffer
     );
     // enable attribute at location 2
     g.glEnableVertexAttribArray(2);
