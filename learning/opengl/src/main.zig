@@ -46,6 +46,7 @@ pub fn hello_gl() u8 {
     const context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
 
     const shaderProgram: c_uint = buildShaderProgram(io, "./vertex_shader.glsl", "./fragment_shader.glsl");
+    const quadShaderProgram: c_uint = buildShaderProgram(io, "./quad_vertex_shader.glsl", "./quad_fragment_shader.glsl");
     // there's a default framebuffer and by default we render to it
     // but we can create another framebuffer, render to it, make a texture out of it
     // and then create quad that fills the entire screen and then
@@ -53,9 +54,8 @@ pub fn hello_gl() u8 {
     // we can e.g. apply grayscale effects, motion blur, etc
     var fbo: u32 = undefined;
     g.glGenFramebuffers(1, &fbo);
-    // after this bind all read/write framebuffer operations will affect this framebuffer
-    g.glBindFramebuffer(g.GL_FRAMEBUFFER, fbo);
     defer g.glDeleteFramebuffers(1, &fbo);
+    g.glBindFramebuffer(g.GL_FRAMEBUFFER, fbo);
 
     // create a texture that framebuffer will render to
     var texColorBuffer: u32 = undefined;
@@ -148,6 +148,24 @@ pub fn hello_gl() u8 {
         // st has offset 6
         .offsets = &.{ 0, 3, 6 },
     });
+
+    var quadVertices: [24]f32 = [24]f32{
+        // x    y    s    t
+        -1.0, 1.0,  0.0, 1.0,
+        -1.0, -1.0, 0.0, 0.0,
+        1.0,  -1.0, 1.0, 0.0,
+        -1.0, 1.0,  0.0, 1.0,
+        1.0,  1.0,  1.0, 1.0,
+        1.0,  -1.0, 1.0, 0.0,
+    };
+    const quadVAO: c_uint = buildVAO(&quadVertices, .{
+        .stride = 4,
+        // offsets of data in a buffer
+        // xy has offset 0
+        // st has offset 2
+        .offsets = &.{ 0, 2 },
+    });
+
     var running: bool = g.true != 0;
     var event: g.SDL_Event = undefined;
     var redDelta: f32 = 0.0;
@@ -157,11 +175,14 @@ pub fn hello_gl() u8 {
                 running = g.false != 0;
             }
         }
+        // after this bind all read/write framebuffer operations will affect this framebuffer
+        g.glBindFramebuffer(g.GL_FRAMEBUFFER, fbo);
         // clear color buffers, this is OpenGL function
         // As I understand this is to reset OpenGL state machine on each frame
         // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glClear.xhtml
         g.glClearColor(0.2, 0.3, 0.3, 1.0);
-        g.glClear(g.GL_COLOR_BUFFER_BIT);
+        g.glClear(g.GL_COLOR_BUFFER_BIT | g.GL_DEPTH_BUFFER_BIT);
+        g.glEnable(g.GL_DEPTH_TEST);
         g.glUseProgram(shaderProgram);
         // assigning uniform (aka global) value
         const colorDeltaLocation: c_int = g.glGetUniformLocation(shaderProgram, "colorDelta");
@@ -179,6 +200,20 @@ pub fn hello_gl() u8 {
         g.glDrawArrays(g.GL_TRIANGLES, 0, // starting index of vertex array
             3 // how many vertices to draw, there are 3 vertices in a triangle
         );
+
+        g.glBindFramebuffer(g.GL_FRAMEBUFFER, 0);
+        g.glClearColor(1.0, 1.0, 1.0, 1.0);
+        g.glClear(g.GL_COLOR_BUFFER_BIT);
+        g.glUseProgram(quadShaderProgram);
+        // use VAO
+        g.glBindVertexArray(quadVAO);
+        g.glDisable(g.GL_DEPTH_TEST);
+        g.glBindTexture(g.GL_TEXTURE_2D, texColorBuffer);
+        // draw triangles
+        g.glDrawArrays(g.GL_TRIANGLES, 0, // starting index of vertex array
+            6 // how many vertices to draw, there are 6 vertices in quad
+        );
+
         // update a window with OpenGL rendering
         // default OpenGL context uses double buffering, hence "swap" of the background/in-progress buffer
         // to the "active/screen" buffer
