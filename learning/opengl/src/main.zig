@@ -126,7 +126,13 @@ pub fn hello_gl() u8 {
         texData,
     );
 
-    const VAO: c_uint = buildVAO();
+    var triangleVertices: [24]f32 = [24]f32{
+        //x    y    z    r    g    b  texture coordinates
+        0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+        0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0,
+        0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+    };
+    const VAO: c_uint = buildVAO(&triangleVertices);
     var running: bool = g.true != 0;
     var event: g.SDL_Event = undefined;
     var redDelta: f32 = 0.0;
@@ -247,7 +253,7 @@ fn printShaderCompileError(shader: c_uint) void {
     std.debug.print("{s} shader failed to compile! {s}\n", .{ shaderType, shaderCompileError[0..@intCast(shaderCompileErrorLen)] });
 }
 
-fn buildVAO() c_uint {
+fn buildVAO(vertices: []f32) c_uint {
     // Vertex Buffer Object, used to send vertices to GPU memory
     var VBO: c_uint = undefined;
     // init 1 buffer object
@@ -268,19 +274,14 @@ fn buildVAO() c_uint {
     // Coordinates are in Normalized Device Coordinates - range is [-1.0; 1.0]
     // our window is 800x600, this means that x == 0 will be translated to 400
     // and y == 0 will be translated to 300 - it's lerp
-    var vertices: [24]f32 = [24]f32{
-        //x    y    z    r    g    b  texture coordinates
-        0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
-        0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0,
-        0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
-    };
+
     // texture is a rectangle with coordinates from -1.0 to 1.0 on s (== x) and t (== y) axes.
     // lower left is (-1.0, -1.0), upper right is (1.0, 1.0)
     // each vertex is mapped to a position in a texture
 
     // copy data in the currently bound buffer
     // GL_STATIC_DRAW means - data will be set only once and used many times
-    g.glBufferData(g.GL_ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), &vertices, g.GL_STATIC_DRAW);
+    g.glBufferData(g.GL_ARRAY_BUFFER, @intCast(vertices.len * @sizeOf(f32)), vertices.ptr, g.GL_STATIC_DRAW);
 
     // tell OpenGL how to extract positions from our vector data (array of 24 floats)
 
