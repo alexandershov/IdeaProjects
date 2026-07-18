@@ -5,6 +5,11 @@ const stb = @cImport({
     @cInclude("stb_image.h");
 });
 
+const VertexAttribs = struct {
+    stride: usize,
+    offsets: []const usize,
+};
+
 pub fn hello_gl() u8 {
     var debug_allocator: std.heap.DebugAllocator(.{}) = .init;
     const gpa = debug_allocator.allocator();
@@ -127,12 +132,22 @@ pub fn hello_gl() u8 {
     );
 
     var triangleVertices: [24]f32 = [24]f32{
-        //x    y    z    r    g    b  texture coordinates
+        //x    y    z    r    g    b  texture coordinates (st)
         0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
         0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0,
         0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
     };
-    const VAO: c_uint = buildVAO(&triangleVertices);
+    const VAO: c_uint = buildVAO(&triangleVertices, .{
+        // we tell OpenGL how to extract positions from our vector data (array of 24 floats)
+        // stride: distance between consecutive attributes is 8 for triangleVertices
+        // internally buildVAO will multiply it by @sizeOf(f32)
+        .stride = 8,
+        // offsets of data in a buffer
+        // xyz has offset 0
+        // rgb has offset 3
+        // st has offset 6
+        .offsets = &.{ 0, 3, 6 },
+    });
     var running: bool = g.true != 0;
     var event: g.SDL_Event = undefined;
     var redDelta: f32 = 0.0;
@@ -253,7 +268,7 @@ fn printShaderCompileError(shader: c_uint) void {
     std.debug.print("{s} shader failed to compile! {s}\n", .{ shaderType, shaderCompileError[0..@intCast(shaderCompileErrorLen)] });
 }
 
-fn buildVAO(vertices: []f32) c_uint {
+fn buildVAO(vertices: []f32, vertexAttribs: VertexAttribs) c_uint {
     // Vertex Buffer Object, used to send vertices to GPU memory
     var VBO: c_uint = undefined;
     // init 1 buffer object
@@ -283,41 +298,19 @@ fn buildVAO(vertices: []f32) c_uint {
     // GL_STATIC_DRAW means - data will be set only once and used many times
     g.glBufferData(g.GL_ARRAY_BUFFER, @intCast(vertices.len * @sizeOf(f32)), vertices.ptr, g.GL_STATIC_DRAW);
 
-    // tell OpenGL how to extract positions from our vector data (array of 24 floats)
-
-    g.glVertexAttribPointer(0, // attribute position, same as location value in vertex shader
-        3, // attribute size, it's a vec3 in vertex shader
-        g.GL_FLOAT, // attribute type
-        g.GL_FALSE, // normalize data
-        8 * @sizeOf(f32), // stride: distance between consecutive attributes
-        null // offset of data in the buffer
-    );
-    // enable attribute at location 0
-    g.glEnableVertexAttribArray(0);
-    // tell OpenGL how to extract colors from our vector data (array of 24 floats)
-    g.glVertexAttribPointer(1, // attribute position, same as location value in vertex shader
-        3, // attribute size, it's a vec3 in vertex shader
-        g.GL_FLOAT, // attribute type
-        g.GL_FALSE, // normalize data
-        8 * @sizeOf(f32), // stride
-        @ptrFromInt(3 * @sizeOf(f32)) // offset of data in the buffer
-    );
-    // enable attribute at location 1
-    g.glEnableVertexAttribArray(1);
-
-    // tell OpenGL how to extract textures from our vector data (array of 24 floats)
-    g.glVertexAttribPointer(2, // attribute position, same as location value in vertex shader
-        2, // attribute size, it's a vec2 in vertex shader
-        g.GL_FLOAT, // attribute type
-        g.GL_FALSE, // normalize data
-        8 * @sizeOf(f32), // stride
-        @ptrFromInt(6 * @sizeOf(f32)) // offset of data in the buffer
-    );
-    // enable attribute at location 2
-    g.glEnableVertexAttribArray(2);
-
-    // we'll have 3 vertices with 3 colors, but fragment shader output will be quite colorful
-    // because it'll interpolate colors
+    // tell OpenGL how to extract attributes (e.g. positions, colors, texture coordinates) from our data
+    for (vertexAttribs.offsets, 0..) |offset, i| {
+        const nextOffset = if (i + 1 < vertexAttribs.offsets.len) vertexAttribs.offsets[i + 1] else vertexAttribs.stride;
+        const size = nextOffset - offset;
+        g.glVertexAttribPointer(@intCast(i), // attribute position, same as location value in vertex shader
+            @intCast(size), // attribute size, it's vec* in vertex shader
+            g.GL_FLOAT, // attribute type
+            g.GL_FALSE, // normalize data
+            @intCast(vertexAttribs.stride * @sizeOf(f32)), // stride: distance between consecutive attributes
+            @ptrFromInt(offset * @sizeOf(f32)) // offset of data in the buffer
+        );
+        g.glEnableVertexAttribArray(@intCast(i));
+    }
 
     // unbind VBO
     g.glBindBuffer(g.GL_ARRAY_BUFFER, 0);
