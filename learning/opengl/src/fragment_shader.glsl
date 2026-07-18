@@ -18,6 +18,8 @@ void main() {
   //Color = vec4(1.0, 0.0, 0.0, 1.0);
   //}
   // texture is GLSL built-in that does texturing for fragments
+  // TexCoord will be interpolated coordinates - the fact that we have only 3 vertices
+  // doesn't mean that we'll call fragment shader 3 times - we'll call it for every fragment (== pixel, more or less)
   Color = texture(ourTexture, TexCoord);
 }
 
