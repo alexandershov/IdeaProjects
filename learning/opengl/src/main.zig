@@ -209,6 +209,8 @@ pub fn hello_gl() !u8 {
     var running: bool = g.true != 0;
     var event: g.SDL_Event = undefined;
     var redDelta: f32 = 0.0;
+    var numUnaccountedFrames: usize = 0;
+    var unaccountedFramesStartedAt: std.Io.Timestamp = std.Io.Clock.awake.now(io);
     while (running) {
         while (g.SDL_PollEvent(&event) != 0) {
             if (event.type == @as(g.Uint32, g.SDL_QUIT)) {
@@ -262,6 +264,15 @@ pub fn hello_gl() !u8 {
         // default OpenGL context uses double buffering, hence "swap" of the background/in-progress buffer
         // to the "active/screen" buffer
         g.SDL_GL_SwapWindow(window);
+        numUnaccountedFrames += 1;
+        if (numUnaccountedFrames == 100) {
+            const unaccountedFramesEndedAt = std.Io.Clock.awake.now(io);
+            const duration: usize = @intCast(std.Io.Duration.toMicroseconds(unaccountedFramesStartedAt.durationTo(unaccountedFramesEndedAt)));
+            const fps: usize = 1_000_000 * numUnaccountedFrames / duration;
+            std.debug.print("fps = {}\n", .{ fps });
+            numUnaccountedFrames = 0;
+            unaccountedFramesStartedAt = unaccountedFramesEndedAt;
+        }
     }
     // clean up & exit
     g.SDL_GL_DeleteContext(context);
