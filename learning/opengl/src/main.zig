@@ -10,7 +10,12 @@ const VertexAttribs = struct {
     offsets: []const usize,
 };
 
-pub fn hello_gl() u8 {
+const Point = struct {
+    x: f32,
+    y: f32,
+};
+
+pub fn hello_gl() !u8 {
     var debug_allocator: std.heap.DebugAllocator(.{}) = .init;
     const gpa = debug_allocator.allocator();
 
@@ -47,6 +52,7 @@ pub fn hello_gl() u8 {
 
     const shaderProgram: c_uint = buildShaderProgram(io, "./vertex_shader.glsl", "./fragment_shader.glsl");
     const quadShaderProgram: c_uint = buildShaderProgram(io, "./quad_vertex_shader.glsl", "./quad_fragment_shader.glsl");
+    const noopShaderProgram: c_uint = buildShaderProgram(io, "./no_op_vertex_shader.glsl", "./no_op_fragment_shader.glsl");
     // there's a default framebuffer and by default we render to it
     // but we can create another framebuffer, render to it, make a texture out of it
     // and then create quad that fills the entire screen and then
@@ -166,6 +172,39 @@ pub fn hello_gl() u8 {
         .offsets = &.{ 0, 2 },
     });
 
+    const circleCenter: Point = .{ .x = 0.0, .y = 0.0 };
+    const circleRadius: f32 = 0.2;
+    var angle: f32 = 0.0;
+    const angleStep: f32 = 0.1;
+    var circleVertices: std.ArrayList(f32) = .empty;
+    defer circleVertices.deinit(gpa);
+    var prevPoint: Point = pointAtAngle(angle, circleCenter, circleRadius);
+    var numCircleTriangles: i32 = 0;
+    const blue: []const f32 = &.{ 0.0, 0.0, 1.0 };
+    while (angle <= std.math.pi * 2.0) : (angle += angleStep) {
+        // TODO: close the circle so there's no empty last segment
+        const curPoint = pointAtAngle(angle, circleCenter, circleRadius);
+
+        // add blue triangle
+        try circleVertices.appendSlice(gpa, &.{ circleCenter.x, circleCenter.y, 0.0 });
+        try circleVertices.appendSlice(gpa, blue);
+
+        try circleVertices.appendSlice(gpa, &.{ prevPoint.x, prevPoint.y, 0.0 });
+        try circleVertices.appendSlice(gpa, blue);
+
+        try circleVertices.appendSlice(gpa, &.{ curPoint.x, curPoint.y, 0.0 });
+        try circleVertices.appendSlice(gpa, blue);
+
+        numCircleTriangles += 1;
+        prevPoint = curPoint;
+    }
+    const circleVAO: c_uint = buildVAO(circleVertices.items, .{
+        // stride = xyz + rgb = 6
+        .stride = 6,
+        // offsets = xyz, rgb
+        .offsets = &.{ 0, 3 },
+    });
+
     var running: bool = g.true != 0;
     var event: g.SDL_Event = undefined;
     var redDelta: f32 = 0.0;
@@ -192,7 +231,6 @@ pub fn hello_gl() u8 {
             redDelta = 0.0;
         }
         g.glUniform4f(colorDeltaLocation, redDelta, 0.0, 0.0, 0.0);
-        // g.glActiveTexture(g.GL_TEXTURE0);
         g.glBindTexture(g.GL_TEXTURE_2D, texture);
         // use VAO
         g.glBindVertexArray(triangleVAO);
@@ -200,6 +238,11 @@ pub fn hello_gl() u8 {
         g.glDrawArrays(g.GL_TRIANGLES, 0, // starting index of vertex array
             3 // how many vertices to draw, there are 3 vertices in a triangle
         );
+
+        // draw a circle
+        g.glUseProgram(noopShaderProgram);
+        g.glBindVertexArray(circleVAO);
+        g.glDrawArrays(g.GL_TRIANGLES, 0, numCircleTriangles * 3);
 
         g.glBindFramebuffer(g.GL_FRAMEBUFFER, 0);
         g.glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -241,7 +284,7 @@ pub fn buildShaderProgram(io: std.Io, comptime vertexShaderPath: []const u8, com
     end = std.Io.Timestamp.now(io, std.Io.Clock.awake);
     var duration: i64 = std.Io.Duration.toMicroseconds(start.durationTo(end));
     // vertex shader compilation is ~600us
-    std.debug.print("{s} compilation took {}us\n", .{vertexShaderPath, duration});
+    std.debug.print("{s} compilation took {}us\n", .{ vertexShaderPath, duration });
 
     var vertexShaderCompiled: c_int = undefined;
     g.glGetShaderiv(vertexShader, g.GL_COMPILE_STATUS, &vertexShaderCompiled);
@@ -260,7 +303,7 @@ pub fn buildShaderProgram(io: std.Io, comptime vertexShaderPath: []const u8, com
     end = std.Io.Timestamp.now(io, std.Io.Clock.awake);
     duration = std.Io.Duration.toMicroseconds(start.durationTo(end));
     // fragment shader compilation is ~150us
-    std.debug.print("{s} compilation took {}us\n", .{fragmentShaderPath, duration});
+    std.debug.print("{s} compilation took {}us\n", .{ fragmentShaderPath, duration });
 
     var fragmentShaderCompiled: c_int = undefined;
     g.glGetShaderiv(fragmentShader, g.GL_COMPILE_STATUS, &fragmentShaderCompiled);
@@ -352,6 +395,13 @@ fn buildVAO(vertices: []f32, vertexAttribs: VertexAttribs) c_uint {
     // unbind current VAO
     g.glBindVertexArray(0);
     return VAO;
+}
+
+fn pointAtAngle(angle: f32, center: Point, radius: f32) Point {
+    return .{
+        .x = center.x + @cos(angle) * radius,
+        .y = center.y + @sin(angle) * radius,
+    };
 }
 
 pub fn main() !u8 {
