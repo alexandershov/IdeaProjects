@@ -32,6 +32,9 @@ pub fn hello_gl() !u8 {
         return 1;
     }
     defer stb.stbi_image_free(texData);
+    // enable antialiasing
+    _ = g.SDL_GL_SetAttribute(g.SDL_GL_MULTISAMPLEBUFFERS, 1);
+    _ = g.SDL_GL_SetAttribute(g.SDL_GL_MULTISAMPLESAMPLES, 4); // 4x MSAA
     _ = g.SDL_Init(g.SDL_INIT_VIDEO);
 
     // use opengl 4.1
@@ -48,7 +51,9 @@ pub fn hello_gl() !u8 {
         800, // height
         g.SDL_WINDOW_OPENGL // window is usable with OpenGL
     );
+
     const context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
+    g.glEnable(g.GL_MULTISAMPLE);
 
     const shaderProgram: c_uint = buildShaderProgram(io, "./vertex_shader.glsl", "./fragment_shader.glsl");
     const quadShaderProgram: c_uint = buildShaderProgram(io, "./quad_vertex_shader.glsl", "./quad_fragment_shader.glsl");
@@ -269,7 +274,7 @@ pub fn hello_gl() !u8 {
             const unaccountedFramesEndedAt = std.Io.Clock.awake.now(io);
             const duration: usize = @intCast(std.Io.Duration.toMicroseconds(unaccountedFramesStartedAt.durationTo(unaccountedFramesEndedAt)));
             const fps: usize = 1_000_000 * numUnaccountedFrames / duration;
-            std.debug.print("fps = {}\n", .{ fps });
+            std.debug.print("fps = {}\r", .{fps});
             numUnaccountedFrames = 0;
             unaccountedFramesStartedAt = unaccountedFramesEndedAt;
         }
