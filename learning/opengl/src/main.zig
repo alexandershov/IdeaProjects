@@ -45,7 +45,7 @@ pub fn hello_gl() !u8 {
         g.SDL_WINDOWPOS_CENTERED, // x position of the window
         g.SDL_WINDOWPOS_CENTERED, // y position of the window
         800, // width
-        600, // height
+        800, // height
         g.SDL_WINDOW_OPENGL // window is usable with OpenGL
     );
     const context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
@@ -67,7 +67,7 @@ pub fn hello_gl() !u8 {
     var texColorBuffer: u32 = undefined;
     g.glGenTextures(1, &texColorBuffer);
     g.glBindTexture(g.GL_TEXTURE_2D, texColorBuffer);
-    g.glTexImage2D(g.GL_TEXTURE_2D, 0, g.GL_RGB, 800, 600, 0, g.GL_RGB, g.GL_UNSIGNED_BYTE, null);
+    g.glTexImage2D(g.GL_TEXTURE_2D, 0, g.GL_RGB, 800, 800, 0, g.GL_RGB, g.GL_UNSIGNED_BYTE, null);
     g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MIN_FILTER, g.GL_LINEAR);
     g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MAG_FILTER, g.GL_LINEAR);
     // unbind texture
@@ -95,7 +95,7 @@ pub fn hello_gl() !u8 {
         g.GL_RENDERBUFFER,
         g.GL_DEPTH24_STENCIL8, // use 24 bits for depth and 8 bits for stencil
         800,
-        600,
+        800,
     );
     g.glBindRenderbuffer(g.GL_RENDERBUFFER, 0);
     // attach renderbuffer to attachments to depth & stencil attachments of framebuffer
@@ -366,7 +366,7 @@ fn buildVAO(vertices: []f32, vertexAttribs: VertexAttribs) c_uint {
     // this is kinda like binding of variable (think `let` in Common Lisp)
     g.glBindBuffer(g.GL_ARRAY_BUFFER, VBO);
     // Coordinates are in Normalized Device Coordinates - range is [-1.0; 1.0]
-    // our window is 800x600, this means that x == 0 will be translated to 400
+    // if our window is 800x600, this means that x == 0 will be translated to 400
     // and y == 0 will be translated to 300 - it's lerp
 
     // texture is a rectangle with coordinates from -1.0 to 1.0 on s (== x) and t (== y) axes.
