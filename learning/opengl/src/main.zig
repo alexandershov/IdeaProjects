@@ -175,15 +175,15 @@ pub fn hello_gl() !u8 {
     const circleCenter: Point = .{ .x = 0.0, .y = 0.0 };
     const circleRadius: f32 = 0.2;
     var angle: f32 = 0.0;
-    const angleStep: f32 = 0.1;
+    const numSectors = 60;
+    const angleStep: f32 = 2.0 * std.math.pi / @as(f32, @floatFromInt(numSectors));
     var circleVertices: std.ArrayList(f32) = .empty;
     defer circleVertices.deinit(gpa);
     var prevPoint: Point = pointAtAngle(angle, circleCenter, circleRadius);
     var numCircleTriangles: i32 = 0;
     const blue: []const f32 = &.{ 0.0, 0.0, 1.0 };
-    while (angle <= std.math.pi * 2.0) : (angle += angleStep) {
-        // TODO: close the circle so there's no empty last segment
-        const curPoint = pointAtAngle(angle, circleCenter, circleRadius);
+    for (0..numSectors) |_| {
+        const curPoint = pointAtAngle(@min(2 * std.math.pi, angle + angleStep), circleCenter, circleRadius);
 
         // add blue triangle
         try circleVertices.appendSlice(gpa, &.{ circleCenter.x, circleCenter.y, 0.0 });
@@ -197,6 +197,7 @@ pub fn hello_gl() !u8 {
 
         numCircleTriangles += 1;
         prevPoint = curPoint;
+        angle += angleStep;
     }
     const circleVAO: c_uint = buildVAO(circleVertices.items, .{
         // stride = xyz + rgb = 6
