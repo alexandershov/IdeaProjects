@@ -278,11 +278,11 @@ pub fn buildShaderProgram(io: std.Io, comptime vertexShaderPath: []const u8, com
     // NULL means that strings are null-terminated
     g.glShaderSource(vertexShader, 1, &vertexShaderSource, null);
 
-    var start: std.Io.Timestamp = std.Io.Timestamp.now(io, std.Io.Clock.awake);
+    var start: std.Io.Timestamp = std.Io.Clock.awake.now(io);
     var end: std.Io.Timestamp = undefined;
 
     g.glCompileShader(vertexShader);
-    end = std.Io.Timestamp.now(io, std.Io.Clock.awake);
+    end = std.Io.Clock.awake.now(io);
     var duration: i64 = std.Io.Duration.toMicroseconds(start.durationTo(end));
     // vertex shader compilation is ~600us
     std.debug.print("{s} compilation took {}us\n", .{ vertexShaderPath, duration });
@@ -299,9 +299,9 @@ pub fn buildShaderProgram(io: std.Io, comptime vertexShaderPath: []const u8, com
     // compilation process is the same as for vertexShader
     g.glShaderSource(fragmentShader, 1, &fragmentShaderSource, null);
 
-    start = std.Io.Timestamp.now(io, std.Io.Clock.awake);
+    start = std.Io.Clock.awake.now(io);
     g.glCompileShader(fragmentShader);
-    end = std.Io.Timestamp.now(io, std.Io.Clock.awake);
+    end = std.Io.Clock.awake.now(io);
     duration = std.Io.Duration.toMicroseconds(start.durationTo(end));
     // fragment shader compilation is ~150us
     std.debug.print("{s} compilation took {}us\n", .{ fragmentShaderPath, duration });
