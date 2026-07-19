@@ -52,7 +52,7 @@ pub fn hello_gl() !u8 {
 
     const shaderProgram: c_uint = buildShaderProgram(io, "./vertex_shader.glsl", "./fragment_shader.glsl");
     const quadShaderProgram: c_uint = buildShaderProgram(io, "./quad_vertex_shader.glsl", "./quad_fragment_shader.glsl");
-    const noopShaderProgram: c_uint = buildShaderProgram(io, "./no_op_vertex_shader.glsl", "./no_op_fragment_shader.glsl");
+    const passThroughShaderProgram: c_uint = buildShaderProgram(io, "./pass_through_vertex_shader.glsl", "./pass_through_fragment_shader.glsl");
     // there's a default framebuffer and by default we render to it
     // but we can create another framebuffer, render to it, make a texture out of it
     // and then create quad that fills the entire screen and then
@@ -240,7 +240,7 @@ pub fn hello_gl() !u8 {
         );
 
         // draw a circle
-        g.glUseProgram(noopShaderProgram);
+        g.glUseProgram(passThroughShaderProgram);
         g.glBindVertexArray(circleVAO);
         g.glDrawArrays(g.GL_TRIANGLES, 0, numCircleTriangles * 3);
 
