@@ -32,7 +32,21 @@ pub fn hello_gl() !u8 {
         return 1;
     }
     defer stb.stbi_image_free(texData);
-    // enable antialiasing
+    // by default you'll get jagged edges
+    // so we need to enable antialiasing for a smoother edges
+    // there are several ways to do antialiasing
+    // early GPUs had something called SSAA (super sample antialiasing)
+    // e.g. your render at 4x the resolution and then downscale
+    // that's super expensive - you need to run fragment shaders 4x times
+    // so multisample antialiasing (MSAA) appeared at the end of 90s/beginning of 2000s
+    // each pixel has 4 (this is configurable) samples
+    // fragment shader runs at a normal resolution, but can affect several samples
+    // how many samples - depends on how many samples are inside of the triangle
+    // then we determine the final color of the fragment by combining samples
+    // if sample was not a part of any triangle then it will dilute fragment color
+    // although we run fragment shader once for every fragment
+    // we need to store color, depth, and stencil buffers for each sample
+    // so we'll use more memory (4x more for 4x MSAA)
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_MULTISAMPLEBUFFERS, 1);
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_MULTISAMPLESAMPLES, 4); // 4x MSAA
     _ = g.SDL_Init(g.SDL_INIT_VIDEO);
