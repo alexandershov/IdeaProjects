@@ -15,6 +15,7 @@ const Point = struct {
     y: f32,
 };
 
+// 4x MSAA, 4x is max MSAA on my machine
 const MSAA = 4;
 
 pub fn hello_gl() !u8 {
@@ -58,7 +59,8 @@ pub fn hello_gl() !u8 {
     // that will contain a regular texture
     // we need this conversion, because texture() in GLSL can't work with multisampled textures
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_MULTISAMPLEBUFFERS, 1);
-    _ = g.SDL_GL_SetAttribute(g.SDL_GL_MULTISAMPLESAMPLES, 4); // 4x MSAA
+    _ = g.SDL_GL_SetAttribute(g.SDL_GL_MULTISAMPLESAMPLES, MSAA);
+
     _ = g.SDL_Init(g.SDL_INIT_VIDEO);
 
     // use opengl 4.1
@@ -79,6 +81,15 @@ pub fn hello_gl() !u8 {
     const context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
     // enable MSAA
     g.glEnable(g.GL_MULTISAMPLE);
+
+    var maxMSAA: i32 = undefined;
+    g.glGetIntegerv(g.GL_MAX_SAMPLES, &maxMSAA);
+    // maxMSAA = 4 on my machine
+    std.debug.print("maxMSAA = {}\n", .{maxMSAA});
+    if (MSAA > maxMSAA) {
+        std.debug.print("illegal MSAA = {}, maxMSAA is {}\n", .{MSAA, maxMSAA});
+        return 1;
+    }
 
     const shaderProgram: c_uint = buildShaderProgram(io, "./vertex_shader.glsl", "./fragment_shader.glsl");
     const quadShaderProgram: c_uint = buildShaderProgram(io, "./quad_vertex_shader.glsl", "./quad_fragment_shader.glsl");
