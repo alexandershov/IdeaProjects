@@ -15,6 +15,8 @@ const Point = struct {
     y: f32,
 };
 
+const MSAA = 4;
+
 pub fn hello_gl() !u8 {
     var debug_allocator: std.heap.DebugAllocator(.{}) = .init;
     const gpa = debug_allocator.allocator();
@@ -45,7 +47,7 @@ pub fn hello_gl() !u8 {
     // then we determine the final color of the fragment by combining samples
     // if sample was not a part of any triangle then it will dilute fragment color
     // although we run fragment shader once for every fragment
-    // we need to store color, depth, and stencil buffers for each sample
+    // we need to store color (if multiple triangles cover the sample), depth, and stencil buffers for each sample
     // so we'll use more memory (4x more for 4x MSAA)
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_MULTISAMPLEBUFFERS, 1);
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_MULTISAMPLESAMPLES, 4); // 4x MSAA
@@ -67,6 +69,7 @@ pub fn hello_gl() !u8 {
     );
 
     const context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
+    // enable MSAA
     g.glEnable(g.GL_MULTISAMPLE);
 
     const shaderProgram: c_uint = buildShaderProgram(io, "./vertex_shader.glsl", "./fragment_shader.glsl");
@@ -78,6 +81,7 @@ pub fn hello_gl() !u8 {
     // apply post-processing effects when rendering quad with the texture from our framebuffer
     // we can e.g. apply grayscale effects, motion blur, etc
     var fbo: u32 = undefined;
+
     g.glGenFramebuffers(1, &fbo);
     defer g.glDeleteFramebuffers(1, &fbo);
     g.glBindFramebuffer(g.GL_FRAMEBUFFER, fbo);
@@ -85,14 +89,12 @@ pub fn hello_gl() !u8 {
     // create a texture that framebuffer will render to
     var texColorBuffer: u32 = undefined;
     g.glGenTextures(1, &texColorBuffer);
-    g.glBindTexture(g.GL_TEXTURE_2D, texColorBuffer);
-    g.glTexImage2D(g.GL_TEXTURE_2D, 0, g.GL_RGB, 800, 800, 0, g.GL_RGB, g.GL_UNSIGNED_BYTE, null);
-    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MIN_FILTER, g.GL_LINEAR);
-    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MAG_FILTER, g.GL_LINEAR);
+    g.glBindTexture(g.GL_TEXTURE_2D_MULTISAMPLE, texColorBuffer);
+    g.glTexImage2DMultisample(g.GL_TEXTURE_2D_MULTISAMPLE, MSAA, g.GL_RGB, 800, 800, g.GL_TRUE);
     // unbind texture
-    g.glBindTexture(g.GL_TEXTURE_2D, 0);
+    g.glBindTexture(g.GL_TEXTURE_2D_MULTISAMPLE, 0);
     // attach texture to the bound framebuffer
-    g.glFramebufferTexture2D(g.GL_FRAMEBUFFER, g.GL_COLOR_ATTACHMENT0, g.GL_TEXTURE_2D, texColorBuffer, 0);
+    g.glFramebufferTexture2D(g.GL_FRAMEBUFFER, g.GL_COLOR_ATTACHMENT0, g.GL_TEXTURE_2D_MULTISAMPLE, texColorBuffer, 0);
 
     var rbo: u32 = undefined;
     // renderbuffers are useful if we don't need to read from them explicitly
@@ -110,8 +112,9 @@ pub fn hello_gl() !u8 {
     // * this will give us an effect of drawing a border (because we'll render only stuff that was not rendered before)
     g.glGenRenderbuffers(1, &rbo);
     g.glBindRenderbuffer(g.GL_RENDERBUFFER, rbo);
-    g.glRenderbufferStorage(
+    g.glRenderbufferStorageMultisample(
         g.GL_RENDERBUFFER,
+        MSAA, // number of samples
         g.GL_DEPTH24_STENCIL8, // use 24 bits for depth and 8 bits for stencil
         800,
         800,
@@ -124,6 +127,24 @@ pub fn hello_gl() !u8 {
         std.debug.print("framebuffer is not complete", .{});
         return 1;
     }
+
+    var resolvedFbo: u32 = undefined;
+    g.glGenFramebuffers(1, &resolvedFbo);
+    g.glBindFramebuffer(g.GL_FRAMEBUFFER, resolvedFbo);
+    defer g.glDeleteFramebuffers(1, &resolvedFbo);
+    g.glBindFramebuffer(g.GL_FRAMEBUFFER, resolvedFbo);
+
+    // create a texture that framebuffer will render to
+    var resolvedTexColorBuffer: u32 = undefined;
+    g.glGenTextures(1, &resolvedTexColorBuffer);
+    g.glBindTexture(g.GL_TEXTURE_2D, resolvedTexColorBuffer);
+    g.glTexImage2D(g.GL_TEXTURE_2D, 0, g.GL_RGB, 800, 800, 0, g.GL_RGB, g.GL_UNSIGNED_BYTE, null);
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MIN_FILTER, g.GL_LINEAR);
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MAG_FILTER, g.GL_LINEAR);
+    // unbind texture
+    g.glBindTexture(g.GL_TEXTURE_2D, 0);
+    // attach texture to the bound framebuffer
+    g.glFramebufferTexture2D(g.GL_FRAMEBUFFER, g.GL_COLOR_ATTACHMENT0, g.GL_TEXTURE_2D, resolvedTexColorBuffer, 0);
 
     // bind default framebuffer
     g.glBindFramebuffer(g.GL_FRAMEBUFFER, 0);
@@ -266,6 +287,14 @@ pub fn hello_gl() !u8 {
         g.glBindVertexArray(circleVAO);
         g.glDrawArrays(g.GL_TRIANGLES, 0, numCircleTriangles * 3);
 
+        // we wan't use multisample buffer in a shader, we need to resolve multisample buffer
+        // into regular buffer
+        g.glBindFramebuffer(g.GL_READ_FRAMEBUFFER, fbo);
+        g.glBindFramebuffer(g.GL_DRAW_FRAMEBUFFER, resolvedFbo);
+        // blit copies from fbo  to resolvedFbo
+        g.glBlitFramebuffer(0, 0, 800, 800, 0, 0, 800, 800, g.GL_COLOR_BUFFER_BIT, g.GL_NEAREST);
+
+        // render to a default buffer
         g.glBindFramebuffer(g.GL_FRAMEBUFFER, 0);
         g.glClearColor(1.0, 1.0, 1.0, 1.0);
         g.glClear(g.GL_COLOR_BUFFER_BIT);
@@ -273,7 +302,7 @@ pub fn hello_gl() !u8 {
         // use VAO
         g.glBindVertexArray(quadVAO);
         g.glDisable(g.GL_DEPTH_TEST);
-        g.glBindTexture(g.GL_TEXTURE_2D, texColorBuffer);
+        g.glBindTexture(g.GL_TEXTURE_2D, resolvedTexColorBuffer);
         // draw triangles
         g.glDrawArrays(g.GL_TRIANGLES, 0, // starting index of vertex array
             6 // how many vertices to draw, there are 6 vertices in quad
