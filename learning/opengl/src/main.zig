@@ -47,8 +47,16 @@ pub fn hello_gl() !u8 {
     // then we determine the final color of the fragment by combining samples
     // if sample was not a part of any triangle then it will dilute fragment color
     // although we run fragment shader once for every fragment
-    // we need to store color (if multiple triangles cover the sample), depth, and stencil buffers for each sample
+    // we need to store color, depth, and stencil buffers for each sample
     // so we'll use more memory (4x more for 4x MSAA)
+
+    // from the coding perspective:
+    // we create a framebuffer with multisampled color, depth, and stencil buffers
+    // we render out scene into this buffer
+    // if we need to do quad-style post-processing, then we need to convert multisampled texture
+    // to a regular texture, we do this with glBlitFramebuffer - and we need another framebuffer
+    // that will contain a regular texture
+    // we need this conversion, because texture() in GLSL can't work with multisampled textures
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_MULTISAMPLEBUFFERS, 1);
     _ = g.SDL_GL_SetAttribute(g.SDL_GL_MULTISAMPLESAMPLES, 4); // 4x MSAA
     _ = g.SDL_Init(g.SDL_INIT_VIDEO);
