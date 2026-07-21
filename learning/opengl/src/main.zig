@@ -87,13 +87,13 @@ pub fn hello_gl() !u8 {
     // maxMSAA = 4 on my machine
     std.debug.print("maxMSAA = {}\n", .{maxMSAA});
     if (MSAA > maxMSAA) {
-        std.debug.print("illegal MSAA = {}, maxMSAA is {}\n", .{MSAA, maxMSAA});
+        std.debug.print("illegal MSAA = {}, maxMSAA is {}\n", .{ MSAA, maxMSAA });
         return 1;
     }
 
-    const shaderProgram: c_uint = buildShaderProgram(io, "./vertex_shader.glsl", "./fragment_shader.glsl");
-    const quadShaderProgram: c_uint = buildShaderProgram(io, "./quad_vertex_shader.glsl", "./quad_fragment_shader.glsl");
-    const passThroughShaderProgram: c_uint = buildShaderProgram(io, "./pass_through_vertex_shader.glsl", "./pass_through_fragment_shader.glsl");
+    const shaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/vertex_shader.glsl", "./fragment_shader.glsl");
+    const quadShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", "./quad_fragment_shader.glsl");
+    const passThroughShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/pass_through_vertex_shader.glsl", "./pass_through_fragment_shader.glsl");
     // there's a default framebuffer and by default we render to it
     // but we can create another framebuffer, render to it, make a texture out of it
     // and then create quad that fills the entire screen and then
@@ -348,13 +348,15 @@ pub fn hello_gl() !u8 {
     return 0;
 }
 
-pub fn buildShaderProgram(io: std.Io, comptime vertexShaderPath: []const u8, comptime fragmentShaderPath: []const u8) c_uint {
-    var vertexShaderSource: [*c]const u8 = @embedFile(vertexShaderPath);
+pub fn buildShaderProgram(allocator: std.mem.Allocator, io: std.Io, comptime vertexShaderPath: []const u8, comptime fragmentShaderPath: []const u8) !c_uint {
+    var vertexShaderSource: []u8 = try std.Io.Dir.cwd().readFileAlloc(io, vertexShaderPath, allocator, std.Io.Limit.unlimited);
+    defer allocator.free(vertexShaderSource);
+
     // vertex shader operates, ahem, on vertices
     const vertexShader: c_uint = g.glCreateShader(g.GL_VERTEX_SHADER);
     // set source code to a shader, it takes an array of string, we pass just 1 string
-    // NULL means that strings are null-terminated
-    g.glShaderSource(vertexShader, 1, &vertexShaderSource, null);
+    const vertexShaderLength: i32 = @intCast(vertexShaderSource.len);
+    g.glShaderSource(vertexShader, 1, &vertexShaderSource.ptr, &vertexShaderLength);
 
     var start: std.Io.Timestamp = std.Io.Clock.awake.now(io);
     var end: std.Io.Timestamp = undefined;
