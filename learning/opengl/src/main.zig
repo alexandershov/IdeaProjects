@@ -96,6 +96,8 @@ fn hello_gl() !u8 {
     const shaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/vertex_shader.glsl", "./src/fragment_shader.glsl");
     const quadShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", "./src/quad_fragment_shader.glsl");
     const passThroughShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/pass_through_vertex_shader.glsl", "./src/pass_through_fragment_shader.glsl");
+
+    const sdfShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/pass_through_vertex_shader.glsl", "./src/sdf_fragment_shader.glsl");
     // there's a default framebuffer and by default we render to it
     // but we can create another framebuffer, render to it, make a texture out of it
     // and then create quad that fills the entire screen and then
@@ -308,6 +310,15 @@ fn hello_gl() !u8 {
         g.glBindVertexArray(circleVAO);
         g.glDrawArrays(g.GL_TRIANGLES, 0, numCircleTriangles * 3);
 
+        // draw a quad and do sdf shading
+        g.glUseProgram(sdfShaderProgram);
+        g.glBindVertexArray(quadVAO);
+        g.glDrawArrays(
+            g.GL_TRIANGLES,
+            0, // starting index of vertex array
+            6, // how many vertices to draw, there are 6 vertices in quad
+        );
+
         // we wan't use multisample buffer in a shader, we need to resolve multisample buffer
         // into regular buffer
         g.glBindFramebuffer(g.GL_READ_FRAMEBUFFER, fbo);
@@ -325,8 +336,10 @@ fn hello_gl() !u8 {
         g.glDisable(g.GL_DEPTH_TEST);
         g.glBindTexture(g.GL_TEXTURE_2D, resolvedTexColorBuffer);
         // draw triangles
-        g.glDrawArrays(g.GL_TRIANGLES, 0, // starting index of vertex array
-            6 // how many vertices to draw, there are 6 vertices in quad
+        g.glDrawArrays(
+            g.GL_TRIANGLES,
+            0, // starting index of vertex array
+            6, // how many vertices to draw, there are 6 vertices in quad
         );
 
         // update a window with OpenGL rendering
