@@ -18,6 +18,8 @@ const Point = struct {
 // 4x MSAA, 4x is max MSAA on my machine
 const MSAA = 4;
 
+const HelloGLError = error{ShaderCompilationError};
+
 fn hello_gl() !u8 {
     var debug_allocator: std.heap.DebugAllocator(.{}) = .init;
     const gpa = debug_allocator.allocator();
@@ -91,9 +93,9 @@ fn hello_gl() !u8 {
         return 1;
     }
 
-    const shaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/vertex_shader.glsl", "./fragment_shader.glsl");
-    const quadShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", "./quad_fragment_shader.glsl");
-    const passThroughShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/pass_through_vertex_shader.glsl", "./pass_through_fragment_shader.glsl");
+    const shaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/vertex_shader.glsl", "./src/fragment_shader.glsl");
+    const quadShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", "./src/quad_fragment_shader.glsl");
+    const passThroughShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/pass_through_vertex_shader.glsl", "./src/pass_through_fragment_shader.glsl");
     // there's a default framebuffer and by default we render to it
     // but we can create another framebuffer, render to it, make a texture out of it
     // and then create quad that fills the entire screen and then
@@ -348,50 +350,40 @@ fn hello_gl() !u8 {
     return 0;
 }
 
-fn buildShaderProgram(allocator: std.mem.Allocator, io: std.Io, comptime vertexShaderPath: []const u8, comptime fragmentShaderPath: []const u8) !c_uint {
-    var vertexShaderSource: []u8 = try std.Io.Dir.cwd().readFileAlloc(io, vertexShaderPath, allocator, std.Io.Limit.unlimited);
-    defer allocator.free(vertexShaderSource);
+/// Compile shader at the specified path
+fn compileShader(allocator: std.mem.Allocator, io: std.Io, path: []const u8, shaderType: u32) !c_uint {
+    var sourceCode: []u8 = try std.Io.Dir.cwd().readFileAlloc(io, path, allocator, std.Io.Limit.unlimited);
+    defer allocator.free(sourceCode);
 
-    // vertex shader operates, ahem, on vertices
-    const vertexShader: c_uint = g.glCreateShader(g.GL_VERTEX_SHADER);
+    const shader: c_uint = g.glCreateShader(shaderType);
+    const shaderLength: i32 = @intCast(sourceCode.len);
     // set source code to a shader, it takes an array of string, we pass just 1 string
-    const vertexShaderLength: i32 = @intCast(vertexShaderSource.len);
-    g.glShaderSource(vertexShader, 1, &vertexShaderSource.ptr, &vertexShaderLength);
+    g.glShaderSource(shader, 1, &sourceCode.ptr, &shaderLength);
 
     var start: std.Io.Timestamp = std.Io.Clock.awake.now(io);
-    var end: std.Io.Timestamp = undefined;
 
-    g.glCompileShader(vertexShader);
-    end = std.Io.Clock.awake.now(io);
-    var duration: i64 = std.Io.Duration.toMicroseconds(start.durationTo(end));
-    // vertex shader compilation is ~600us
-    std.debug.print("{s} compilation took {}us\n", .{ vertexShaderPath, duration });
+    g.glCompileShader(shader);
 
-    var vertexShaderCompiled: c_int = undefined;
-    g.glGetShaderiv(vertexShader, g.GL_COMPILE_STATUS, &vertexShaderCompiled);
-    if (!(vertexShaderCompiled != 0)) {
-        printShaderCompileError(vertexShader);
-        return 1;
+    const end: std.Io.Timestamp = std.Io.Clock.awake.now(io);
+    const duration: i64 = std.Io.Duration.toMicroseconds(start.durationTo(end));
+
+    std.debug.print("{s} compilation took {}us\n", .{ path, duration });
+
+    var shaderCompiled: c_int = undefined;
+    g.glGetShaderiv(shader, g.GL_COMPILE_STATUS, &shaderCompiled);
+    if (shaderCompiled == 0) {
+        printShaderCompileError(shader);
+        return HelloGLError.ShaderCompilationError;
     }
-    var fragmentShaderSource: [*c]const u8 = @embedFile(fragmentShaderPath);
+    return shader;
+}
+
+fn buildShaderProgram(allocator: std.mem.Allocator, io: std.Io, vertexShaderPath: []const u8, comptime fragmentShaderPath: []const u8) !c_uint {
+    // vertex shader operates, ahem, on vertices
+    const vertexShader = try compileShader(allocator, io, vertexShaderPath, g.GL_VERTEX_SHADER);
     // fragment shader operates, ahem, on fragments (of a screen) e.g. group of pixels
-    const fragmentShader: c_uint = g.glCreateShader(g.GL_FRAGMENT_SHADER);
-    // compilation process is the same as for vertexShader
-    g.glShaderSource(fragmentShader, 1, &fragmentShaderSource, null);
+    const fragmentShader = try compileShader(allocator, io, fragmentShaderPath, g.GL_FRAGMENT_SHADER);
 
-    start = std.Io.Clock.awake.now(io);
-    g.glCompileShader(fragmentShader);
-    end = std.Io.Clock.awake.now(io);
-    duration = std.Io.Duration.toMicroseconds(start.durationTo(end));
-    // fragment shader compilation is ~150us
-    std.debug.print("{s} compilation took {}us\n", .{ fragmentShaderPath, duration });
-
-    var fragmentShaderCompiled: c_int = undefined;
-    g.glGetShaderiv(fragmentShader, g.GL_COMPILE_STATUS, &fragmentShaderCompiled);
-    if (!(fragmentShaderCompiled != 0)) {
-        printShaderCompileError(fragmentShader);
-        return 1;
-    }
     // shader program contains several shaders
     const shaderProgram: c_uint = g.glCreateProgram();
     g.glAttachShader(shaderProgram, vertexShader);
