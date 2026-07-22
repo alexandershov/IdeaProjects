@@ -301,8 +301,10 @@ fn hello_gl() !u8 {
         // use VAO
         g.glBindVertexArray(triangleVAO);
         // draw triangles
-        g.glDrawArrays(g.GL_TRIANGLES, 0, // starting index of vertex array
-            3 // how many vertices to draw, there are 3 vertices in a triangle
+        g.glDrawArrays(
+            g.GL_TRIANGLES,
+            0, // starting index of vertex array
+            3, // how many vertices to draw, there are 3 vertices in a triangle
         );
 
         // draw a circle
