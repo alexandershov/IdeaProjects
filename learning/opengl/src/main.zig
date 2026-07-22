@@ -18,7 +18,7 @@ const Point = struct {
 // 4x MSAA, 4x is max MSAA on my machine
 const MSAA = 4;
 
-pub fn hello_gl() !u8 {
+fn hello_gl() !u8 {
     var debug_allocator: std.heap.DebugAllocator(.{}) = .init;
     const gpa = debug_allocator.allocator();
 
@@ -348,7 +348,7 @@ pub fn hello_gl() !u8 {
     return 0;
 }
 
-pub fn buildShaderProgram(allocator: std.mem.Allocator, io: std.Io, comptime vertexShaderPath: []const u8, comptime fragmentShaderPath: []const u8) !c_uint {
+fn buildShaderProgram(allocator: std.mem.Allocator, io: std.Io, comptime vertexShaderPath: []const u8, comptime fragmentShaderPath: []const u8) !c_uint {
     var vertexShaderSource: []u8 = try std.Io.Dir.cwd().readFileAlloc(io, vertexShaderPath, allocator, std.Io.Limit.unlimited);
     defer allocator.free(vertexShaderSource);
 
