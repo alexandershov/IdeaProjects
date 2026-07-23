@@ -83,6 +83,9 @@ fn hello_gl() !u8 {
     const context: g.SDL_GLContext = g.SDL_GL_CreateContext(window);
     // enable MSAA
     g.glEnable(g.GL_MULTISAMPLE);
+    // use alpha blending, required for antialiasing in sdf_fragment_shader.glsl to work
+    g.glEnable(g.GL_BLEND);
+    g.glBlendFunc(g.GL_SRC_ALPHA, g.GL_ONE_MINUS_SRC_ALPHA);
 
     var maxMSAA: i32 = undefined;
     g.glGetIntegerv(g.GL_MAX_SAMPLES, &maxMSAA);
