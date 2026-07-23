@@ -97,7 +97,7 @@ fn hello_gl() !u8 {
     const quadShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", "./src/quad_fragment_shader.glsl");
     const passThroughShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/pass_through_vertex_shader.glsl", "./src/pass_through_fragment_shader.glsl");
 
-    const sdfShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/pass_through_vertex_shader.glsl", "./src/sdf_fragment_shader.glsl");
+    const sdfShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", "./src/sdf_fragment_shader.glsl");
     // there's a default framebuffer and by default we render to it
     // but we can create another framebuffer, render to it, make a texture out of it
     // and then create quad that fills the entire screen and then
