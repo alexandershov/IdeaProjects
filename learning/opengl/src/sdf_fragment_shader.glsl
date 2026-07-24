@@ -24,6 +24,7 @@ void main() {
   // if sdf <= -0.5 * aa, then result is 0
   // if sdf >= 0.5 * aa, then result is 1
   // if sdf is in between, then result is a smooth transition
+  // smoothstep(-0.5 * aa, 0.5 * aa, sdf) is 0 inside and smoothly transitions to 1 outside
   // coverage is 1 inside and smoothly transitions to 0 outside
   float coverage = 1.0 - smoothstep(-0.5 * aa, 0.5 * aa, sdf);
 
