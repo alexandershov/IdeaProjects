@@ -3,9 +3,14 @@ in vec4 Color;
 in vec2 pos;
 out vec4 FragColor;
 
+// like smoothstep, but not smooth
+float steepstep(float a, float b, float x) {
+  return clamp((x - a) / (b - a), 0.0, 1.0);
+}
+
 void main() {
-  vec2 center = vec2(0.3, -0.3);
-  float radius = 0.2;
+  vec2 center = vec2(0.5, -0.5);
+  float radius = 0.4;
   // sdf is a signed distance from current point to a surface of the circle
   // if current point is outside of the circle, then sdf is positive
   // if current point is inside of the cirlce, then sdf is negative
@@ -29,7 +34,7 @@ void main() {
   float coverage = 1.0 - smoothstep(-0.5 * aa, 0.5 * aa, sdf);
 
   if (coverage <= 0.0) {
-    // if we're outside, then do nothing - there's nothing to antialias
+    // if we're outside of the circle, then do nothing - there's nothing to antialias
     discard;
   }
   FragColor = vec4(0.0, 0.7, 0.0, 1.0 * coverage);
