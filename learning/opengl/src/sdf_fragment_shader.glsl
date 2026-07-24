@@ -24,6 +24,9 @@ void main() {
   // so dFdx gives you an access to the values at your quad neighbours
   // dFdy is the same but in vertical direction
   // actually GLSL has `fwidth` function that does abs(dFdx(sdf)) + abs(dFdy(sdf))
+  // the job of fwidth is to provide a pixel-width estimate in our coordinates (remember, that distance is not pixels)
+  // later we do antialiasing within 1 pixel of the border
+  // it's actually L1 norm (aka Manhattan Distance)
   float aa = abs(dFdx(sdf)) + abs(dFdy(sdf));
   // smoothstep is like lerp but, ahem, smooth
   // if sdf <= -0.5 * aa, then result is 0
@@ -31,6 +34,9 @@ void main() {
   // if sdf is in between, then result is a smooth transition
   // smoothstep(-0.5 * aa, 0.5 * aa, sdf) is 0 inside and smoothly transitions to 1 outside
   // coverage is 1 inside and smoothly transitions to 0 outside
+  // if sdf is inside of [-0.5 * aa; 0.5 * a], then we do antialiasing - this interval is ~1 pixel wide at the border
+  // this is the exact location where we do antialiasing
+  // if we change 0.5 to let's say 10, then we'll get blur effect instead of antialiasing
   float coverage = 1.0 - smoothstep(-0.5 * aa, 0.5 * aa, sdf);
 
   if (coverage <= 0.0) {
