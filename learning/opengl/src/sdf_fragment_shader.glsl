@@ -15,6 +15,9 @@ void main() {
   // if current point is outside of the circle, then sdf is positive
   // if current point is inside of the cirlce, then sdf is negative
   // proof is simple: just consider these two cases and the math checks out
+  // distance is a built-in glsl function
+  // it's documented here: https://registry.khronos.org/OpenGL-Refpages/gl4/html/distance.xhtml
+  // note that genType means Union[float, vec2, vec3, vec4]. It's a shorthand for "generic type"
   float sdf = distance(pos, center) - radius;
   // gpu executes fragment shaders in 2x2 quads
   // these quads are different from quads formed from 2 triangles
