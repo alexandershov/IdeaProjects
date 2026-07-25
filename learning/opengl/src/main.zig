@@ -84,7 +84,14 @@ fn hello_gl() !u8 {
     // enable MSAA
     g.glEnable(g.GL_MULTISAMPLE);
     // use alpha blending, required for antialiasing in sdf_fragment_shader.glsl to work
+    // otherwise alpha value we set in sdf_fragment_shader.glsl is ignored
     g.glEnable(g.GL_BLEND);
+    // aside from using alpha value, alpha blending can also combine current value at fragment with the new value at fragment
+    // glBlendFunc is describing this combining
+    // here it's lerp current_value = new_value * alpha + current_value * (1 - alpha)
+    // alpha is alpha of new value, so if alpha is 1, then current_value is ignored
+    // if alpha is 0, then new value is ignored
+    // if alpha is in between, then we're getting a combination of two values
     g.glBlendFunc(g.GL_SRC_ALPHA, g.GL_ONE_MINUS_SRC_ALPHA);
 
     var maxMSAA: i32 = undefined;
