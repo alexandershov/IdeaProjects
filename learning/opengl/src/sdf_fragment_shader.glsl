@@ -41,9 +41,11 @@ void main() {
   // if sdf is inside of [-0.5 * aa; 0.5 * a], then we do antialiasing - this interval is ~1 pixel wide at the border
   // this is the exact location where we do antialiasing
   // if we change 0.5 to let's say 10, then we'll get blur effect instead of antialiasing
-  // example of using time uniform and having dynamic halfWidth is commented out, because it's visually distracting
-  // float halfWidth = 10 * abs(sin(time));
-  float halfWidth = 0.5;
+  // example of using time uniform and having dynamic halfWidth is immediately overriden in the next line, because
+  // it's visually distracting
+  // if we don't use the uniform `time`, then it will be optimized away, and glGetUniformLocation will return -1
+  float halfWidth = 10 * abs(sin(time));
+  halfWidth = 0.5;
   float coverage = 1.0 - smoothstep(-halfWidth * aa, halfWidth * aa, sdf);
 
   if (coverage <= 0.0) {
