@@ -284,6 +284,7 @@ fn hello_gl() !u8 {
     var redDelta: f32 = 0.0;
     var numUnaccountedFrames: usize = 0;
     var unaccountedFramesStartedAt: std.Io.Timestamp = std.Io.Clock.awake.now(io);
+    const startedAt = std.Io.Clock.awake.now(io);
     while (running) {
         while (g.SDL_PollEvent(&event) != 0) {
             if (event.type == @as(g.Uint32, g.SDL_QUIT)) {
@@ -323,6 +324,9 @@ fn hello_gl() !u8 {
         g.glDrawArrays(g.GL_TRIANGLES, 0, numCircleTriangles * 3);
 
         // draw a quad and do sdf shading
+        const durationFromStart = startedAt.durationTo(std.Io.Clock.awake.now(io));
+        const timestampUniform: c_int = g.glGetUniformLocation(sdfShaderProgram, "time");
+        g.glUniform1f(timestampUniform, @as(f32, @floatFromInt(durationFromStart.toMilliseconds())) / 1000.0);
         g.glUseProgram(sdfShaderProgram);
         g.glBindVertexArray(quadVAO);
         g.glDrawArrays(

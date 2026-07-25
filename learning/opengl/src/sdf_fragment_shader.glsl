@@ -1,6 +1,7 @@
 #version 410 core
 in vec4 Color;
 in vec2 pos;
+uniform float time;
 out vec4 FragColor;
 
 // like smoothstep, but not smooth
