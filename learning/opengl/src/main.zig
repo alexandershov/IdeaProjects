@@ -324,10 +324,15 @@ fn hello_gl() !u8 {
         g.glDrawArrays(g.GL_TRIANGLES, 0, numCircleTriangles * 3);
 
         // draw a quad and do sdf shading
-        const durationFromStart = startedAt.durationTo(std.Io.Clock.awake.now(io));
-        const timestampUniform: c_int = g.glGetUniformLocation(sdfShaderProgram, "time");
-        g.glUniform1f(timestampUniform, @as(f32, @floatFromInt(durationFromStart.toMilliseconds())) / 1000.0);
         g.glUseProgram(sdfShaderProgram);
+        const durationFromStart = startedAt.durationTo(std.Io.Clock.awake.now(io));
+        const timeUniform: c_int = g.glGetUniformLocation(sdfShaderProgram, "time");
+
+        if (timeUniform == -1) {
+            std.debug.print("can't find `time` uniform location in sdfShaderProgram\n", .{});
+            return 1;
+        }
+        g.glUniform1f(timeUniform, @as(f32, @floatFromInt(durationFromStart.toMilliseconds())) / 1000.0);
         g.glBindVertexArray(quadVAO);
         g.glDrawArrays(
             g.GL_TRIANGLES,
