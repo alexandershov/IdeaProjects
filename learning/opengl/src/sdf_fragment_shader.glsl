@@ -30,14 +30,18 @@ float sdfUnion(float first, float second) {
   // #2 either first or second is inside, then min will give us negative answer
   // min gives us mathematically correct answer only for the #1; for #2 it gives us the correct sign
   // if either first or second is 0 in #1, then we'd still get correct answer (0)
-  // if either first or second is 0 in #1, then we'd still get correct answer (negative sign, because we're inside of the shapes)
+  // if either first or second is 0 in #1, then we'd still get correct answer (negative sign, because we're inside of the union)
   return min(first, second);
 }
 
 float sdfIntersction(float first, float second) {
-  // TODO: implement it
-  // intersection of two sdfs
-
+  // intersection (kinda) of two sdfs
+  // #1 first is inside, second is inside: both are negative, max will give us the closest
+  // #2 either first or second is outside: max will give us positive answer
+  // max gives us mathematically correct answer only for the #1; for #2 it gives us the correct sign
+  // if either first or second is 0 in #1, then we'd still get correct answer (0)
+  // if either first or second is 0 in #1, then we'd still get correct answer (positive sign, because we're outside of the intersection)
+  return max(first, second);
 }
 
 float sdfDifference(float first, float second) {
