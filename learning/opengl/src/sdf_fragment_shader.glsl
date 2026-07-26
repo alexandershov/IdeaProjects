@@ -6,11 +6,15 @@ out vec4 FragColor;
 
 // like smoothstep, but not smooth
 float steepstep(float a, float b, float x) {
+  // clamp(x, min, max) ensures that min <= x <= max, it's essentially
+  // if x > max: return max
+  // if x < min: return min
+  // else: return x
   return clamp((x - a) / (b - a), 0.0, 1.0);
 }
 
 void main() {
-  vec2 center = vec2(0.5, -0.5);
+  vec2 sphereCenter = vec2(0.5, -0.5);
   float radius = 0.4;
   // sdf is a signed distance from current point to a surface of the circle
   // if current point is outside of the circle, then sdf is positive
@@ -19,7 +23,7 @@ void main() {
   // distance is a built-in glsl function
   // it's documented here: https://registry.khronos.org/OpenGL-Refpages/gl4/html/distance.xhtml
   // note that genType means Union[float, vec2, vec3, vec4]. It's a shorthand for "generic type"
-  float sdf = distance(pos, center) - radius;
+  float sdf = distance(pos, sphereCenter) - radius;
   // gpu executes fragment shaders in 2x2 quads
   // these quads are different from quads formed from 2 triangles
   // it's just a group of 4 pixels
