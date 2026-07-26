@@ -34,7 +34,7 @@ float sdfUnion(float first, float second) {
   return min(first, second);
 }
 
-float sdfIntersction(float first, float second) {
+float sdfIntersection(float first, float second) {
   // intersection (kinda) of two sdfs
   // #1 first is inside, second is inside: both are negative, max will give us the closest
   // #2 either first or second is outside: max will give us positive answer
@@ -44,9 +44,20 @@ float sdfIntersction(float first, float second) {
   return max(first, second);
 }
 
+float sdfInversion(float value) {
+  // just change the orientation of boundary, mathematically correct
+  return -value;
+}
+
 float sdfDifference(float first, float second) {
-  // TODO: implement it
-  return first + second;
+  // intuition is: sdfDifference = sdfIntersection(first, sdfInversion(second))
+  // difference of two sdfs (first - second)
+  // #1 first is inside, second is inside: sdfIntersection from intuition gives us correct sign (positive value)
+  // we're located in intersection of first & second, so we're not in the result
+  // #2 first is inside, second is outside: sdfIntersection from intuition gives us mathematically correct answer
+  // #3 first is outside, second is inside: can't be determined exactly, we need to return some positive value
+  // #4 first is outside, second is outside: can't be determined exactly, we need to return some positive value
+  return max(first, -second);
 }
 
 float sdfAABB(vec2 pos, vec2 bottomLeft, vec2 topRight) {
