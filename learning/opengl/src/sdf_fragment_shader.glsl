@@ -60,6 +60,10 @@ float sdfDifference(float first, float second) {
   return max(first, -second);
 }
 
+// note that above composite sdfs (except for inversion) are not mathematically correct on the entire domain
+// alternative to them is to model 2d-shapes with the components for which closed formula exists:
+// e.g. line segments, arc sectors, and quadratic bezier curves
+
 float sdfAABB(vec2 pos, vec2 bottomLeft, vec2 topRight) {
   // sdf to AABB (axis-aligned bounding box)
   // we calculate horizontal and vertical sdfs
