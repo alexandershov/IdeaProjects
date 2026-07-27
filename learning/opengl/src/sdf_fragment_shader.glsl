@@ -84,6 +84,9 @@ void main() {
   // gpu executes fragment shaders in 2x2 quads
   // these quads are different from quads formed from 2 triangles
   // it's just a group of 4 pixels
+  // primary motivation for making quads a primary unit of execution is to make possible cheap derivative estimations
+  // note that quad execution can be wasteful on the edges: if just 1 pixel actually needs to be rasterized, we would
+  // still execute shaders in quad 2x2 thus wasting 3 shader executions (unless we use dFdx/dFdy/pwidth)
   // let's say the current pixel is at the top left of the 2x2 quad
   // then abs(dFdx(sdf)) is essentially abs(sdf_value_at_pixel_to_the_right - sdf_value_at_current_pixel)
   // so dFdx gives you an access to the values at your quad neighbours
