@@ -65,26 +65,28 @@ float sdfDifference(float first, float second) {
 // e.g. line segments, arc sectors, and quadratic bezier curves
 
 float sdfAABB(vec2 pos, vec2 bottomLeft, vec2 topRight) {
-  // sdf to AABB (axis-aligned bounding box)
-  // we calculate horizontal and vertical sdfs
-  // if we're inside then we take maximum of those (maximum because sdf is negative inside)
-  // if we're outside on just 1 dimension, then we take minimum on this direction
-  // if we're outside on both dimensions, then we take L2 norm
-  // idea: solve for line and then do union of sdfs
-  float dleft = lowerLeft.x - pos.x;
-  float dright = pos.x - topRight.x;
-  float dbottom = lowerLeft.y - pos.y;
-  float dtop = pos.y - topRight.y;
-  if (dleft <= 0 && dright <= 0 && dbottom <= 0 && dtop <= 0) {
-    // we're inside, take maximum, because sdfs are negative inside
-    return max(dleft, dright, dbottom, dtop);
+  float dRight = pos.x - topRight.x;
+  float dLeft = bottomLeft.x - pos.x;
+  float dTop = pos.y - topRight.y;
+  float dBottom = bottomLeft.y - pos.y;
+  if (dRight <= 0 && dLeft <= 0 && dTop <= 0 && dBottom <= 0) {
+    // fully inside
+    return max(max(dRight, dLeft), max(dTop, dBottom));
+  } else if (dRight <= 0 && dLeft <= 0) {
+    // horizontally inside
+    return max(dTop, dBottom);
+  } else if (dTop <= 0 && dBottom <= 0) {
+    // vertically inside
+    return max(dLeft, dRight);
+  } else {
+    // outside
+    return length(vec2(max(dLeft, dRight), max(dTop, dBottom)));
   }
-  
 }
 
 void main() {
   // float sdf = sdfSphere(pos, vec2(0.5, -0.5), 0.4);
-  float sdf = sdfAABB(pos, vec2(0.3, 0.3), vec2(0.5, 0.5));
+  float sdf = sdfAABB(pos, vec2(0.3, -0.3), vec2(0.5, 0.2));
   // gpu executes fragment shaders in 2x2 quads
   // these quads are different from quads formed from 2 triangles
   // it's just a group of 4 pixels
