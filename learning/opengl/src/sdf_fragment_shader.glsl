@@ -64,7 +64,7 @@ float sdfDifference(float first, float second) {
 // alternative to them is to model 2d-shapes with the components for which closed formula exists:
 // e.g. line segments, arc sectors, and quadratic bezier curves
 
-float sdfAABB(vec2 pos, vec2 bottomLeft, vec2 topRight) {
+float sdfAABBFullySpelledOut(vec2 pos, vec2 bottomLeft, vec2 topRight) {
   float dRight = pos.x - topRight.x;
   float dLeft = bottomLeft.x - pos.x;
   float dTop = pos.y - topRight.y;
@@ -81,6 +81,18 @@ float sdfAABB(vec2 pos, vec2 bottomLeft, vec2 topRight) {
   } else {
     // outside
     return length(vec2(max(dLeft, dRight), max(dTop, dBottom)));
+  }
+}
+
+float sdfAABB(vec2 pos, vec2 bottomLeft, vec2 topRight) {
+  // this is just mechanical transformation of sdfAABBFullySpelledOut
+  // we can combine first 3 cases in sdfAABBFullySpelledOut into one: we just need to take maximum of everything
+  float maxHorizontal = max(bottomLeft.x - pos.x, (pos.x - topRight.x));
+  float maxVertical = max(pos.y - topRight.y, bottomLeft.y - pos.y);
+  if (maxHorizontal > 0 && maxVertical > 0) {
+    return length(vec2(maxHorizontal, maxVertical));
+  } else {
+    return max(maxHorizontal, maxVertical);
   }
 }
 
