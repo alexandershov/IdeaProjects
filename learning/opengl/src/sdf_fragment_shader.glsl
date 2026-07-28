@@ -98,7 +98,7 @@ float sdfAABB(vec2 pos, vec2 bottomLeft, vec2 topRight) {
 
 float sdfAABBBranchless(vec2 pos, vec2 bottomLeft, vec2 topRight) {
   // WIP
-  // sdfAABBWithBranch is good, but it contains a branch. And that is not GPU-friendly
+  // sdfAABB is good, but it contains a branch. And that is not GPU-friendly
   // since threads in a warp execute the same instruction,
   // so some threads will wait if condition evaluates to different values in a warp
 
@@ -112,8 +112,10 @@ float sdfAABBBranchless(vec2 pos, vec2 bottomLeft, vec2 topRight) {
 }
 
 void main() {
-  // float sdf = sdfSphere(pos, vec2(0.5, -0.5), 0.4);
-  float sdf = sdfAABB(pos, vec2(0.3, -0.3), vec2(0.5, 0.2));
+  float leftSphere = sdfSphere(pos, vec2(-0.7, -0.4), 0.2);
+  float rightSphere = sdfSphere(pos, vec2(0.7, -0.4), 0.2);
+  float box = sdfAABB(pos, vec2(-0.7, -0.5), vec2(0.7, -0.3));
+  float sdf = sdfUnion(sdfUnion(leftSphere, rightSphere), box);
   // gpu executes fragment shaders in 2x2 quads
   // these quads are different from quads formed from 2 triangles
   // it's just a group of 4 pixels
