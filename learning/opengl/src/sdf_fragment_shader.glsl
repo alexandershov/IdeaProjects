@@ -96,6 +96,21 @@ float sdfAABB(vec2 pos, vec2 bottomLeft, vec2 topRight) {
   }
 }
 
+float sdfAABBBranchless(vec2 pos, vec2 bottomLeft, vec2 topRight) {
+  // WIP
+  // sdfAABBWithBranch is good, but it contains a branch. And that is not GPU-friendly
+  // since threads in a warp execute the same instruction,
+  // so some threads will wait if condition evaluates to different values in a warp
+
+  // we need to generalize our two branches
+  float maxHorizontal = max(bottomLeft.x - pos.x, (pos.x - topRight.x));
+  float maxVertical = max(pos.y - topRight.y, bottomLeft.y - pos.y);
+  // if only 1 is negative, then max(v, 0) is fine
+  // if both are positive, then max(v, 0) is fine
+  // if both are negative, then the answer is max(maxHorizontal, maxVertical)
+  return length(vec2(max(maxHorizontal, 0), max(maxVertical, 0)));
+}
+
 void main() {
   // float sdf = sdfSphere(pos, vec2(0.5, -0.5), 0.4);
   float sdf = sdfAABB(pos, vec2(0.3, -0.3), vec2(0.5, 0.2));
