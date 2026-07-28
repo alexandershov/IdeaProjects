@@ -4,6 +4,7 @@ in vec2 pos;
 uniform float time;
 out vec4 FragColor;
 
+
 // like smoothstep, but not smooth
 float steepstep(float a, float b, float x) {
   // clamp(x, min, max) ensures that min <= x <= max, it's essentially
@@ -112,9 +113,16 @@ float sdfAABBBranchless(vec2 pos, vec2 bottomLeft, vec2 topRight) {
 }
 
 void main() {
-  float leftSphere = sdfSphere(pos, vec2(-0.7, -0.4), 0.2);
-  float rightSphere = sdfSphere(pos, vec2(0.7, -0.4), 0.2);
-  float box = sdfAABB(pos, vec2(-0.7, -0.5), vec2(0.7, -0.3));
+  vec2 centerOfRotation = vec2(0.0, -0.4);
+  // 20 degrees rotation counter clock-wise
+  float rotationAngle = radians(20);
+  vec2 relativePos = pos - centerOfRotation;
+  // we apply opposite rotation to pos to get the effect of rotating our geometry (which in reality is axis aligned)
+  float newAngle = atan(relativePos.y, relativePos.x) - rotationAngle;
+  vec2 rotatedPos = vec2(length(relativePos) * cos(newAngle), length(relativePos) * sin(newAngle)) + centerOfRotation;
+  float leftSphere = sdfSphere(rotatedPos, vec2(-0.7, -0.4), 0.2);
+  float rightSphere = sdfSphere(rotatedPos, vec2(0.7, -0.4), 0.2);
+  float box = sdfAABB(rotatedPos, vec2(-0.7, -0.5), vec2(0.7, -0.3));
   float sdf = sdfUnion(sdfUnion(leftSphere, rightSphere), box);
   // gpu executes fragment shaders in 2x2 quads
   // these quads are different from quads formed from 2 triangles
