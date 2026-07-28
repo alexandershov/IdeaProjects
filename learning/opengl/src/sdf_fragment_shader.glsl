@@ -114,8 +114,7 @@ float sdfAABBBranchless(vec2 pos, vec2 bottomLeft, vec2 topRight) {
 
 void main() {
   vec2 centerOfRotation = vec2(0.0, -0.4);
-  // 20 degrees rotation counter clock-wise
-  float rotationAngle = radians(20);
+  float rotationAngle = time;
   vec2 relativePos = pos - centerOfRotation;
   // we apply opposite rotation to pos to get the effect of rotating our geometry (which in reality is axis aligned)
   float newAngle = atan(relativePos.y, relativePos.x) - rotationAngle;
