@@ -220,6 +220,9 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     const texture = try loadTexture("src/wall.jpg");
     defer stb.stbi_image_free(texture.data);
 
+    const quadTexture = try loadTexture(args.quadTexture);
+    defer stb.stbi_image_free(quadTexture.data);
+
     var triangleVertices: [24]f32 = [24]f32{
         //x    y    z    r    g    b  texture coordinates (st)
         0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
