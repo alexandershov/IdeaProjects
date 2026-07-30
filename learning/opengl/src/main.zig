@@ -20,6 +20,13 @@ const MSAA = 4;
 
 const HelloGLError = error{ShaderCompilationError};
 
+const Args = struct {
+    drawTexturedTriangle: bool,
+    drawCircleGeometry: bool,
+    quadShaderProgram: []const u8,
+    quadTexture: []const u8,
+};
+
 fn hello_gl() !u8 {
     var debug_allocator: std.heap.DebugAllocator(.{}) = .init;
     const gpa = debug_allocator.allocator();
@@ -104,10 +111,10 @@ fn hello_gl() !u8 {
     }
 
     const shaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/vertex_shader.glsl", "./src/fragment_shader.glsl");
+    const sdfShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", "./src/sdf_fragment_shader.glsl");
     const quadShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", "./src/quad_fragment_shader.glsl");
     const passThroughShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/pass_through_vertex_shader.glsl", "./src/pass_through_fragment_shader.glsl");
 
-    const sdfShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", "./src/sdf_fragment_shader.glsl");
     // there's a default framebuffer and by default we render to it
     // but we can create another framebuffer, render to it, make a texture out of it
     // and then create quad that fills the entire screen and then
