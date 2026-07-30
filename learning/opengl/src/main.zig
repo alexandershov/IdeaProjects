@@ -337,32 +337,36 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         g.glClearColor(0.2, 0.3, 0.3, 1.0);
         g.glClear(g.GL_COLOR_BUFFER_BIT | g.GL_DEPTH_BUFFER_BIT);
         g.glEnable(g.GL_DEPTH_TEST);
-        // ======================
-        // draw textured triangle
-        g.glUseProgram(shaderProgram);
-        // assigning uniform (aka global) value
-        const colorDeltaLocation: c_int = g.glGetUniformLocation(shaderProgram, "colorDelta");
-        // 4f is like hungarian notation, here it means assign vec4 to a location
-        redDelta -= 0.0001;
-        if (redDelta < -@as(f32, 0.999)) {
-            redDelta = 0.0;
+        if (args.drawTexturedTriangle) {
+            // ======================
+            // draw textured triangle
+            g.glUseProgram(shaderProgram);
+            // assigning uniform (aka global) value
+            const colorDeltaLocation: c_int = g.glGetUniformLocation(shaderProgram, "colorDelta");
+            // 4f is like hungarian notation, here it means assign vec4 to a location
+            redDelta -= 0.0001;
+            if (redDelta < -@as(f32, 0.999)) {
+                redDelta = 0.0;
+            }
+            g.glUniform4f(colorDeltaLocation, redDelta, 0.0, 0.0, 0.0);
+            g.glBindTexture(g.GL_TEXTURE_2D, texture);
+            // use VAO
+            g.glBindVertexArray(triangleVAO);
+            // draw triangles
+            g.glDrawArrays(
+                g.GL_TRIANGLES,
+                0, // starting index of vertex array
+                3, // how many vertices to draw, there are 3 vertices in a triangle
+            );
         }
-        g.glUniform4f(colorDeltaLocation, redDelta, 0.0, 0.0, 0.0);
-        g.glBindTexture(g.GL_TEXTURE_2D, texture);
-        // use VAO
-        g.glBindVertexArray(triangleVAO);
-        // draw triangles
-        g.glDrawArrays(
-            g.GL_TRIANGLES,
-            0, // starting index of vertex array
-            3, // how many vertices to draw, there are 3 vertices in a triangle
-        );
 
-        // ===============================
-        // draw a circle based on geometry
-        g.glUseProgram(passThroughShaderProgram);
-        g.glBindVertexArray(circleVAO);
-        g.glDrawArrays(g.GL_TRIANGLES, 0, numCircleTriangles * 3);
+        if (args.drawCircleGeometry) {
+            // ===============================
+            // draw a circle based on geometry
+            g.glUseProgram(passThroughShaderProgram);
+            g.glBindVertexArray(circleVAO);
+            g.glDrawArrays(g.GL_TRIANGLES, 0, numCircleTriangles * 3);
+        }
 
         // =======================================
         // draw a quad and use shader based on sdf
