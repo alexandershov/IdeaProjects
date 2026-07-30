@@ -233,6 +233,9 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
 
     // bind default framebuffer
     g.glBindFramebuffer(g.GL_FRAMEBUFFER, 0);
+    // image coordinates is top-left, bottom-right, but texture coordinates are bottom-left, top-right
+    // flip fixes that, so image is not upside down
+    stb.stbi_set_flip_vertically_on_load(1);
     const texture = try loadTexture("src/wall.jpg");
     defer stb.stbi_image_free(texture.data);
 
@@ -563,7 +566,7 @@ fn loadTexture(path: []const u8) !Texture {
         @ptrCast(&texture.width),
         @ptrCast(&texture.height),
         @ptrCast(&texture.numChannels),
-        0,
+        3, // force rgb
     );
     if (texture.data == null) {
         std.debug.print("could not load {s}\n", .{path});
@@ -572,7 +575,7 @@ fn loadTexture(path: []const u8) !Texture {
     g.glGenTextures(1, &texture.handle);
     // bind texture to GL_TEXTURE_2D variable - usual binding stuff
     g.glBindTexture(g.GL_TEXTURE_2D, texture.handle);
-    // we control what happens when texture coordinates are outside of the [-1.0; 1.0]
+    // we control what happens when texture coordinates are outside of the [0.0; 1.0]
     // here we set it up to repeat texture for s (x) & t (y) axes
     g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_S, g.GL_REPEAT);
     g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_T, g.GL_REPEAT);
