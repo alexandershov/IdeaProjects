@@ -299,6 +299,8 @@ fn hello_gl() !u8 {
         g.glClearColor(0.2, 0.3, 0.3, 1.0);
         g.glClear(g.GL_COLOR_BUFFER_BIT | g.GL_DEPTH_BUFFER_BIT);
         g.glEnable(g.GL_DEPTH_TEST);
+        // ======================
+        // draw textured triangle
         g.glUseProgram(shaderProgram);
         // assigning uniform (aka global) value
         const colorDeltaLocation: c_int = g.glGetUniformLocation(shaderProgram, "colorDelta");
@@ -318,12 +320,14 @@ fn hello_gl() !u8 {
             3, // how many vertices to draw, there are 3 vertices in a triangle
         );
 
-        // draw a circle
+        // ===============================
+        // draw a circle based on geometry
         g.glUseProgram(passThroughShaderProgram);
         g.glBindVertexArray(circleVAO);
         g.glDrawArrays(g.GL_TRIANGLES, 0, numCircleTriangles * 3);
 
-        // draw a quad and do sdf shading
+        // =======================================
+        // draw a quad and use shader based on sdf
         g.glUseProgram(sdfShaderProgram);
         const durationFromStart = startedAt.durationTo(std.Io.Clock.awake.now(io));
         const timeUniform: c_int = g.glGetUniformLocation(sdfShaderProgram, "time");
@@ -340,6 +344,8 @@ fn hello_gl() !u8 {
             6, // how many vertices to draw, there are 6 vertices in quad
         );
 
+        // =====================
+        // "draw" postprocessing
         // we wan't use multisample buffer in a shader, we need to resolve multisample buffer
         // into regular buffer
         g.glBindFramebuffer(g.GL_READ_FRAMEBUFFER, fbo);
