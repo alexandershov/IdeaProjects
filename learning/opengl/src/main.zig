@@ -21,13 +21,45 @@ const MSAA = 4;
 const HelloGLError = error{ShaderCompilationError};
 
 const Args = struct {
-    drawTexturedTriangle: bool,
-    drawCircleGeometry: bool,
     quadShaderProgram: []const u8,
     quadTexture: []const u8,
+    drawTexturedTriangle: bool,
+    drawCircleGeometry: bool,
 };
 
-fn hello_gl() !u8 {
+fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
+    var argsIt = initMinimal.args.iterate();
+    var ia: u32 = 0;
+    var args = Args{
+        .quadShaderProgram = "",
+        .quadTexture = "",
+        .drawTexturedTriangle = false,
+        .drawCircleGeometry = false,
+    };
+    // parse command line arguments
+    while (argsIt.next()) |arg| {
+        switch (ia) {
+            0, // skip program name
+            1,
+            => {
+                args.quadShaderProgram = arg;
+            },
+            2 => {
+                args.quadTexture = arg;
+            },
+            3 => {
+                args.drawTexturedTriangle = std.mem.eql(u8, arg, "true");
+            },
+            4 => {
+                args.drawCircleGeometry = std.mem.eql(u8, arg, "true");
+            },
+            else => {
+                return error.UnknownArgument;
+            },
+        }
+        ia += 1;
+    }
+
     var debug_allocator: std.heap.DebugAllocator(.{}) = .init;
     const gpa = debug_allocator.allocator();
 
@@ -524,6 +556,6 @@ fn pointAtAngle(angle: f32, center: Point, radius: f32) Point {
     };
 }
 
-pub fn main() !u8 {
-    return hello_gl();
+pub fn main(initMinimal: std.process.Init.Minimal) !u8 {
+    return hello_gl(initMinimal);
 }
