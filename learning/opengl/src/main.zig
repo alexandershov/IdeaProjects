@@ -23,6 +23,8 @@ const HelloGLError = error{ShaderCompilationError};
 const Args = struct {
     postProcessingFragmentShader: []const u8,
     quadTexture: []const u8,
+    quadVertexShader: []const u8,
+    quadFragmentShader: []const u8,
     drawTexturedTriangle: bool,
     drawCircleGeometry: bool,
     drawSdf: bool,
@@ -42,6 +44,8 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     var args = Args{
         .postProcessingFragmentShader = "",
         .quadTexture = "",
+        .quadVertexShader = "src/quad_vertex_shader.glsl",
+        .quadFragmentShader = "src/quad_fragment_shader.glsl",
         .drawTexturedTriangle = false,
         .drawCircleGeometry = false,
         .drawSdf = false,
@@ -57,12 +61,18 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
                 args.quadTexture = arg;
             },
             3 => {
-                args.drawTexturedTriangle = std.mem.eql(u8, arg, "true");
+                args.quadVertexShader = arg;
             },
             4 => {
-                args.drawCircleGeometry = std.mem.eql(u8, arg, "true");
+                args.quadFragmentShader = arg;
             },
             5 => {
+                args.drawTexturedTriangle = std.mem.eql(u8, arg, "true");
+            },
+            6 => {
+                args.drawCircleGeometry = std.mem.eql(u8, arg, "true");
+            },
+            7 => {
                 args.drawSdf = std.mem.eql(u8, arg, "true");
             },
             else => {
@@ -145,8 +155,9 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     }
 
     const shaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/vertex_shader.glsl", "./src/fragment_shader.glsl");
+    const quadShaderProgram: c_uint = try buildShaderProgram(gpa, io, args.quadVertexShader, args.quadFragmentShader);
     const sdfShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", "./src/sdf_fragment_shader.glsl");
-    const quadShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", args.postProcessingFragmentShader);
+    const postProcessingShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", args.postProcessingFragmentShader);
     const passThroughShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/pass_through_vertex_shader.glsl", "./src/pass_through_fragment_shader.glsl");
 
     // there's a default framebuffer and by default we render to it
@@ -368,6 +379,17 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
             );
         }
 
+        // ==================
+        // draw textured quad
+        g.glUseProgram(quadShaderProgram);
+        g.glBindTexture(g.GL_TEXTURE_2D, quadTexture.handle);
+        g.glBindVertexArray(quadVAO);
+        g.glDrawArrays(
+            g.GL_TRIANGLES,
+            0, // starting index of vertex array
+            6, // how many vertices to draw, there are 6 vertices in quad
+        );
+
         // =====================
         // "draw" postprocessing
         // we wan't use multisample buffer in a shader, we need to resolve multisample buffer
@@ -381,7 +403,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         g.glBindFramebuffer(g.GL_FRAMEBUFFER, 0);
         g.glClearColor(1.0, 1.0, 1.0, 1.0);
         g.glClear(g.GL_COLOR_BUFFER_BIT);
-        g.glUseProgram(quadShaderProgram);
+        g.glUseProgram(postProcessingShaderProgram);
         // use VAO
         g.glBindVertexArray(quadVAO);
         g.glDisable(g.GL_DEPTH_TEST);
