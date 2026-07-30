@@ -21,7 +21,7 @@ const MSAA = 4;
 const HelloGLError = error{ShaderCompilationError};
 
 const Args = struct {
-    quadShaderProgram: []const u8,
+    postProcessingFragmentShader: []const u8,
     quadTexture: []const u8,
     drawTexturedTriangle: bool,
     drawCircleGeometry: bool,
@@ -31,7 +31,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     var argsIt = initMinimal.args.iterate();
     var ia: u32 = 0;
     var args = Args{
-        .quadShaderProgram = "",
+        .postProcessingFragmentShader = "",
         .quadTexture = "",
         .drawTexturedTriangle = false,
         .drawCircleGeometry = false,
@@ -39,10 +39,9 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     // parse command line arguments
     while (argsIt.next()) |arg| {
         switch (ia) {
-            0, // skip program name
-            1,
-            => {
-                args.quadShaderProgram = arg;
+            0 => {}, // skip program name
+            1 => {
+                args.postProcessingFragmentShader = arg;
             },
             2 => {
                 args.quadTexture = arg;
@@ -144,7 +143,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
 
     const shaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/vertex_shader.glsl", "./src/fragment_shader.glsl");
     const sdfShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", "./src/sdf_fragment_shader.glsl");
-    const quadShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", "./src/quad_fragment_shader.glsl");
+    const quadShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", args.postProcessingFragmentShader);
     const passThroughShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/pass_through_vertex_shader.glsl", "./src/pass_through_fragment_shader.glsl");
 
     // there's a default framebuffer and by default we render to it
@@ -457,7 +456,7 @@ fn compileShader(allocator: std.mem.Allocator, io: std.Io, path: []const u8, sha
     return shader;
 }
 
-fn buildShaderProgram(allocator: std.mem.Allocator, io: std.Io, vertexShaderPath: []const u8, comptime fragmentShaderPath: []const u8) !c_uint {
+fn buildShaderProgram(allocator: std.mem.Allocator, io: std.Io, vertexShaderPath: []const u8, fragmentShaderPath: []const u8) !c_uint {
     // vertex shader operates, ahem, on vertices
     const vertexShader = try compileShader(allocator, io, vertexShaderPath, g.GL_VERTEX_SHADER);
     // fragment shader operates, ahem, on fragments (of a screen) e.g. group of pixels
