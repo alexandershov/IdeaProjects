@@ -25,6 +25,7 @@ const Args = struct {
     quadTexture: []const u8,
     drawTexturedTriangle: bool,
     drawCircleGeometry: bool,
+    drawSdf: bool,
 };
 
 const Texture = struct {
@@ -43,6 +44,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         .quadTexture = "",
         .drawTexturedTriangle = false,
         .drawCircleGeometry = false,
+        .drawSdf = false,
     };
     // parse command line arguments
     while (argsIt.next()) |arg| {
@@ -59,6 +61,9 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
             },
             4 => {
                 args.drawCircleGeometry = std.mem.eql(u8, arg, "true");
+            },
+            5 => {
+                args.drawSdf = std.mem.eql(u8, arg, "true");
             },
             else => {
                 return error.UnknownArgument;
@@ -343,23 +348,25 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
             g.glDrawArrays(g.GL_TRIANGLES, 0, numCircleTriangles * 3);
         }
 
-        // =======================================
-        // draw a quad and use shader based on sdf
-        g.glUseProgram(sdfShaderProgram);
-        const durationFromStart = startedAt.durationTo(std.Io.Clock.awake.now(io));
-        const timeUniform: c_int = g.glGetUniformLocation(sdfShaderProgram, "time");
+        if (args.drawSdf) {
+            // =======================================
+            // draw a quad and use shader based on sdf
+            g.glUseProgram(sdfShaderProgram);
+            const durationFromStart = startedAt.durationTo(std.Io.Clock.awake.now(io));
+            const timeUniform: c_int = g.glGetUniformLocation(sdfShaderProgram, "time");
 
-        if (timeUniform == -1) {
-            std.debug.print("can't find `time` uniform location in sdfShaderProgram\n", .{});
-            return 1;
+            if (timeUniform == -1) {
+                std.debug.print("can't find `time` uniform location in sdfShaderProgram\n", .{});
+                return 1;
+            }
+            g.glUniform1f(timeUniform, @as(f32, @floatFromInt(durationFromStart.toMilliseconds())) / 1000.0);
+            g.glBindVertexArray(quadVAO);
+            g.glDrawArrays(
+                g.GL_TRIANGLES,
+                0, // starting index of vertex array
+                6, // how many vertices to draw, there are 6 vertices in quad
+            );
         }
-        g.glUniform1f(timeUniform, @as(f32, @floatFromInt(durationFromStart.toMilliseconds())) / 1000.0);
-        g.glBindVertexArray(quadVAO);
-        g.glDrawArrays(
-            g.GL_TRIANGLES,
-            0, // starting index of vertex array
-            6, // how many vertices to draw, there are 6 vertices in quad
-        );
 
         // =====================
         // "draw" postprocessing
