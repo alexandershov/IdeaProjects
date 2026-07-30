@@ -27,6 +27,14 @@ const Args = struct {
     drawCircleGeometry: bool,
 };
 
+const Texture = struct {
+    data: [*c]u8,
+    width: c_int,
+    height: c_int,
+    numChannels: c_int,
+    handle: u32,
+};
+
 fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     var argsIt = initMinimal.args.iterate();
     var ia: u32 = 0;
@@ -65,16 +73,6 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     var threaded: std.Io.Threaded = .init(gpa, std.Io.Threaded.InitOptions{});
     defer threaded.deinit();
     const io = threaded.io();
-
-    var texWidth: c_int = undefined;
-    var texHeight: c_int = undefined;
-    var numChannels: c_int = undefined;
-    const texData: [*c]u8 = stb.stbi_load("src/wall.jpg", &texWidth, &texHeight, &numChannels, 0);
-    if (texData == null) {
-        std.debug.print("could not load src/wall.jpg\n", .{});
-        return 1;
-    }
-    defer stb.stbi_image_free(texData);
     // by default you'll get jagged edges
     // so we need to enable antialiasing for a smoother edges
     // there are several ways to do antialiasing
@@ -219,34 +217,8 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
 
     // bind default framebuffer
     g.glBindFramebuffer(g.GL_FRAMEBUFFER, 0);
-
-    var texture: u32 = undefined;
-    g.glGenTextures(1, &texture);
-    // bind texture to GL_TEXTURE_2D variable - usual binding stuff
-    g.glBindTexture(g.GL_TEXTURE_2D, texture);
-    // we control what happens when texture coordinates are outside of the [-1.0; 1.0]
-    // here we set it up to repeat texture for s (x) & t (y) axes
-    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_S, g.GL_REPEAT);
-    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_T, g.GL_REPEAT);
-    // let's say we found a texel (pixel inside of the texture: "TEXture ELement") that represents our coordinates
-    // we can control the color of this texel
-    // GL_LINEAR will interpolate texel color based on the colors of its neighbours
-    // there's also GL_NEAREST, that just takes the color of nearest texel
-    // these are called texture filters and we can have different filters if our texture
-    // was upscaled or downscaled
-    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MIN_FILTER, g.GL_LINEAR);
-    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MAG_FILTER, g.GL_LINEAR);
-    g.glTexImage2D(
-        g.GL_TEXTURE_2D, // operate on currently bound GL_TEXTURE_2D
-        0, // no mipmap, mipmaps are kinda like LOD for textures - we can have smaller textures based on a surface of the polygon
-        g.GL_RGB,
-        texWidth,
-        texHeight,
-        0, // always 0, legacy
-        g.GL_RGB,
-        g.GL_UNSIGNED_BYTE,
-        texData,
-    );
+    const texture = try loadTexture("src/wall.jpg");
+    defer stb.stbi_image_free(texture.data);
 
     var triangleVertices: [24]f32 = [24]f32{
         //x    y    z    r    g    b  texture coordinates (st)
@@ -349,7 +321,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
                 redDelta = 0.0;
             }
             g.glUniform4f(colorDeltaLocation, redDelta, 0.0, 0.0, 0.0);
-            g.glBindTexture(g.GL_TEXTURE_2D, texture);
+            g.glBindTexture(g.GL_TEXTURE_2D, texture.handle);
             // use VAO
             g.glBindVertexArray(triangleVAO);
             // draw triangles
@@ -550,6 +522,48 @@ fn buildVAO(vertices: []f32, vertexAttribs: VertexAttribs) c_uint {
     // unbind current VAO
     g.glBindVertexArray(0);
     return VAO;
+}
+
+fn loadTexture(path: []const u8) !Texture {
+    var texture: Texture = undefined;
+    texture.data = stb.stbi_load(
+        @ptrCast(path),
+        @ptrCast(&texture.width),
+        @ptrCast(&texture.height),
+        @ptrCast(&texture.numChannels),
+        0,
+    );
+    if (texture.data == null) {
+        std.debug.print("could not load {s}\n", .{path});
+        return error.CouldNotLoadTexture;
+    }
+    g.glGenTextures(1, &texture.handle);
+    // bind texture to GL_TEXTURE_2D variable - usual binding stuff
+    g.glBindTexture(g.GL_TEXTURE_2D, texture.handle);
+    // we control what happens when texture coordinates are outside of the [-1.0; 1.0]
+    // here we set it up to repeat texture for s (x) & t (y) axes
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_S, g.GL_REPEAT);
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_T, g.GL_REPEAT);
+    // let's say we found a texel (pixel inside of the texture: "TEXture ELement") that represents our coordinates
+    // we can control the color of this texel
+    // GL_LINEAR will interpolate texel color based on the colors of its neighbours
+    // there's also GL_NEAREST, that just takes the color of nearest texel
+    // these are called texture filters and we can have different filters if our texture
+    // was upscaled or downscaled
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MIN_FILTER, g.GL_LINEAR);
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MAG_FILTER, g.GL_LINEAR);
+    g.glTexImage2D(
+        g.GL_TEXTURE_2D, // operate on currently bound GL_TEXTURE_2D
+        0, // no mipmap, mipmaps are kinda like LOD for textures - we can have smaller textures based on a surface of the polygon
+        g.GL_RGB,
+        texture.width,
+        texture.height,
+        0, // always 0, legacy
+        g.GL_RGB,
+        g.GL_UNSIGNED_BYTE,
+        texture.data,
+    );
+    return texture;
 }
 
 fn pointAtAngle(angle: f32, center: Point, radius: f32) Point {
