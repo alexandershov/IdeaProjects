@@ -576,9 +576,10 @@ fn loadTexture(path: []const u8) !Texture {
     // bind texture to GL_TEXTURE_2D variable - usual binding stuff
     g.glBindTexture(g.GL_TEXTURE_2D, texture.handle);
     // we control what happens when texture coordinates are outside of the [0.0; 1.0]
-    // here we set it up to repeat texture for s (x) & t (y) axes
-    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_S, g.GL_REPEAT);
-    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_T, g.GL_REPEAT);
+    // here anything outside of the border will have border color - essentially it makes infinite borders
+    // there's also possibility of g.GL_REPEAT to repeat texture
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_S, g.GL_CLAMP_TO_EDGE);
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_WRAP_T, g.GL_CLAMP_TO_EDGE);
     // let's say we found a texel (pixel inside of the texture: "TEXture ELement") that represents our coordinates
     // we can control the color of this texel
     // GL_LINEAR will interpolate texel color based on the colors of its neighbours
