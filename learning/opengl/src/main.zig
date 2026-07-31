@@ -224,8 +224,9 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     g.glGenTextures(1, &resolvedTexColorBuffer);
     g.glBindTexture(g.GL_TEXTURE_2D, resolvedTexColorBuffer);
     g.glTexImage2D(g.GL_TEXTURE_2D, 0, g.GL_RGB, 800, 800, 0, g.GL_RGB, g.GL_UNSIGNED_BYTE, null);
-    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MIN_FILTER, g.GL_LINEAR);
-    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MAG_FILTER, g.GL_LINEAR);
+    // we'll apply kuwahara filter over this texture, so we don't need any interpolation
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MIN_FILTER, g.GL_NEAREST);
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MAG_FILTER, g.GL_NEAREST);
     // unbind texture
     g.glBindTexture(g.GL_TEXTURE_2D, 0);
     // attach texture to the bound framebuffer
@@ -240,7 +241,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     defer stb.stbi_image_free(texture.data);
 
     // we'll to kuwahara filter over this texture, so we don't want any interpolation here
-    const quadTexture = try loadTexture(args.quadTexture, g.GL_NEAREST);
+    const quadTexture = try loadTexture(args.quadTexture, g.GL_LINEAR);
     defer stb.stbi_image_free(quadTexture.data);
 
     var triangleVertices: [24]f32 = [24]f32{
