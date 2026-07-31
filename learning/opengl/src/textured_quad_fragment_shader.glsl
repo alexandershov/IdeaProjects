@@ -33,7 +33,7 @@ vec2 kuwahara(vec2 lowerLeft, vec2 texelSize, int quadrantSize) {
 }
 
 void main() {
-  int quadrantSize = 3;
+  int quadrantSize = 9;
   vec2 texelSize = 1.0 / textureSize(ourTexture, 0); // 0 is level of details, we don't have any
 
   // calculate mean & stddev for 4 quadrants
