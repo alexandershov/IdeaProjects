@@ -236,10 +236,11 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     // image coordinates is top-left, bottom-right, but texture coordinates are bottom-left, top-right
     // flip fixes that, so image is not upside down
     stb.stbi_set_flip_vertically_on_load(1);
-    const texture = try loadTexture("src/wall.jpg");
+    const texture = try loadTexture("src/wall.jpg", g.GL_LINEAR);
     defer stb.stbi_image_free(texture.data);
 
-    const quadTexture = try loadTexture(args.quadTexture);
+    // we'll to kuwahara filter over this texture, so we don't want any interpolation here
+    const quadTexture = try loadTexture(args.quadTexture, g.GL_NEAREST);
     defer stb.stbi_image_free(quadTexture.data);
 
     var triangleVertices: [24]f32 = [24]f32{
@@ -559,7 +560,7 @@ fn buildVAO(vertices: []f32, vertexAttribs: VertexAttribs) c_uint {
     return VAO;
 }
 
-fn loadTexture(path: []const u8) !Texture {
+fn loadTexture(path: []const u8, filter: i32) !Texture {
     var texture: Texture = undefined;
     texture.data = stb.stbi_load(
         @ptrCast(path),
@@ -586,8 +587,8 @@ fn loadTexture(path: []const u8) !Texture {
     // there's also GL_NEAREST, that just takes the color of nearest texel
     // these are called texture filters and we can have different filters if our texture
     // was upscaled or downscaled
-    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MIN_FILTER, g.GL_LINEAR);
-    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MAG_FILTER, g.GL_LINEAR);
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MIN_FILTER, filter);
+    g.glTexParameteri(g.GL_TEXTURE_2D, g.GL_TEXTURE_MAG_FILTER, filter);
     g.glTexImage2D(
         g.GL_TEXTURE_2D, // operate on currently bound GL_TEXTURE_2D
         0, // no mipmap, mipmaps are kinda like LOD for textures - we can have smaller textures based on a surface of the polygon
