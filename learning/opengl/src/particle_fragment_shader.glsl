@@ -11,7 +11,7 @@ void main() {
   // fireSprite is a white sprite, so tex.r is intensity of it
   // if tex.r is 0, then we're at the least intense part (edge) = mix will return ~red
   // if tex.r is 1, then we're at the most intense part (core): mix will return ~yellow
-  vec3 fireColor = mix(vec3(1.0, 0.1, 0.0, 1.0), vec3(1.0, 1.0, 0.3, 1.0), tex.r);
+  vec4 fireColor = mix(vec4(1.0, 0.1, 0.0, 1.0), vec4(1.0, 1.0, 0.3, 1.0), tex.r);
   Color = fireColor * ParticleColor;
 }
 

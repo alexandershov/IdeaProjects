@@ -29,6 +29,7 @@ const Args = struct {
     drawTexturedQuad: bool,
     drawCircleGeometry: bool,
     drawSdf: bool,
+    drawParticles: bool,
 };
 
 const Texture = struct {
@@ -51,6 +52,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         .drawTexturedQuad = true,
         .drawCircleGeometry = false,
         .drawSdf = false,
+        .drawParticles = false,
     };
     // parse command line arguments
     while (argsIt.next()) |arg| {
@@ -79,6 +81,9 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
             },
             8 => {
                 args.drawSdf = std.mem.eql(u8, arg, "true");
+            },
+            9 => {
+                args.drawParticles = std.mem.eql(u8, arg, "true");
             },
             else => {
                 return error.UnknownArgument;
@@ -164,6 +169,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     const sdfShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", "./src/sdf_fragment_shader.glsl");
     const postProcessingShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/quad_vertex_shader.glsl", args.postProcessingFragmentShader);
     const passThroughShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/pass_through_vertex_shader.glsl", "./src/pass_through_fragment_shader.glsl");
+    const particleShaderProgram: c_uint = try buildShaderProgram(gpa, io, "./src/particle_vertex_shader.glsl", "./src/particle_fragment_shader.glsl");
 
     // there's a default framebuffer and by default we render to it
     // but we can create another framebuffer, render to it, make a texture out of it
@@ -245,9 +251,11 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     const texture = try loadTexture("src/wall.jpg", g.GL_LINEAR);
     defer stb.stbi_image_free(texture.data);
 
-    // we'll to kuwahara filter over this texture, so we don't want any interpolation here
     const quadTexture = try loadTexture(args.quadTexture, g.GL_LINEAR);
     defer stb.stbi_image_free(quadTexture.data);
+
+    const particleTexture = try loadTexture("src/fire_particle.png", g.GL_LINEAR);
+    defer stb.stbi_image_free(particleTexture.data);
 
     var triangleVertices: [24]f32 = [24]f32{
         //x    y    z    r    g    b  texture coordinates (st)
@@ -317,7 +325,8 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         // offsets = xyz, rgb
         .offsets = &.{ 0, 3 },
     });
-
+    const particleColorUniform: c_int = g.glGetUniformLocation(particleShaderProgram, "color");
+    const particleOffsetUniform: c_int = g.glGetUniformLocation(particleShaderProgram, "offset");
     var running: bool = g.true != 0;
     var event: g.SDL_Event = undefined;
     var redDelta: f32 = 0.0;
@@ -339,8 +348,6 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         g.glClear(g.GL_COLOR_BUFFER_BIT | g.GL_DEPTH_BUFFER_BIT);
         g.glEnable(g.GL_DEPTH_TEST);
         if (args.drawTexturedTriangle) {
-            // ======================
-            // draw textured triangle
             g.glUseProgram(shaderProgram);
             // assigning uniform (aka global) value
             const colorDeltaLocation: c_int = g.glGetUniformLocation(shaderProgram, "colorDelta");
@@ -362,16 +369,12 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         }
 
         if (args.drawCircleGeometry) {
-            // ===============================
-            // draw a circle based on geometry
             g.glUseProgram(passThroughShaderProgram);
             g.glBindVertexArray(circleVAO);
             g.glDrawArrays(g.GL_TRIANGLES, 0, numCircleTriangles * 3);
         }
 
         if (args.drawSdf) {
-            // =======================================
-            // draw a quad and use shader based on sdf
             g.glUseProgram(sdfShaderProgram);
             const durationFromStart = startedAt.durationTo(std.Io.Clock.awake.now(io));
             const timeUniform: c_int = g.glGetUniformLocation(sdfShaderProgram, "time");
@@ -390,10 +393,22 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         }
 
         if (args.drawTexturedQuad) {
-            // ==================
-            // draw textured quad
             g.glUseProgram(quadShaderProgram);
             g.glBindTexture(g.GL_TEXTURE_2D, quadTexture.handle);
+            g.glBindVertexArray(quadVAO);
+            g.glDrawArrays(
+                g.GL_TRIANGLES,
+                0, // starting index of vertex array
+                6, // how many vertices to draw, there are 6 vertices in quad
+            );
+        }
+
+        if (args.drawParticles) {
+            // TODO: accumulate blend
+            g.glUseProgram(particleShaderProgram);
+            g.glUniform2f(particleOffsetUniform, 0.5, 0.5);
+            g.glUniform4f(particleColorUniform, 0.8, 0.8, 0.8, 1.0);
+            g.glBindTexture(g.GL_TEXTURE_2D, particleTexture.handle);
             g.glBindVertexArray(quadVAO);
             g.glDrawArrays(
                 g.GL_TRIANGLES,
@@ -470,7 +485,7 @@ fn compileShader(allocator: std.mem.Allocator, io: std.Io, path: []const u8, sha
     var shaderCompiled: c_int = undefined;
     g.glGetShaderiv(shader, g.GL_COMPILE_STATUS, &shaderCompiled);
     if (shaderCompiled == 0) {
-        printShaderCompileError(shader);
+        printShaderCompileError(shader, path);
         return HelloGLError.ShaderCompilationError;
     }
     return shader;
@@ -500,7 +515,7 @@ fn buildShaderProgram(allocator: std.mem.Allocator, io: std.Io, vertexShaderPath
     return shaderProgram;
 }
 
-fn printShaderCompileError(shader: c_uint) void {
+fn printShaderCompileError(shader: c_uint, path: []const u8) void {
     var shaderCompileError: [512]u8 = undefined;
     var shaderCompileErrorLen: i32 = undefined;
     g.glGetShaderInfoLog(shader, shaderCompileError.len, &shaderCompileErrorLen, &shaderCompileError);
@@ -514,7 +529,7 @@ fn printShaderCompileError(shader: c_uint) void {
     } else if (shaderTypeCode == g.GL_FRAGMENT_SHADER) {
         shaderType = "fragment";
     }
-    std.debug.print("{s} shader failed to compile! {s}\n", .{ shaderType, shaderCompileError[0..@intCast(shaderCompileErrorLen)] });
+    std.debug.print("{s} shader {s} failed to compile! {s}\n", .{ shaderType, path, shaderCompileError[0..@intCast(shaderCompileErrorLen)] });
 }
 
 fn buildVAO(vertices: []f32, vertexAttribs: VertexAttribs) c_uint {
