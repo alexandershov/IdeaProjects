@@ -325,8 +325,16 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         // offsets = xyz, rgb
         .offsets = &.{ 0, 3 },
     });
+
     const particleColorUniform: c_int = g.glGetUniformLocation(particleShaderProgram, "color");
     const particleOffsetUniform: c_int = g.glGetUniformLocation(particleShaderProgram, "offset");
+    if (particleOffsetUniform == -1) {
+        return error.OffsetUniformLocationError;
+    }
+    if (particleColorUniform == -1) {
+        return error.ColorUniformLocationError;
+    }
+
     var running: bool = g.true != 0;
     var event: g.SDL_Event = undefined;
     var redDelta: f32 = 0.0;
@@ -404,7 +412,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         }
 
         if (args.drawParticles) {
-            // TODO: accumulate blend
+            g.glBlendFunc(g.GL_SRC_ALPHA, g.GL_ONE);
             g.glUseProgram(particleShaderProgram);
             g.glUniform2f(particleOffsetUniform, 0.5, 0.5);
             g.glUniform4f(particleColorUniform, 0.8, 0.8, 0.8, 1.0);
@@ -415,6 +423,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
                 0, // starting index of vertex array
                 6, // how many vertices to draw, there are 6 vertices in quad
             );
+            g.glBlendFunc(g.GL_SRC_ALPHA, g.GL_ONE_MINUS_SRC_ALPHA);
         }
 
         // =====================
