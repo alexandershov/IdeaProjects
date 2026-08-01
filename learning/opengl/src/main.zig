@@ -26,6 +26,7 @@ const Args = struct {
     quadVertexShader: []const u8,
     quadFragmentShader: []const u8,
     drawTexturedTriangle: bool,
+    drawTexturedQuad: bool,
     drawCircleGeometry: bool,
     drawSdf: bool,
 };
@@ -47,6 +48,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         .quadVertexShader = "src/quad_vertex_shader.glsl",
         .quadFragmentShader = "src/quad_fragment_shader.glsl",
         .drawTexturedTriangle = false,
+        .drawTexturedQuad = true,
         .drawCircleGeometry = false,
         .drawSdf = false,
     };
@@ -70,9 +72,12 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
                 args.drawTexturedTriangle = std.mem.eql(u8, arg, "true");
             },
             6 => {
-                args.drawCircleGeometry = std.mem.eql(u8, arg, "true");
+                args.drawTexturedQuad = std.mem.eql(u8, arg, "true");
             },
             7 => {
+                args.drawCircleGeometry = std.mem.eql(u8, arg, "true");
+            },
+            8 => {
                 args.drawSdf = std.mem.eql(u8, arg, "true");
             },
             else => {
@@ -384,16 +389,18 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
             );
         }
 
-        // ==================
-        // draw textured quad
-        g.glUseProgram(quadShaderProgram);
-        g.glBindTexture(g.GL_TEXTURE_2D, quadTexture.handle);
-        g.glBindVertexArray(quadVAO);
-        g.glDrawArrays(
-            g.GL_TRIANGLES,
-            0, // starting index of vertex array
-            6, // how many vertices to draw, there are 6 vertices in quad
-        );
+        if (args.drawTexturedQuad) {
+            // ==================
+            // draw textured quad
+            g.glUseProgram(quadShaderProgram);
+            g.glBindTexture(g.GL_TEXTURE_2D, quadTexture.handle);
+            g.glBindVertexArray(quadVAO);
+            g.glDrawArrays(
+                g.GL_TRIANGLES,
+                0, // starting index of vertex array
+                6, // how many vertices to draw, there are 6 vertices in quad
+            );
+        }
 
         // =====================
         // "draw" postprocessing
