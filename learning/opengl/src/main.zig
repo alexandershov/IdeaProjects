@@ -465,6 +465,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         }
 
         if (args.drawParticles and numParticles > 0) {
+            // draw particles with: make run DRAW_TEXTURED_QUAD=false DRAW_PARTICLES=true
             var i = numParticles - 1;
             while (true) {
                 particles[i].tick(dt);
