@@ -79,7 +79,7 @@ const Particle = struct {
         if (self.life > 0) {
             self.position += self.velocity * Vec2{ dt, dt };
             // particles become more transparent with time
-            self.color[3] -= dt * self.colorDecay;
+            self.color[3] -= @min(dt * self.colorDecay, self.color[3]);
         }
     }
 };
@@ -428,7 +428,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         // clear color buffers, this is OpenGL function
         // As I understand this is to reset OpenGL state machine on each frame
         // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glClear.xhtml
-        g.glClearColor(0.2, 0.3, 0.3, 1.0);
+        g.glClearColor(0.0, 0.0, 0.0, 1.0);
         g.glClear(g.GL_COLOR_BUFFER_BIT | g.GL_DEPTH_BUFFER_BIT);
         g.glEnable(g.GL_DEPTH_TEST);
         if (args.drawTexturedTriangle) {
@@ -510,7 +510,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
             }
 
             g.glBlendFunc(g.GL_SRC_ALPHA, g.GL_ONE);
-            for (&particles) |*p| {
+            for (particles[0..particleParams.curCount]) |*p| {
                 g.glUseProgram(particleShaderProgram);
                 g.glUniform1f(particleScaleUniform, particleParams.scale);
                 g.glUniform2f(particleOffsetUniform, p.position[0], p.position[1]);
