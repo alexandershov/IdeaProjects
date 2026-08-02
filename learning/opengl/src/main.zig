@@ -359,8 +359,13 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         .offsets = &.{ 0, 3 },
     });
 
+    const particleScaleUniform: c_int = g.glGetUniformLocation(particleShaderProgram, "scale");
     const particleColorUniform: c_int = g.glGetUniformLocation(particleShaderProgram, "color");
     const particleOffsetUniform: c_int = g.glGetUniformLocation(particleShaderProgram, "offset");
+    if (particleOffsetUniform == -1) {
+        return error.ScaleUniformLocationError;
+    }
+
     if (particleOffsetUniform == -1) {
         return error.OffsetUniformLocationError;
     }
@@ -382,8 +387,15 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         emitPerFrame: usize,
         curCount: usize,
         initialLife: ?f32,
+        scale: f32,
     };
-    var particleParams = ParticleParams{ .emitPerFrame = 0, .curCount = 0, .initialLife = 10.0 };
+    var particleParams = ParticleParams{
+        .emitPerFrame = 0,
+        .curCount = 0,
+        .initialLife = 10.0,
+        // scale so particles are small
+        .scale = 0.1,
+    };
 
     const MAX_PARTICLES = 1000;
     var particles: [MAX_PARTICLES]Particle = undefined;
@@ -491,6 +503,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
             g.glBlendFunc(g.GL_SRC_ALPHA, g.GL_ONE);
             for (&particles) |*p| {
                 g.glUseProgram(particleShaderProgram);
+                g.glUniform1f(particleScaleUniform, particleParams.scale);
                 g.glUniform2f(particleOffsetUniform, p.position[0], p.position[1]);
                 g.glUniform4f(particleColorUniform, p.color[0], p.color[1], p.color[2], p.color[3]);
                 g.glBindTexture(g.GL_TEXTURE_2D, particleTexture.handle);

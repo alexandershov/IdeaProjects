@@ -7,10 +7,9 @@ out vec4 ParticleColor;
 
 uniform vec2 offset;
 uniform vec4 color;
+uniform float scale;
 
 void main() {
-  // scale so particles are small
-  float scale = 0.01;
   gl_Position = vec4(aPos * scale + offset, 0.0, 1.0);
   TexCoord = aTexCoord;
   ParticleColor = color;
