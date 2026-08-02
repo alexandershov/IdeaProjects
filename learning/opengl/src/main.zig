@@ -49,24 +49,24 @@ const Particle = struct {
     color: Vec4,
     life: f32,
 
-    pub fn init(random: std.Random) Particle {
+    pub fn init(random: std.Random, initialLife: ?f32) Particle {
         const c = 0.5 + random.float(f32) / 2.0; // range [0.5; 1)
         const px = (random.float(f32) / 10.0) - 0.05; // range [-0.05, 0.05)
         const py = (random.float(f32) / 10.0) - 0.05; // range [-0.05, 0.05)
-        const vx = random.float(f32) / 100.0 - 0.005;  // range [-0.005, 0.005)
-        const vy = 0.1 + random.float(f32) / 10.0;  // range [0.1, 0.2)
+        const vx = random.float(f32) / 100.0 - 0.005; // range [-0.005, 0.005)
+        const vy = 0.1 + random.float(f32) / 10.0; // range [0.1, 0.2)
         return Particle{
-            .position = Vec2{px, py},
-            .velocity = Vec2{vx, vy},
-            .color = Vec4{c, c, c, 1.0},
-            .life = 1.0 * (1 + random.float(f32)),
+            .position = Vec2{ px, py },
+            .velocity = Vec2{ vx, vy },
+            .color = Vec4{ c, c, c, 1.0 },
+            .life = initialLife orelse 1.0,
         };
     }
 
     pub fn tick(self: *Particle, dt: f32) void {
         self.life -= dt;
         if (self.life > 0) {
-            self.position += self.velocity * Vec2{dt, dt};
+            self.position += self.velocity * Vec2{ dt, dt };
             // particles become more transparent with time
             self.color[3] -= dt * 2.5;
         }
@@ -377,11 +377,21 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     var lastFrameStartedAt = std.Io.Clock.awake.now(io);
     var curFrameStartedAt = std.Io.Clock.awake.now(io);
     var dt: f32 = undefined;
+
+    const ParticleParams = struct {
+        emitPerFrame: usize,
+        curCount: usize,
+        initialLife: ?f32,
+    };
+    var particleParams = ParticleParams{ .emitPerFrame = 0, .curCount = 0, .initialLife = 10.0 };
+
     const MAX_PARTICLES = 1000;
-    var numParticles: usize = 0;
     var particles: [MAX_PARTICLES]Particle = undefined;
     var prng = std.Random.DefaultPrng.init(100);
     const random = prng.random();
+    particles[0] = Particle.init(random, particleParams.initialLife);
+    particleParams.curCount += 1;
+
     while (running) {
         while (g.SDL_PollEvent(&event) != 0) {
             if (event.type == @as(g.Uint32, g.SDL_QUIT)) {
@@ -456,22 +466,21 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
             );
         }
 
-        const emit = 5;
-        for (0..emit) |_| {
-            if (numParticles < MAX_PARTICLES) {
-                particles[numParticles] = Particle.init(random);
-                numParticles += 1;
+        for (0..particleParams.emitPerFrame) |_| {
+            if (particleParams.curCount < MAX_PARTICLES) {
+                particles[particleParams.curCount] = Particle.init(random, particleParams.initialLife);
+                particleParams.curCount += 1;
             }
         }
 
-        if (args.drawParticles and numParticles > 0) {
+        if (args.drawParticles and particleParams.curCount > 0) {
             // draw particles with: make run DRAW_TEXTURED_QUAD=false DRAW_PARTICLES=true
-            var i = numParticles - 1;
+            var i = particleParams.curCount - 1;
             while (true) {
                 particles[i].tick(dt);
                 if (particles[i].life <= 0) {
-                    particles[i] = particles[numParticles - 1];
-                    numParticles -= 1;
+                    particles[i] = particles[particleParams.curCount - 1];
+                    particleParams.curCount -= 1;
                 }
                 if (i == 0) {
                     break;
