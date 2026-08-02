@@ -40,6 +40,36 @@ const Texture = struct {
     handle: u32,
 };
 
+const Vec4 = @Vector(4, f32);
+const Vec2 = @Vector(2, f32);
+
+const Particle = struct {
+    position: Vec2,
+    velocity: Vec2,
+    color: Vec4,
+    life: f32,
+
+    pub fn init(random: std.Random) Particle {
+        const c = 0.5 + random.float() / 2.0; // range (0.5; 1)
+        return Particle{
+            // TODO: randomize position & velocity
+            .position = Vec2{0.0, 0.0},
+            .velocity = Vec2{0.001, 0.001},
+            .color = Vec4{c, c, c, 1.0},
+            .life = 1.0,
+        };
+    }
+
+    pub fn tick(self: *Particle, dt: f32) void {
+        self.life -= dt;
+        if (self.life > 0) {
+            self.position += self.velocity * Vec2{dt, dt};
+            // particles become more transparent with time
+            self.color[3] -= dt * 2.5;
+        }
+    }
+};
+
 fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     var argsIt = initMinimal.args.iterate();
     var ia: u32 = 0;
@@ -341,12 +371,24 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     var numUnaccountedFrames: usize = 0;
     var unaccountedFramesStartedAt: std.Io.Timestamp = std.Io.Clock.awake.now(io);
     const startedAt = std.Io.Clock.awake.now(io);
+    var lastFrameStartedAt = std.Io.Clock.awake.now(io);
+    var curFrameStartedAt = std.Io.Clock.awake.now(io);
+    var dt: f32 = undefined;
+    const MAX_PARTICLES = 1000;
+    var numParticles: usize = 0;
+    var particles: [MAX_PARTICLES]Particle = undefined;
+    var prng = std.Random.DefaultPrng.init(100);
+    const random = prng.random();
     while (running) {
         while (g.SDL_PollEvent(&event) != 0) {
             if (event.type == @as(g.Uint32, g.SDL_QUIT)) {
                 running = g.false != 0;
             }
         }
+        curFrameStartedAt = std.Io.Clock.awake.now(io);
+        dt = @as(f32, @floatFromInt(lastFrameStartedAt.durationTo(curFrameStartedAt).toMicroseconds())) / 1000000.0;
+        lastFrameStartedAt = curFrameStartedAt;
+
         // after this bind all read/write framebuffer operations will affect this framebuffer
         g.glBindFramebuffer(g.GL_FRAMEBUFFER, fbo);
         // clear color buffers, this is OpenGL function
@@ -411,18 +453,38 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
             );
         }
 
-        if (args.drawParticles) {
+        if (args.drawParticles and numParticles > 0) {
+            var i = numParticles - 1;
+            while (i >= 0) {
+                particles[i].tick(dt);
+                if (particles[i].life <= 0) {
+                    particles[i] = particles[numParticles - 1];
+                    numParticles -= 1;
+                }
+                i -= 1;
+            }
+
+            const emit = 2;
+            for (0..emit) |_| {
+                if (numParticles < MAX_PARTICLES) {
+                    particles[numParticles] = Particle.init(random);
+                    numParticles += 1;
+                }
+            }
+
             g.glBlendFunc(g.GL_SRC_ALPHA, g.GL_ONE);
-            g.glUseProgram(particleShaderProgram);
-            g.glUniform2f(particleOffsetUniform, 0.5, 0.5);
-            g.glUniform4f(particleColorUniform, 0.8, 0.8, 0.8, 1.0);
-            g.glBindTexture(g.GL_TEXTURE_2D, particleTexture.handle);
-            g.glBindVertexArray(quadVAO);
-            g.glDrawArrays(
-                g.GL_TRIANGLES,
-                0, // starting index of vertex array
-                6, // how many vertices to draw, there are 6 vertices in quad
-            );
+            for (&particles) |*p| {
+                g.glUseProgram(particleShaderProgram);
+                g.glUniform2f(particleOffsetUniform, p.position[0], p.position[1]);
+                g.glUniform4f(particleColorUniform, p.color[0], p.color[1], p.color[2], p.color[3]);
+                g.glBindTexture(g.GL_TEXTURE_2D, particleTexture.handle);
+                g.glBindVertexArray(quadVAO);
+                g.glDrawArrays(
+                    g.GL_TRIANGLES,
+                    0, // starting index of vertex array
+                    6, // how many vertices to draw, there are 6 vertices in quad
+                );
+            }
             g.glBlendFunc(g.GL_SRC_ALPHA, g.GL_ONE_MINUS_SRC_ALPHA);
         }
 
