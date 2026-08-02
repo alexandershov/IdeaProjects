@@ -43,13 +43,21 @@ const Texture = struct {
 const Vec4 = @Vector(4, f32);
 const Vec2 = @Vector(2, f32);
 
+const ParticleParams = struct {
+    emitPerFrame: usize,
+    curCount: usize,
+    initialLife: ?f32,
+    initialVelocity: ?Vec2,
+    scale: f32,
+};
+
 const Particle = struct {
     position: Vec2,
     velocity: Vec2,
     color: Vec4,
     life: f32,
 
-    pub fn init(random: std.Random, initialLife: ?f32) Particle {
+    pub fn init(random: std.Random, params: ParticleParams) Particle {
         const c = 0.5 + random.float(f32) / 2.0; // range [0.5; 1)
         const px = (random.float(f32) / 10.0) - 0.05; // range [-0.05, 0.05)
         const py = (random.float(f32) / 10.0) - 0.05; // range [-0.05, 0.05)
@@ -57,9 +65,9 @@ const Particle = struct {
         const vy = 0.1 + random.float(f32) / 10.0; // range [0.1, 0.2)
         return Particle{
             .position = Vec2{ px, py },
-            .velocity = Vec2{ vx, vy },
+            .velocity = params.initialVelocity orelse Vec2{ vx, vy },
             .color = Vec4{ c, c, c, 1.0 },
-            .life = initialLife orelse 1.0,
+            .life = params.initialLife orelse 1.0,
         };
     }
 
@@ -383,16 +391,11 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     var curFrameStartedAt = std.Io.Clock.awake.now(io);
     var dt: f32 = undefined;
 
-    const ParticleParams = struct {
-        emitPerFrame: usize,
-        curCount: usize,
-        initialLife: ?f32,
-        scale: f32,
-    };
     var particleParams = ParticleParams{
         .emitPerFrame = 0,
         .curCount = 0,
         .initialLife = 10.0,
+        .initialVelocity = Vec2{ 0.0, 0.0 },
         // scale so particles are small
         .scale = 0.1,
     };
@@ -401,7 +404,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     var particles: [MAX_PARTICLES]Particle = undefined;
     var prng = std.Random.DefaultPrng.init(100);
     const random = prng.random();
-    particles[0] = Particle.init(random, particleParams.initialLife);
+    particles[0] = Particle.init(random, particleParams);
     particleParams.curCount += 1;
 
     while (running) {
@@ -480,7 +483,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
 
         for (0..particleParams.emitPerFrame) |_| {
             if (particleParams.curCount < MAX_PARTICLES) {
-                particles[particleParams.curCount] = Particle.init(random, particleParams.initialLife);
+                particles[particleParams.curCount] = Particle.init(random, particleParams);
                 particleParams.curCount += 1;
             }
         }
