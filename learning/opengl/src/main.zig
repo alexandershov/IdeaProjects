@@ -50,7 +50,7 @@ const Particle = struct {
     life: f32,
 
     pub fn init(random: std.Random) Particle {
-        const c = 0.5 + random.float() / 2.0; // range (0.5; 1)
+        const c = 0.5 + random.float(f32) / 2.0; // range (0.5; 1)
         return Particle{
             // TODO: randomize position & velocity
             .position = Vec2{0.0, 0.0},
@@ -453,23 +453,26 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
             );
         }
 
+        const emit = 2;
+        for (0..emit) |_| {
+            if (numParticles < MAX_PARTICLES) {
+                particles[numParticles] = Particle.init(random);
+                numParticles += 1;
+            }
+        }
+
         if (args.drawParticles and numParticles > 0) {
             var i = numParticles - 1;
-            while (i >= 0) {
+            while (true) {
                 particles[i].tick(dt);
                 if (particles[i].life <= 0) {
                     particles[i] = particles[numParticles - 1];
                     numParticles -= 1;
                 }
-                i -= 1;
-            }
-
-            const emit = 2;
-            for (0..emit) |_| {
-                if (numParticles < MAX_PARTICLES) {
-                    particles[numParticles] = Particle.init(random);
-                    numParticles += 1;
+                if (i == 0) {
+                    break;
                 }
+                i -= 1;
             }
 
             g.glBlendFunc(g.GL_SRC_ALPHA, g.GL_ONE);
