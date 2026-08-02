@@ -10,7 +10,7 @@ uniform vec4 color;
 
 void main() {
   // scale so particles are small
-  float scale = 0.005;
+  float scale = 0.002;
   gl_Position = vec4(aPos * scale + offset, 0.0, 1.0);
   TexCoord = aTexCoord;
   ParticleColor = color;
