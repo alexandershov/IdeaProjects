@@ -59,7 +59,7 @@ const Particle = struct {
             .position = Vec2{px, py},
             .velocity = Vec2{vx, vy},
             .color = Vec4{c, c, c, 1.0},
-            .life = 1.0,
+            .life = 1.0 * (1 + random.float(f32)),
         };
     }
 
