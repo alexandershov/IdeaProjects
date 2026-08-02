@@ -61,8 +61,8 @@ const Particle = struct {
 
     pub fn init(random: std.Random, params: ParticleParams) Particle {
         const c = 0.5 + random.float(f32) / 2.0; // range [0.5; 1)
-        const px = (random.float(f32) / 10.0) - 0.05; // range [-0.05, 0.05)
-        const py = (random.float(f32) / 10.0) - 0.05; // range [-0.05, 0.05)
+        const px = (random.float(f32) / 20.0); // range [0.0, 0.05)
+        const py = 0.0;
         const vx = random.float(f32) / 100.0 - 0.005; // range [-0.005, 0.005)
         const vy = 0.1 + random.float(f32) / 10.0; // range [0.1, 0.2)
         return Particle{
@@ -395,18 +395,16 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     var dt: f32 = undefined;
 
     var particleParams = ParticleParams{
-        .emitPerFrame = 0,
+        .emitPerFrame = 20,
         .curCount = 0,
-        //.initialLife = null,
-        //.initialVelocity = null,
-        .initialLife = 100.0,
-         .initialVelocity = Vec2{ 0.0, 0.0 },
-        .initialColorDecay = 0.1,
+        .initialVelocity = null,
+        .initialLife = 3.0,
+        .initialColorDecay = 0.33,
         // scale so particles are small
-        .scale = 0.1,
+        .scale = 0.002,
     };
 
-    const MAX_PARTICLES = 1000;
+    const MAX_PARTICLES = 10000;
     var particles: [MAX_PARTICLES]Particle = undefined;
     var prng = std.Random.DefaultPrng.init(100);
     const random = prng.random();
@@ -495,7 +493,8 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         }
 
         if (args.drawParticles and particleParams.curCount > 0) {
-            // draw particles with: make run DRAW_TEXTURED_QUAD=false DRAW_PARTICLES=true
+            // draw particles with:
+            // make run POST_PROCESSING_SHADER=./src/textured_quad_fragment_shader.glsl DRAW_TEXTURED_QUAD=false DRAW_PARTICLES=true
             var i = particleParams.curCount - 1;
             while (true) {
                 particles[i].tick(dt);
