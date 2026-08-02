@@ -397,9 +397,11 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     var particleParams = ParticleParams{
         .emitPerFrame = 0,
         .curCount = 0,
+        //.initialLife = null,
+        //.initialVelocity = null,
         .initialLife = 100.0,
-        .initialVelocity = Vec2{ 0.0, 0.0 },
-        .initialColorDecay = 0,
+         .initialVelocity = Vec2{ 0.0, 0.0 },
+        .initialColorDecay = 0.1,
         // scale so particles are small
         .scale = 0.1,
     };
