@@ -398,10 +398,10 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         .emitPerFrame = 20,
         .curCount = 0,
         .initialVelocity = null,
-        .initialLife = 3.0,
-        .initialColorDecay = 0.33,
+        .initialLife = 2.0,
+        .initialColorDecay = 0.5,
         // scale so particles are small
-        .scale = 0.002,
+        .scale = 0.008,
     };
 
     const MAX_PARTICLES = 10000;
@@ -495,6 +495,8 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
         if (args.drawParticles and particleParams.curCount > 0) {
             // draw particles with:
             // make run POST_PROCESSING_SHADER=./src/textured_quad_fragment_shader.glsl DRAW_TEXTURED_QUAD=false DRAW_PARTICLES=true
+            // disable depth testing, so particles are blended together
+            g.glDepthMask(g.GL_FALSE);
             var i = particleParams.curCount - 1;
             while (true) {
                 particles[i].tick(dt);
@@ -523,6 +525,7 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
                 );
             }
             g.glBlendFunc(g.GL_SRC_ALPHA, g.GL_ONE_MINUS_SRC_ALPHA);
+            g.glDepthMask(g.GL_TRUE);
         }
 
         // =====================
