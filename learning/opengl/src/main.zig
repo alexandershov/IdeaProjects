@@ -48,6 +48,7 @@ const ParticleParams = struct {
     curCount: usize,
     initialLife: ?f32,
     initialVelocity: ?Vec2,
+    initialColorDecay: ?f32,
     scale: f32,
 };
 
@@ -56,6 +57,7 @@ const Particle = struct {
     velocity: Vec2,
     color: Vec4,
     life: f32,
+    colorDecay: f32,
 
     pub fn init(random: std.Random, params: ParticleParams) Particle {
         const c = 0.5 + random.float(f32) / 2.0; // range [0.5; 1)
@@ -68,6 +70,7 @@ const Particle = struct {
             .velocity = params.initialVelocity orelse Vec2{ vx, vy },
             .color = Vec4{ c, c, c, 1.0 },
             .life = params.initialLife orelse 1.0,
+            .colorDecay = params.initialColorDecay orelse 2.5,
         };
     }
 
@@ -76,7 +79,7 @@ const Particle = struct {
         if (self.life > 0) {
             self.position += self.velocity * Vec2{ dt, dt };
             // particles become more transparent with time
-            self.color[3] -= dt * 2.5;
+            self.color[3] -= dt * self.colorDecay;
         }
     }
 };
@@ -394,8 +397,9 @@ fn hello_gl(initMinimal: std.process.Init.Minimal) !u8 {
     var particleParams = ParticleParams{
         .emitPerFrame = 0,
         .curCount = 0,
-        .initialLife = 10.0,
+        .initialLife = 100.0,
         .initialVelocity = Vec2{ 0.0, 0.0 },
+        .initialColorDecay = 0,
         // scale so particles are small
         .scale = 0.1,
     };
