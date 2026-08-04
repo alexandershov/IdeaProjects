@@ -16,4 +16,52 @@ This will upload "sketch" (== "program" in Arduino lingo) to your Arduino.
 TX and RX LEDS will start blinking (this means your computer is communicating with the Arduino) and then
 output LED will start blinking (it's yellow). It's working.
 
-output LED is the only actuator (thingy that can do stuff) built-in into Arduino.
+output LED is the only actuator (== thingy that can do stuff) built-in into Arduino.
+
+## Circuit
+Electricity in a circuit flows from a higher voltage to a lower voltage.
+Fundamental things are:
+* Voltage (R)
+* Current (I)
+* Resistance (R)
+
+They're connected with the Ohm equation: `V = I * R` or (by doing complicated algebraic conversion) `I = V / R`
+This means when resistance decreases, current increases.
+If voltage increases, current increases.
+
+Think of voltage as "potential energy", current as "energy", and resistance as "decrease of energy".
+
+Like a bunch rock sliding from a hill with the bushes: 
+* bushes are resistance, they decrease number of rocks that reach the bottom
+* voltage is the height of hill, the higher, the more energy we'll get at the end
+* number of rocks is current
+
+
+For practical Arduino usage all of it means that current flows from 5V to the ground.
+
+You complete a circuit on a breadboard. 
+
+Breadboard looks like this (only with more pins):
+```
++     -                                +     -
+│     │                                │     │
+o     o   o o o o o   ││   o o o o o   o     o
+o     o   o o o o o   ││   o o o o o   o     o
+o     o   o o o o o   ││   o o o o o   o     o
+o     o   o o o o o   ││   o o o o o   o     o
+o     o   o o o o o   ││   o o o o o   o     o
+o     o   o o o o o   ││   o o o o o   o     o
+o     o   o o o o o   ││   o o o o o   o     o
+o     o   o o o o o   ││   o o o o o   o     o
+o     o   o o o o o   ││   o o o o o   o     o
+```
++/- vertical rows are connected.
+horizontal rows of length 5 are connected. `||` breaks connection in the middle.
+There's no connection between vertical +/- and horizontal rows of length 5.
+But you can make these connections with the wires! That's how you build circuits: 
+you provide a path from 5V to the ground, this path can contain interesting things (buttons, LEDs, etc)
+and these interesting things make circuit do, ahem, interesting things. 
+
+LED is Light-Emitting-Diode. It has two legs:
+* anode (longer) is connected to the energy.
+* cathode (shorter) is connected to the ground.
