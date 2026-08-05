@@ -65,3 +65,28 @@ and these interesting things make circuit do, ahem, interesting things.
 LED is Light-Emitting-Diode. It has two legs:
 * anode (longer) is connected to the energy.
 * cathode (shorter) is connected to the ground.
+
+## Reading sensors
+
+Here's a sketch of a program to print current temperature:
+```C
+// our temperature sensor is physically connected (with a wire) to A0 pin
+// temperature sensor has three legs: power, sensor, and ground. Sensor is in the middle.
+const int sensorPin = A0;
+
+// runs once, when arduino starts
+void setup() {
+  Serial.begin(9600); // open connection to serial port. Connection speed is 9600 bits/second
+}
+
+
+// runs continuously
+void loop() {
+  int sensorVal = analogRead(sensorPin); // value in range [0; 1023];
+  float voltage = sensorVal * 5.0 / 1024.0;  // map sensor value to a voltage, 5.0 is maximum voltage
+  float temperature = (voltage - 0.5) * 100;
+  Serial.print("temperature ");
+  Serial.println(temperature);
+  delay(1000); // delay 1000ms
+}
+```
