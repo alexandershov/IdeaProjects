@@ -66,10 +66,31 @@ LED is Light-Emitting-Diode. It has two legs:
 * anode (longer) is connected to the energy.
 * cathode (shorter) is connected to the ground.
 
-## Reading sensors
+## Components
+Digital pins are essentially bits, you can read/write them with digitalRead/digitalWrite.
+There are 13 pins. Pins have two states: HIGH (voltage) & LOW (voltage).
 
-Here's a sketch of a program to print current temperature:
+## Temperature Project
+
+Here's a sketch to display the current temperature on an LCD screen:
 ```C
+// LiquidCrystal is a helper library to work with the LCD display
+// Documentation is here: https://docs.arduino.cc/libraries/liquidcrystal/
+#include <LiquidCrystal.h>
+
+/*
+How LCD display works:
+we connect bunch of LCD pins to power/ground (some through resistor, some not)
+
+To put LCD in a write mode connect RW pin to the ground
+V0 pin on LCD allows to configure contrast
+*/
+// using 4 data lines mode
+// pin 12 is RS pin on LCD: it determines where the characters will appear
+// pin 11 EN pin on LCD: it tells LCD that it'll be receiving command
+// pins 5, 4, 3, 2 are connected to data registers on LCD
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
 // our temperature sensor is physically connected (with a wire) to A0 pin
 // temperature sensor has three legs: power, sensor, and ground. Sensor is in the middle.
 const int sensorPin = A0;
@@ -77,16 +98,29 @@ const int sensorPin = A0;
 // runs once, when arduino starts
 void setup() {
   Serial.begin(9600); // open connection to serial port. Connection speed is 9600 bits/second
+  // LCD has 16 columns and 2 rows, it can display 32 characters
+  lcd.begin(16, 2);
+  // LiquidCrystal hides all complexity of interacting with the LCD from us
+  lcd.print("temperature");
 }
-
 
 // runs continuously
 void loop() {
   int sensorVal = analogRead(sensorPin); // value in range [0; 1023];
   float voltage = sensorVal * 5.0 / 1024.0;  // map sensor value to a voltage, 5.0 is maximum voltage
+  // spec of TMP36 sensor is this:
+  // for 0C it ouputs 0.5V
+  // change of 10mV equals change of 1C
+  // it's a linear dependency:
+  // V = C/100 + 0.5
+  // or doing very sophisticated and complicated algebraic transformation
+  // C = (V - 0.5) * 100
   float temperature = (voltage - 0.5) * 100;
   Serial.print("temperature ");
   Serial.println(temperature);
+  // set cursor to column 0, row 1
+  lcd.setCursor(0, 1);
+  lcd.print(temperature);
   delay(1000); // delay 1000ms
 }
 ```
