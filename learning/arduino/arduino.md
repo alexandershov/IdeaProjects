@@ -98,6 +98,8 @@ const int sensorPin = A0;
 // runs once, when arduino starts
 void setup() {
   Serial.begin(9600); // open connection to serial port. Connection speed is 9600 bits/second
+  // Serial port is an aptly named port: bits are read/write sequentially (hence serial).
+  // 9600 is the rate we've set up
   // LCD has 16 columns and 2 rows, it can display 32 characters
   lcd.begin(16, 2);
   // LiquidCrystal hides all complexity of interacting with the LCD from us
