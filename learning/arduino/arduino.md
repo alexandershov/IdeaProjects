@@ -126,3 +126,41 @@ void loop() {
   delay(1000); // delay 1000ms
 }
 ```
+
+## Loops/second Sketch
+
+This measures how many loops we can execute per second
+```C
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+unsigned long loops = 0;
+unsigned long mhz = ((unsigned long)1) << 20;
+unsigned long lastMillis = 0;
+unsigned long ones = (mhz << 1) - 1;
+
+
+void setup() {
+  Serial.begin(9600);
+  lcd.begin(16, 2);
+  lcd.print("loops/sec");
+}
+
+void loop() {
+  loops++;
+  if ((loops & ones) == mhz) {
+    Serial.print("loops = ");
+    Serial.println(loops);
+    unsigned long curMillis = millis();
+    unsigned long duration = curMillis - lastMillis;
+    float loopsPerSecond = 2000.0 * mhz / duration;  // multiply by 2000.0, because we hit the condition once every 2mhz
+    lastMillis = curMillis;
+    lcd.setCursor(0, 1);
+    lcd.print(loopsPerSecond);
+  }
+}
+```
+
+Surprisingly, we're getting ~360k loops/s. That's because Arduino R3 has 8-bit CPU, so even simple operations
+on a 32-bit integers are slow.
