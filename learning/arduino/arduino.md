@@ -187,8 +187,9 @@ void loop() {
 }
 ```
 
-## Piezo Sketch
+## Simple Piezo Sketch
 
+Piezo + some analog input
 ```C
 void setup() {
   
@@ -203,5 +204,35 @@ void loop() {
     20 // duration in ms
   );
   delay(10);
+}
+```
+
+## Keyboard Piezo Sketch
+
+Piezo + resistor ladder
+```C
+void setup() {
+  Serial.begin(9600); // so we can print to serial port for debugging puproses
+}
+
+void loop() {
+  // each switch is connected to a different resistor (range is 0Ohm to 1MOhm)
+  // the more resistance the lower is value and we can pick different tone based on this value
+  int value = analogRead(A0);
+  if (value == 1023) {
+    // No resistor
+    tone(8, 262); // 262 is note C
+  } else if (value >= 990 && value < 1010) {
+    // 220 Ohm
+    tone(8, 294); // 294 is note D
+  } else if (value >= 505 && value < 515) {
+    // 10k Ohm
+    tone(8, 330); // 330 is note E
+  } else if (value >= 5 && value < 10) {
+    // 10M Ohm
+    tone(8, 349); // 349 is note F
+  } else {
+    noTone(8); // no button is pressed, let's be silent
+  }
 }
 ```
