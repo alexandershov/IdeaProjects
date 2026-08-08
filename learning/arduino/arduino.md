@@ -164,3 +164,25 @@ void loop() {
 
 Surprisingly, we're getting ~360k loops/s. That's because Arduino R3 has 8-bit CPU, so even simple operations
 on a 32-bit integers are slow.
+
+
+## Servo Sketch
+
+```C
+#include <Servo.h>
+
+Servo myServo;
+
+void setup() {
+  myServo.attach(9); // we physically connected servo to the 9th pin
+  Serial.begin(9600);
+}
+
+void loop() {
+  int val = analogRead(A0); // read some sensor, range is [0; 1023]
+  // A0 can be connected to phototransistor, potentiometer etc
+  int angle = map(val, 0, 1023, 0, 179); // map [0; 1023] -> [0; 179], which is the angle on a servo
+  myServo.write(angle);
+  delay(15);
+}
+```
