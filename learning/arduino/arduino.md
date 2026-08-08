@@ -186,3 +186,22 @@ void loop() {
   delay(15);
 }
 ```
+
+## Piezo Sketch
+
+```C
+void setup() {
+  
+}
+
+void loop() {
+  int analog = analogRead(A0); // phototransistor
+  int frequency = map(analog, 0, 1023, 50, 4000);
+  tone(
+    8, // pin8 is input to piezo
+    frequency,
+    20 // duration in ms
+  );
+  delay(10);
+}
+```
