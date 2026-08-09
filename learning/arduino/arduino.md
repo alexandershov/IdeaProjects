@@ -236,3 +236,42 @@ void loop() {
   }
 }
 ```
+
+## Piezo Bang Sketch
+
+This sketch lightens up a LED when you bang the table. 
+Brightness of the LED is proportional to the intensity of the bang.
+
+```C
+void setup() {
+  Serial.begin(9600); // so we can print to serial port for debugging puproses
+  pinMode(11, OUTPUT); // so we can write to the pin later
+}
+
+void loop() {
+  // piezo is connected to A0 via resistor
+  // piezo works in both directions: it can vibrate when electricity passes through it
+  // (it's made out of a special material that can vibrate when electricity passes through it) - sound depends on a frequency
+  // that we pass through the piezo
+  // but piezo can also detect vibrations and emit power
+  // vibrations should be pretty hard: like a bang on the table where arduino is sitting (value=100)
+  // loud talking _really_ near the piezo gives value 1-2, so it can be triggered even with the voice
+  // here we read value from piezo and turn on the LED if piezo determined a vibration
+  // LED brightness is proportional to the power of the bang
+  int value = analogRead(A0);
+  if (value > 0) {
+    // LED is connected to power via digital pin 11
+    // pin 11 is marked as `-11` - meaning it can use Pulse Width Modulation:
+    // to make use of it we pass second argument to analogWrite (range [0; 255]) which allows us
+    // to control duty cycle: 255 is 100% duty cycle - the pin is HIGH 100% of the time
+    // 0 is 0% duty cycle - the pin is LOW 100% of the time
+    // and in-between values are interpolated
+    // the effect is that LED will get higher/lower power and will be lighter/dimmer
+    // value ~= 120 is a bang!
+    analogWrite(11, map(value, 0, 150, 0, 255)); 
+    // digitalWrite(11, HIGH);  // digitalWrite is the same as analogWrite(11, 255) - it's always HIGH
+    Serial.print("value = ");
+    Serial.println(value);
+  }
+}
+```
