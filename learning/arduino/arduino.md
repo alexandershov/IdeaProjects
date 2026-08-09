@@ -69,6 +69,16 @@ LED is Light-Emitting-Diode. It has two legs:
 Capacitor can store some charge, they're useful when there are some dips in voltage (e.g. when servo start moving).
 When voltage is lower than what's stored in capacitor, then capacitor releases charge, smoothing out voltage dips.
 
+Transistor has 3 parts: gate, collector, emitter.
+When gate is closed, then there's no connection between collector & emitter.
+When gate is opened (when it's getting some electricity), then connection opens.
+Nice properties are:
+* gate can be opened by applying small voltage, and voltage between collector and emitter can be large: so transistor operates as an amplifier.
+* since we can control gates electronically and we can combine transistors, this allows building complex logical circuits that can
+  be controlled electronically (without vacuum tubes)
+Obviously transistors which are foundations of modern electronics are super tiny (nanometers), 
+but the principle stays the same.
+
 ### Resistors Coloring Scheme
 There are 4-band and 5-band registers.
 Details are described here: https://en.wikipedia.org/wiki/Electronic_color_code.
