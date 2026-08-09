@@ -69,6 +69,21 @@ LED is Light-Emitting-Diode. It has two legs:
 Capacitor can store some charge, they're useful when there are some dips in voltage (e.g. when servo start moving).
 When voltage is lower than what's stored in capacitor, then capacitor releases charge, smoothing out voltage dips.
 
+### Resistors Coloring Scheme
+There are 4-band and 5-band registers.
+Details are described here: https://en.wikipedia.org/wiki/Electronic_color_code.
+The gist of it:
+* each digit is encoded by some color (0 - black, 1 - brown, 2 - red, 5 - green)
+* Last band is tolerance (precision), e.g. if last band is brown, this means tolerance is ±1%
+* This last band is usually located at a larger distance from the rest of the bands: that's how you determine 
+  the orientation of a resistor so you can decode the value (because it's essentially positional system based on colors)
+* So, you've determined last band, it should be on the right end. Now read colors left to right:
+* For 4-band resistors (background color is usually beige) first two bands are first two digits
+  3rd band is 10^x, where x is band digit, 4th band is tolerance, we can ignore it.
+  so `[red, red, brown, brown]` is `[red-red-10^brown]` ==  22 * 10^1 == 220 Ohm with ±1% tolerance
+* For 5-band resistors (background color is usually light-blue) it's the same just we have digit, digit, digit, multiplier, tolerance.
+* So e.g. `[brown, black, black, red, brown]`is `[brown-black-black-10^red]` == 100 * 10^2 == 10kOhm with ±1% tolerance. 
+
 ## Components
 Arduino UNO R3 has 16Mhz 8-bit CPU, 2kb of SRAM.
 Arduino UNO R4 has 48Mhz 32-bit CPU, 32kb of SRAM.
@@ -78,6 +93,11 @@ There are 13 pins. Pins have two states: HIGH (voltage) & LOW (voltage).
 You can have an appearance of analog input using PWM (explained later in [Piezo Bang Sketch](#piezo-bang-sketch))
 
 There are also analog pins (A0, A1, ...), you can read from them with `analogRead`.
+
+AREF pin allows you to calibrate output of analog outputs. 
+Let's say your sensor provides output in a range `[0V; 1V]`, this means that in `analogRead` you will
+see just the first 20% of the possible values (because analogRead is calibrated on 5V).
+With AREF you can still get the full spectrum of values.
 
 ## Temperature Project
 
