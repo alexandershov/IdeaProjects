@@ -66,9 +66,18 @@ LED is Light-Emitting-Diode. It has two legs:
 * anode (longer) is connected to the energy.
 * cathode (shorter) is connected to the ground.
 
+Capacitor can store some charge, they're useful when there are some dips in voltage (e.g. when servo start moving).
+When voltage is lower than what's stored in capacitor, then capacitor releases charge, smoothing out voltage dips.
+
 ## Components
+Arduino UNO R3 has 16Mhz 8-bit CPU, 2kb of SRAM.
+Arduino UNO R4 has 48Mhz 32-bit CPU, 32kb of SRAM.
+
 Digital pins are essentially bits, you can read/write them with digitalRead/digitalWrite.
 There are 13 pins. Pins have two states: HIGH (voltage) & LOW (voltage).
+You can have an appearance of analog input using PWM (explained later in [Piezo Bang Sketch](#piezo-bang-sketch))
+
+There are also analog pins (A0, A1, ...), you can read from them with `analogRead`.
 
 ## Temperature Project
 
