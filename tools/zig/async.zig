@@ -29,6 +29,7 @@ pub fn main(init: std.process.Init) !void {
     try doubleAsyncExample(init.io);
     allocAsyncExample(init.gpa, init.io) catch {};
     allocCancelAsyncExample(init.gpa, init.io) catch {};
+    cancellationAsyncExample(init.io) catch {};
     std.debug.print("done!\n", .{});
 }
 
@@ -79,10 +80,25 @@ fn allocCancelAsyncExample(gpa: std.mem.Allocator, io: std.Io) !void {
     try second.await(io);
 }
 
+fn cancellationAsyncExample(io: std.Io) !void {
+    var future = io.async(doFailingWork, .{io, "toCancel"});
+    try io.sleep(.fromMilliseconds(100), .awake);
+    const cancelResult = future.cancel(io);
+    // cancelResult is equal to error.Cancelled
+    std.debug.print("cancelResult = {any}\n", .{cancelResult});
+}
+
 fn doWork(io: std.Io, description: []const u8) void {
     std.debug.print("[doWork] started {s}\n", .{description});
     // sleep 1 second using Clock.awake, which is monotonic clock
     io.sleep(.fromSeconds(1), .awake) catch {};
+}
+
+fn doFailingWork(io: std.Io, description: []const u8) !void {
+    std.debug.print("[doFailingWork] started {s}\n", .{description});
+    try io.sleep(.fromSeconds(1), .awake);
+    // will never be printed if we'll be cancelled during sleep
+    std.debug.print("[doFailingWork] completed {s}\n", .{description});
 }
 
 fn doAllocWork(gpa: std.mem.Allocator, io: std.Io, description: []const u8) !void {
