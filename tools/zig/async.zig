@@ -27,6 +27,7 @@ pub fn main(init: std.process.Init) !void {
     // Default implementation is based on threads.
     try simpleAsyncExample(init.io);
     try doubleAsyncExample(init.io);
+    try concurrentAsyncExample(init.io);
     allocAsyncExample(init.gpa, init.io) catch {};
     allocCancelAsyncExample(init.gpa, init.io) catch {};
     cancellationAsyncExample(init.io) catch {};
@@ -41,6 +42,20 @@ fn simpleAsyncExample(io: std.Io) !void {
 fn doubleAsyncExample(io: std.Io) !void {
     var first = io.async(doWork, .{ io, "doubleAsyncExample[first]" });
     var second = io.async(doWork, .{ io, "doubleAsyncExample[second]" });
+    // these two futures are executed at the same time, so we wait just 1 second
+    first.await(io);
+    second.await(io);
+}
+
+fn concurrentAsyncExample(io: std.Io) !void {
+    // io.async doesn't guarantee that your tasks will be executed concurrently
+    // it's actually perfectly legal implementation of io to execute async tasks one by one without concurrency
+    // if we need concurrency, then we need io.concurrent
+    // note that io.concurent can fail with error.ConcurrencyUnavailable
+    // if let's say we don't have enough free threads in a pool
+    // if io.async can't spawn a new thread it just runs async task in a current thread
+    var first = try io.concurrent(doWork, .{ io, "concurrentAsyncExample[first]" });
+    var second = try io.concurrent(doWork, .{ io, "concurrentAsyncExample[second]" });
     // these two futures are executed at the same time, so we wait just 1 second
     first.await(io);
     second.await(io);
@@ -81,7 +96,7 @@ fn allocCancelAsyncExample(gpa: std.mem.Allocator, io: std.Io) !void {
 }
 
 fn cancellationAsyncExample(io: std.Io) !void {
-    var future = io.async(doFailingWork, .{io, "toCancel"});
+    var future = io.async(doFailingWork, .{ io, "toCancel" });
     try io.sleep(.fromMilliseconds(100), .awake);
     const cancelResult = future.cancel(io);
     // cancelResult is equal to error.Cancelled
