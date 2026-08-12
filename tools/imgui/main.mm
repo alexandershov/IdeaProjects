@@ -109,11 +109,9 @@ int main(int, char**)
             ImGui_ImplSDL2_NewFrame();
             ImGui::NewFrame();
 	    // this is core functionality of ImGui, without Metal/SDL ceremonies
-            //ImGui::Begin("Another Window", &show_another_window);
 	    ImGui::SliderFloat("value", &float_value, -50.0, 50.0);
 	    // ImGui::Text supports sprintf-style formatting
 	    ImGui::Text("value = %f", float_value);
-	    
 	    
 	    // notice how if Button feels like magic: you directly manipulate float_value and it will get rendered the next frame
 	    // in all widgets that use it
@@ -121,6 +119,7 @@ int main(int, char**)
 	    // with retained mode UI you'd need to propagate float_value to all the widges somehow.
 	    // note, that this means that we need to store our state outside of frame, which is kinda logical
 	    // because our state lifetime is bigger than lifetime of a frame
+	    // ImGui::Button will return true if button received click on this frame
 	    if (ImGui::Button("Add"))
 	      float_value++;
 	    ImGui::Checkbox("show Sub", &bool_value);
@@ -128,7 +127,6 @@ int main(int, char**)
 		if (ImGui::Button("Sub"))
 		  float_value--;
 	    // ImGui::End();
-	    // 
 
             // Rendering
             ImGui::Render();
