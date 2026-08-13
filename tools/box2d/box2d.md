@@ -2,7 +2,7 @@
 
 ## What is it?
 Box2D is 2D physics engine for games.
-
+It's a rigid body engine - meaning that in general body can't change its shape. 
 
 ## Install
 ```shell
