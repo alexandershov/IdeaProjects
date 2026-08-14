@@ -35,6 +35,8 @@ int main() {
     // dynamic body is a part of physics simulation
     bodyDef.type = b2_dynamicBody;
     bodyDef.position = (b2Vec2){10.0f, 10.0f};
+    // rotation 0.5f radians
+    bodyDef.rotation = b2MakeRot(0.5f);
     b2BodyId bodyId = b2CreateBody(worldId, &bodyDef);
 
     double boxHalfWidth = 2.0f;
@@ -77,11 +79,11 @@ int main() {
 
         // default raylib coordinate system is based on pixels
         // top-level corner is (0, 0), y axis goes down, x axis goes to the right
-        int scale = 60;
+        int scale = 50;
 
         // render dynamic body
-        Vector2 topLeft = {(position.x - boxHalfWidth) * scale, RL_HEIGHT - (position.y + boxHalfHeight) * scale};
-        DrawRectangle(topLeft.x, topLeft.y, boxHalfWidth * scale * 2, boxHalfHeight * 2 * scale, RED);
+        Rectangle rectangle = {position.x * scale, RL_HEIGHT - position.y * scale, boxHalfWidth * scale * 2, boxHalfHeight * 2 * scale};
+        DrawRectanglePro(rectangle, (Vector2){rectangle.width / 2.0, rectangle.height / 2.0}, -RAD2DEG * rotationRad, RED);
 
         // render ground
         Vector2 groundTopLeft = {(groundBodyDef.position.x - groundHalfWidth) * scale, RL_HEIGHT - (groundBodyDef.position.y + groundHalfHeight) * scale};
