@@ -20,7 +20,7 @@ int main() {
     // create static body to represent the ground
     // by default b2DefaultBodyDef creates a static body (that's not part of physics simulation)
     b2BodyDef groundBodyDef = b2DefaultBodyDef();
-    groundBodyDef.position = (b2Vec2){50.0f, -10.0f};
+    groundBodyDef.position = (b2Vec2){50.0f, -9.0f};
     b2BodyId groundId = b2CreateBody(worldId, &groundBodyDef);
 
     double groundHalfWidth = 50.0;
@@ -77,9 +77,15 @@ int main() {
 
         // default raylib coordinate system is based on pixels
         // top-level corner is (0, 0), y axis goes down, x axis goes to the right
-        int scale = 30;
+        int scale = 60;
+
+        // render dynamic body
         Vector2 topLeft = {(position.x - boxHalfWidth) * scale, RL_HEIGHT - (position.y + boxHalfHeight) * scale};
         DrawRectangle(topLeft.x, topLeft.y, boxHalfWidth * scale * 2, boxHalfHeight * 2 * scale, RED);
+
+        // render ground
+        Vector2 groundTopLeft = {(groundBodyDef.position.x - groundHalfWidth) * scale, RL_HEIGHT - (groundBodyDef.position.y + groundHalfHeight) * scale};
+        DrawRectangle(groundTopLeft.x, groundTopLeft.y, groundHalfWidth * scale * 2, groundHalfHeight * 2 * scale, BLUE);
         EndDrawing();
     }
 
