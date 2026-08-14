@@ -1,6 +1,8 @@
 #include <box2d/box2d.h>
+#include <raylib.h>
 
 #include <stdio.h>
+
 
 int main() {
     b2WorldDef worldDef = b2DefaultWorldDef();
@@ -18,11 +20,13 @@ int main() {
     // create static body to represent the ground
     // by default b2DefaultBodyDef creates a static body (that's not part of physics simulation)
     b2BodyDef groundBodyDef = b2DefaultBodyDef();
-    groundBodyDef.position = (b2Vec2){0.0f, -10.0f};
+    groundBodyDef.position = (b2Vec2){50.0f, -10.0f};
     b2BodyId groundId = b2CreateBody(worldId, &groundBodyDef);
 
+    double groundHalfWidth = 50.0;
+    double groundHalfHeight = 10.0;
     // create geometry with half-width == 50 meters and half-height == 10 meters
-    b2Polygon groundBox = b2MakeBox(50.0f, 10.0f);
+    b2Polygon groundBox = b2MakeBox(groundHalfWidth, groundHalfHeight);
     b2ShapeDef groundShapeDef = b2DefaultShapeDef();
     b2CreatePolygonShape(groundId, &groundShapeDef, &groundBox);
 
@@ -30,11 +34,13 @@ int main() {
     b2BodyDef bodyDef = b2DefaultBodyDef();
     // dynamic body is a part of physics simulation
     bodyDef.type = b2_dynamicBody;
-    bodyDef.position = (b2Vec2){0.0f, 4.0f};
+    bodyDef.position = (b2Vec2){10.0f, 10.0f};
     b2BodyId bodyId = b2CreateBody(worldId, &bodyDef);
 
+    double boxHalfWidth = 2.0f;
+    double boxHalfHeight = 1.0f;
     // now add shape to our dynamic body
-    b2Polygon dynamicBox = b2MakeBox(1.0f, 1.0f);
+    b2Polygon dynamicBox = b2MakeBox(boxHalfWidth, boxHalfHeight);
     b2ShapeDef shapeDef = b2DefaultShapeDef();
     // setting some physics parameters
     shapeDef.density = 1.0f;
@@ -49,12 +55,32 @@ int main() {
     // so we'll do 4x times more work, but we'll get more accurate results
     int subStepCount = 4;
 
-    // simulate 1.5s of time (90 * 1/60)
-    for (int i = 0; i < 90; i++) {
-        b2World_Step(worldId, timeStep, subStepCount);
+    // raylib window
+    int RL_WIDTH = 800;
+    int RL_HEIGHT = 600;
+    InitWindow(RL_WIDTH, RL_HEIGHT, "raylib+box2D");
+
+    SetTargetFPS(60);
+    double toSimulate = 0.0;
+    while (!WindowShouldClose()) {
+        // GetFrameTime() is time since the last frame was drawn
+        toSimulate += GetFrameTime();
+        while (toSimulate > timeStep) {
+            b2World_Step(worldId, timeStep, subStepCount);
+            toSimulate -= timeStep;
+        }
         b2Vec2 position = b2Body_GetPosition(bodyId);
-        b2Rot rotation = b2Body_GetRotation(bodyId);
-        printf("position = (%4.2f, %4.2f), rotation = %4.2f\n", position.x, position.y, b2Rot_GetAngle(rotation));
+        float rotationRad = b2Rot_GetAngle(b2Body_GetRotation(bodyId));
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        // default raylib coordinate system is based on pixels
+        // top-level corner is (0, 0), y axis goes down, x axis goes to the right
+        int scale = 30;
+        Vector2 topLeft = {(position.x - boxHalfWidth) * scale, RL_HEIGHT - (position.y + boxHalfHeight) * scale};
+        DrawRectangle(topLeft.x, topLeft.y, boxHalfWidth * scale * 2, boxHalfHeight * 2 * scale, RED);
+        EndDrawing();
     }
 
     // destroys everything that world contains
