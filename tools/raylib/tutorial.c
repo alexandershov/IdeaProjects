@@ -6,6 +6,9 @@ int main() {
     int screenHeight = 600;
     InitWindow(screenWidth, screenHeight, "raylib");
     Shader shader = LoadShader(NULL, "aerial_perspective.fs");
+    float colorMulComponent = 0.6;
+    Vector4 colorMul = {colorMulComponent, colorMulComponent, colorMulComponent, 1.0};
+    int colorMulLoc = GetShaderLocation(shader, "colorMul");
     SetTargetFPS(60);
 
     Rectangle player = {300, 300, 20, 100};
@@ -42,11 +45,12 @@ int main() {
 
 
         BeginDrawing();
-        ClearBackground(BLACK);
+        ClearBackground(RAYWHITE);
         // setup camera
         BeginMode2D(camera);
 
         BeginShaderMode(shader);
+        SetShaderValue(shader, colorMulLoc, &colorMul, SHADER_UNIFORM_VEC4);
         DrawRectangleRec(player, BLUE);
         EndShaderMode();
 
