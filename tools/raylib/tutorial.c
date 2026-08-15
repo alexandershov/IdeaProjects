@@ -3,6 +3,7 @@
 
 int main() {
     InitWindow(800, 600, "raylib");
+    SetTargetFPS(60);
 
     while (!WindowShouldClose()) {
         BeginDrawing();
