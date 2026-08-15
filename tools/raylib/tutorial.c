@@ -62,13 +62,13 @@ int main() {
         },
         // lampposts layer
         {
-          .parallax = 0.0,
+          .parallax = 0.5,
           .numRectangles = NUM_LAMPPOSTS,
           .rectangles = lampposts,
         },
         // trees layer
         {
-          .parallax = 0.0,
+          .parallax = 0.1,
           .numRectangles = NUM_TREES,
           .rectangles = trees,
         },
