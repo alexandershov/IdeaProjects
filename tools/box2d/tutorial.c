@@ -26,6 +26,10 @@ int main() {
     double groundHalfWidth = 50.0;
     double groundHalfHeight = 10.0;
     // create geometry with half-width == 50 meters and half-height == 10 meters
+    // box2D uses SI system, so it's all meters, seconds, etc.
+    // box2D doesn't handle super large dynamic objects well (like 100m)
+    // one of the reasons is floating point precision loss, since we got ~7 precise decimal digits in a 32-bit
+    // float that are used by box2D
     b2Polygon groundBox = b2MakeBox(groundHalfWidth, groundHalfHeight);
     b2ShapeDef groundShapeDef = b2DefaultShapeDef();
     b2CreatePolygonShape(groundId, &groundShapeDef, &groundBox);
