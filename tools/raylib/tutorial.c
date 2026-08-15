@@ -24,6 +24,22 @@ int main() {
     };
 
     while (!WindowShouldClose()) {
+        // time since the rendering of the last frame
+        double dt = GetFrameTime();
+
+        // 50 world coordinates per second == 50px per second, because zoom == 1.0
+        double speed = 50.0;
+
+        // handle input: check if left/right are pressed during the current frame
+        if (IsKeyDown(KEY_RIGHT)) {
+            player.x += speed * dt;
+        } else if (IsKeyDown(KEY_LEFT)) {
+            player.x -= speed * dt;
+        }
+        // player can change its position, so we need to update camera target as well
+        camera.target = (Vector2){player.x, player.y};
+
+
         BeginDrawing();
         ClearBackground(BLACK);
         // setup camera
