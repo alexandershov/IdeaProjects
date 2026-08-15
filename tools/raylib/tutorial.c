@@ -5,6 +5,7 @@ int main() {
     int screenWidth = 800;
     int screenHeight = 600;
     InitWindow(screenWidth, screenHeight, "raylib");
+    Shader shader = LoadShader(NULL, "aerial_perspective.fs");
     SetTargetFPS(60);
 
     Rectangle player = {300, 300, 20, 100};
@@ -45,11 +46,14 @@ int main() {
         // setup camera
         BeginMode2D(camera);
 
+        BeginShaderMode(shader);
         DrawRectangleRec(player, BLUE);
+        EndShaderMode();
 
         EndMode2D();
         EndDrawing();
     }
 
+    UnloadShader(shader);
     CloseWindow();
 }
