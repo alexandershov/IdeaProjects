@@ -1,11 +1,12 @@
 #include <raylib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // player, lampposts, trees
 #define NUM_LAYERS 3
 
-#define NUM_LAMPPOSTS 3
-#define NUM_TREES 5
+#define NUM_LAMPPOSTS 10
+#define NUM_TREES 8
 
 typedef struct ColoredRectangle {
     Rectangle rectangle;
@@ -21,6 +22,10 @@ typedef struct Layer {
     ColoredRectangle *rectangles;
 } Layer;
 
+float rnd() {
+    return (float)rand() / (float)RAND_MAX;
+}
+
 int main() {
     int screenWidth = 800;
     int screenHeight = 600;
@@ -32,15 +37,40 @@ int main() {
     SetTargetFPS(60);
 
     ColoredRectangle player = {
-      .rectangle = {300, 300, 20, 100},
+      .rectangle = {300, 500, 20, 100},
       .color = BLUE,
     };
+
+    ColoredRectangle lampposts[NUM_LAMPPOSTS];
+    for (int i = 0; i < NUM_LAMPPOSTS; i++) {
+        lampposts[i].rectangle = (Rectangle){100 * (i + rnd()), 300, 30, 200};
+        lampposts[i].color = YELLOW;
+    }
+
+    ColoredRectangle trees[NUM_TREES];
+        for (int i = 0; i < NUM_TREES; i++) {
+            trees[i].rectangle = (Rectangle){100 * (i + rnd()), 100, 60, 300};
+            trees[i].color = BROWN;
+        }
+
     Layer layers[NUM_LAYERS] = {
         // player layer
         {
             .parallax = 1.0,
             .numRectangles = 1,
             .rectangles = &player,
+        },
+        // lampposts layer
+        {
+          .parallax = 0.0,
+          .numRectangles = NUM_LAMPPOSTS,
+          .rectangles = lampposts,
+        },
+        // trees layer
+        {
+          .parallax = 0.0,
+          .numRectangles = NUM_TREES,
+          .rectangles = trees,
         },
     };
     // our setup is this:
@@ -63,7 +93,7 @@ int main() {
         double dt = GetFrameTime();
 
         // 50 world coordinates per second == 50px per second, because zoom == 1.0
-        double speed = 50.0;
+        double speed = 1000.0;
         double dx = 0.0;
 
         // handle input: check if left/right are pressed during the current frame
@@ -72,7 +102,7 @@ int main() {
         } else if (IsKeyDown(KEY_LEFT)) {
             dx = -1.0;
         }
-        for (int i =0; i < NUM_LAYERS; i++) {
+        for (int i = 0; i < NUM_LAYERS; i++) {
             Layer layer = layers[i];
             for (int r = 0; r < layer.numRectangles; r++) {
                 layer.rectangles[r].rectangle.x += dx * dt * layer.parallax;
@@ -90,7 +120,8 @@ int main() {
 
         BeginShaderMode(shader);
         SetShaderValue(shader, colorMulLoc, &colorMul, SHADER_UNIFORM_VEC4);
-        for (int i = 0; i < NUM_LAYERS; i++) {
+        // Draw layers starting from the last, so earlier layers will be at the top
+        for (int i = NUM_LAYERS - 1; i >= 0; i--) {
             Layer layer = layers[i];
             for (int r = 0; r < layer.numRectangles; r++) {
                 DrawRectangleRec(layer.rectangles[r].rectangle, layer.rectangles[r].color);
