@@ -26,7 +26,7 @@ int main() {
     int screenHeight = 600;
     InitWindow(screenWidth, screenHeight, "raylib");
     Shader shader = LoadShader(NULL, "aerial_perspective.fs");
-    float colorMulComponent = 0.6;
+    float colorMulComponent = 1.0;
     Vector4 colorMul = {colorMulComponent, colorMulComponent, colorMulComponent, 1.0};
     int colorMulLoc = GetShaderLocation(shader, "colorMul");
     SetTargetFPS(60);
@@ -64,13 +64,21 @@ int main() {
 
         // 50 world coordinates per second == 50px per second, because zoom == 1.0
         double speed = 50.0;
+        double dx = 0.0;
 
         // handle input: check if left/right are pressed during the current frame
         if (IsKeyDown(KEY_RIGHT)) {
-            player.rectangle.x += speed * dt;
+            dx = 1.0;
         } else if (IsKeyDown(KEY_LEFT)) {
-            player.rectangle.x -= speed * dt;
+            dx = -1.0;
         }
+        for (int i =0; i < NUM_LAYERS; i++) {
+            Layer layer = layers[i];
+            for (int r = 0; r < layer.numRectangles; r++) {
+                layer.rectangles[r].rectangle.x += dx * dt * layer.parallax;
+            }
+        }
+
         // player can change its position, so we need to update camera target as well
         camera.target = (Vector2){player.rectangle.x, player.rectangle.y};
 
