@@ -37,7 +37,7 @@ int main() {
     SetTargetFPS(60);
 
     ColoredRectangle player = {
-      .rectangle = {300, 500, 20, 100},
+      .rectangle = {300, 530, 20, 100},
       .color = BLUE,
     };
 
@@ -93,7 +93,7 @@ int main() {
         double dt = GetFrameTime();
 
         // 50 world coordinates per second == 50px per second, because zoom == 1.0
-        double speed = 1000.0;
+        double speed = 100.0;
         double dx = 0.0;
 
         // handle input: check if left/right are pressed during the current frame
@@ -105,12 +105,12 @@ int main() {
         for (int i = 0; i < NUM_LAYERS; i++) {
             Layer layer = layers[i];
             for (int r = 0; r < layer.numRectangles; r++) {
-                layer.rectangles[r].rectangle.x += dx * dt * layer.parallax;
+                layer.rectangles[r].rectangle.x += dx * dt * speed * layer.parallax;
             }
         }
 
         // player can change its position, so we need to update camera target as well
-        camera.target = (Vector2){player.rectangle.x, player.rectangle.y};
+        camera.target = (Vector2){player.rectangle.x, player.rectangle.y - 150};
 
 
         BeginDrawing();
