@@ -1,6 +1,26 @@
 #include <raylib.h>
 #include <stdio.h>
 
+// player, lampposts, trees
+#define NUM_LAYERS 3
+
+#define NUM_LAMPPOSTS 3
+#define NUM_TREES 5
+
+typedef struct ColoredRectangle {
+    Rectangle rectangle;
+    Color color;
+} ColoredRectangle;
+
+typedef struct Layer {
+    // 1.0 - layer moves with the speed of the player
+    // 0.0 - layer doesn't move
+    // otherwise value is interpolated
+    float parallax;
+    size_t numRectangles;
+    ColoredRectangle *rectangles;
+} Layer;
+
 int main() {
     int screenWidth = 800;
     int screenHeight = 600;
@@ -11,7 +31,18 @@ int main() {
     int colorMulLoc = GetShaderLocation(shader, "colorMul");
     SetTargetFPS(60);
 
-    Rectangle player = {300, 300, 20, 100};
+    ColoredRectangle player = {
+      .rectangle = {300, 300, 20, 100},
+      .color = BLUE,
+    };
+    Layer layers[NUM_LAYERS] = {
+        // player layer
+        {
+            .parallax = 1.0,
+            .numRectangles = 1,
+            .rectangles = &player,
+        },
+    };
     // our setup is this:
     // player and game objects are in the world coordinates (these can be float)
     // camera looks at player and translates it into screen coordinates (these are integers)
@@ -21,7 +52,7 @@ int main() {
         // offset is where we'll render on screen - here we render in the center of the screen
         .offset = (Vector2){screenWidth / 2.0, screenHeight / 2.0},
         // target is where the camera is looking at - here we're looking at the player
-        .target = (Vector2){player.x, player.y},
+        .target = (Vector2){player.rectangle.x, player.rectangle.y},
         .rotation = 0.0,
         // zoom == 1.0 meaning something has size of 10 in world coordinates, then it'll be 10px on the screen
         .zoom = 1.0,
@@ -36,12 +67,12 @@ int main() {
 
         // handle input: check if left/right are pressed during the current frame
         if (IsKeyDown(KEY_RIGHT)) {
-            player.x += speed * dt;
+            player.rectangle.x += speed * dt;
         } else if (IsKeyDown(KEY_LEFT)) {
-            player.x -= speed * dt;
+            player.rectangle.x -= speed * dt;
         }
         // player can change its position, so we need to update camera target as well
-        camera.target = (Vector2){player.x, player.y};
+        camera.target = (Vector2){player.rectangle.x, player.rectangle.y};
 
 
         BeginDrawing();
@@ -51,7 +82,12 @@ int main() {
 
         BeginShaderMode(shader);
         SetShaderValue(shader, colorMulLoc, &colorMul, SHADER_UNIFORM_VEC4);
-        DrawRectangleRec(player, BLUE);
+        for (int i = 0; i < NUM_LAYERS; i++) {
+            Layer layer = layers[i];
+            for (int r = 0; r < layer.numRectangles; r++) {
+                DrawRectangleRec(layer.rectangles[r].rectangle, layer.rectangles[r].color);
+            }
+        }
         EndShaderMode();
 
         EndMode2D();
