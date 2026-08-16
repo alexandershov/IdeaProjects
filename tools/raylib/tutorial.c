@@ -8,7 +8,7 @@
 
 #define NUM_LAMPPOSTS 10
 #define NUM_TREES 8
-#define NUM_MOUNTAINS 5
+#define NUM_MOUNTAINS 40
 
 typedef struct ColoredRectangle {
     Rectangle rectangle;
@@ -46,17 +46,18 @@ float rnd() {
 }
 
 void fillMountains(ColoredTriangle triangles[NUM_MOUNTAINS], float height) {
+    int xOffset = -500;
     for (int i = 0; i < NUM_MOUNTAINS; i++) {
         int width = 600 * (1 + rnd());
-        int step = 200 * (1 + rnd());
+        int step = 50 * (1 + rnd());
         int base = 200;
         ColoredTriangle t = {
             // a is the most left point
-            .a = (Vector2){i * step, base},
+            .a = (Vector2){xOffset + i * step, base},
             // b is the highest point
-            .b = (Vector2){i * step + width * (0.5 + (rnd() / 2.5) - 0.2), base - height * (1 + rnd() / 10.0)},
+            .b = (Vector2){xOffset + i * step + width * (0.5 + (rnd() / 2.5) - 0.2), base - height * (1 + rnd() / 10.0)},
             // c is the most right point
-            .c = (Vector2){i * step + width, base},
+            .c = (Vector2){xOffset + i * step + width, base},
             .color = BLUE,
         };
         triangles[i] = t;
