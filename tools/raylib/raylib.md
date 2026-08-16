@@ -11,9 +11,16 @@ brew install raylib
 ```
 
 ## Usage
-Run it with:
+For parallax and aerial perspective run:
 ```shell
-make run
+make parallax_aerial_perspective
+```
+See [parallax_aerial_perspective.c](parallax_aerial_perspective.c) for more details.
+
+
+For vignette run:
+```shell
+make vignette
 ```
 
-See [parallax_aerial_perspective.c](parallax_aerial_perspective.c) for more details.
+See [vignette.c](vignette.c) for more details.

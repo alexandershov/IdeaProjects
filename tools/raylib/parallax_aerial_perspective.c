@@ -69,7 +69,7 @@ void fillMountains(ColoredTriangle triangles[NUM_MOUNTAINS], float height) {
 int main() {
     int screenWidth = 800;
     int screenHeight = 600;
-    InitWindow(screenWidth, screenHeight, "raylib");
+    InitWindow(screenWidth, screenHeight, "parallax & aerial perspective");
     Shader shader = LoadShader(NULL, "aerial_perspective.fs");
     int atmosphereCoefLoc = GetShaderLocation(shader, "atmosphereCoef");
     int atmosphereLoc = GetShaderLocation(shader, "atmosphere");
