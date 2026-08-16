@@ -26,6 +26,8 @@ typedef struct Layer {
     // 0.0 - layer doesn't move
     // 1.0 - layer moves with the speed of the player
     // otherwise value is interpolated
+    // if we'll have several layers moving with the different speed, then we'll have an illusion of depth
+    // this is called parallax effect
     float parallax;
     // https://en.wikipedia.org/wiki/Aerial_perspective
     // passed-through to the fragment shader, used to implement aerial perspective effect
