@@ -1,4 +1,5 @@
 #include <raylib.h>
+#include <rlgl.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -68,6 +69,7 @@ int main() {
     InitWindow(screenWidth, screenHeight, "raylib");
     Shader shader = LoadShader(NULL, "aerial_perspective.fs");
     int atmosphereCoefLoc = GetShaderLocation(shader, "atmosphereCoef");
+    int atmosphereLoc = GetShaderLocation(shader, "atmosphere");
     SetTargetFPS(60);
 
     ColoredRectangle player = {
@@ -184,11 +186,13 @@ int main() {
 
 
         BeginDrawing();
-        ClearBackground(RAYWHITE);
+        Vector4 atmosphereNormalized = {0.65, 0.78, 0.88, 1.0};
+        ClearBackground(ColorFromNormalized(atmosphereNormalized));
         // setup camera
         BeginMode2D(camera);
 
         BeginShaderMode(shader);
+        SetShaderValue(shader, atmosphereLoc, &atmosphereNormalized, SHADER_UNIFORM_VEC4);
         // Draw layers starting from the last, so earlier layers will be at the top
         for (int i = NUM_LAYERS - 1; i >= 0; i--) {
             Layer layer = layers[i];
@@ -205,6 +209,9 @@ int main() {
                     layer.triangles[t].color
                 );
             }
+            // we need to draw current batch, otherwise raylib will batch all of our draw cals
+            // with the same uniform value for the atmosphereCoef
+            rlDrawRenderBatchActive();
         }
         EndShaderMode();
 
