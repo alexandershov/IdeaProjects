@@ -13,13 +13,30 @@ typedef struct ColoredRectangle {
     Color color;
 } ColoredRectangle;
 
+typedef struct ColoredTriangle {
+    Vector2 a;
+    Vector2 b;
+    Vector2 c;
+    Color color;
+} ColoredTriangle;
+
 typedef struct Layer {
-    // 1.0 - layer moves with the speed of the player
     // 0.0 - layer doesn't move
+    // 1.0 - layer moves with the speed of the player
     // otherwise value is interpolated
     float parallax;
+    // https://en.wikipedia.org/wiki/Aerial_perspective
+    // passed-through to the fragment shader, used to implement aerial perspective effect
+    // when further objects have less contrast with the background
+    // 0.0 - atmosphere is ignored
+    // 1.0 - color is ignored
+    // otherwise value is interpolated
+    float atmosphereCoef;
     size_t numRectangles;
     ColoredRectangle *rectangles;
+
+    size_t numTriangles;
+    ColoredTriangle *triangles;
 } Layer;
 
 float rnd() {
@@ -31,13 +48,11 @@ int main() {
     int screenHeight = 600;
     InitWindow(screenWidth, screenHeight, "raylib");
     Shader shader = LoadShader(NULL, "aerial_perspective.fs");
-    float colorMulComponent = 1.0;
-    Vector4 colorMul = {colorMulComponent, colorMulComponent, colorMulComponent, 1.0};
-    int colorMulLoc = GetShaderLocation(shader, "colorMul");
+    int atmosphereCoefLoc = GetShaderLocation(shader, "atmosphereCoef");
     SetTargetFPS(60);
 
     ColoredRectangle player = {
-      .rectangle = {300, 530, 20, 100},
+      .rectangle = {300, 480, 20, 100},
       .color = BLUE,
     };
 
@@ -59,18 +74,24 @@ int main() {
             .parallax = 1.0,
             .numRectangles = 1,
             .rectangles = &player,
+            .numTriangles = 0,
+            .atmosphereCoef = 0.0,
         },
         // lampposts layer
         {
           .parallax = 0.5,
           .numRectangles = NUM_LAMPPOSTS,
           .rectangles = lampposts,
+          .numTriangles = 0,
+          .atmosphereCoef = 0.0,
         },
         // trees layer
         {
           .parallax = 0.1,
           .numRectangles = NUM_TREES,
           .rectangles = trees,
+          .numTriangles = 0,
+          .atmosphereCoef = 0.0,
         },
     };
     // our setup is this:
@@ -119,10 +140,10 @@ int main() {
         BeginMode2D(camera);
 
         BeginShaderMode(shader);
-        SetShaderValue(shader, colorMulLoc, &colorMul, SHADER_UNIFORM_VEC4);
         // Draw layers starting from the last, so earlier layers will be at the top
         for (int i = NUM_LAYERS - 1; i >= 0; i--) {
             Layer layer = layers[i];
+            SetShaderValue(shader, atmosphereCoefLoc, &layer.atmosphereCoef, SHADER_UNIFORM_FLOAT);
             for (int r = 0; r < layer.numRectangles; r++) {
                 DrawRectangleRec(layer.rectangles[r].rectangle, layer.rectangles[r].color);
             }
