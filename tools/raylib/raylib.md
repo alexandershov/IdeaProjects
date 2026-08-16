@@ -16,4 +16,4 @@ Run it with:
 make run
 ```
 
-See [tutorial.c](./tutorial.c) for more details.
+See [parallax_aerial_perspective.c](parallax_aerial_perspective.c) for more details.
