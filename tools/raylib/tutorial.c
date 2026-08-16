@@ -94,9 +94,9 @@ int main() {
     ColoredTriangle mountains1[NUM_MOUNTAINS];
     ColoredTriangle mountains2[NUM_MOUNTAINS];
     ColoredTriangle mountains3[NUM_MOUNTAINS];
-    fillMountains(mountains1, 50);
-    fillMountains(mountains2, 100);
-    fillMountains(mountains3, 150);
+    fillMountains(mountains1, 100);
+    fillMountains(mountains2, 120);
+    fillMountains(mountains3, 140);
 
     Layer layers[NUM_LAYERS] = {
         // player layer
