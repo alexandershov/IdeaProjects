@@ -2,11 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// player, lampposts, trees
-#define NUM_LAYERS 3
+// player, lampposts, trees, mountains1, mountains2, mountains3
+#define NUM_LAYERS 6
 
 #define NUM_LAMPPOSTS 10
 #define NUM_TREES 8
+#define NUM_MOUNTAINS 5
 
 typedef struct ColoredRectangle {
     Rectangle rectangle;
@@ -43,6 +44,21 @@ float rnd() {
     return (float)rand() / (float)RAND_MAX;
 }
 
+void fillMountains(ColoredTriangle triangles[NUM_MOUNTAINS], float height) {
+    for (int i = 0; i < NUM_MOUNTAINS; i++) {
+        ColoredTriangle t = {
+            // a is the most left point
+            .a = (Vector2){i * 200, height},
+            // b is the highest point
+            .b = (Vector2){i * 200 + 100, 10},
+            // c is the most right point
+            .c = (Vector2){i * 200 + 200, height},
+            .color = BLUE,
+        };
+        triangles[i] = t;
+    }
+}
+
 int main() {
     int screenWidth = 800;
     int screenHeight = 600;
@@ -63,10 +79,18 @@ int main() {
     }
 
     ColoredRectangle trees[NUM_TREES];
-        for (int i = 0; i < NUM_TREES; i++) {
-            trees[i].rectangle = (Rectangle){100 * (i + rnd()), 100, 60, 300};
-            trees[i].color = BROWN;
-        }
+    for (int i = 0; i < NUM_TREES; i++) {
+        trees[i].rectangle = (Rectangle){100 * (i + rnd()), 100, 60, 300};
+        trees[i].color = BROWN;
+    }
+
+    // mountains1 is the closest layer, mountains3 is the furthest layer
+    ColoredTriangle mountains1[NUM_MOUNTAINS];
+    ColoredTriangle mountains2[NUM_MOUNTAINS];
+    ColoredTriangle mountains3[NUM_MOUNTAINS];
+    fillMountains(mountains1, 100);
+    fillMountains(mountains2, 150);
+    fillMountains(mountains3, 200);
 
     Layer layers[NUM_LAYERS] = {
         // player layer
@@ -92,6 +116,28 @@ int main() {
           .rectangles = trees,
           .numTriangles = 0,
           .atmosphereCoef = 0.0,
+        },
+        // mountain layers - don't participate in parallax; have aerial perspective
+        {
+          .parallax = 0.0,
+          .numRectangles = 0,
+          .numTriangles = NUM_MOUNTAINS,
+          .atmosphereCoef = 0.2,
+          .triangles = mountains1,
+        },
+        {
+          .parallax = 0.0,
+          .numRectangles = 0,
+          .numTriangles = NUM_MOUNTAINS,
+          .atmosphereCoef = 0.4,
+          .triangles = mountains2,
+        },
+        {
+          .parallax = 0.0,
+          .numRectangles = 0,
+          .numTriangles = NUM_MOUNTAINS,
+          .atmosphereCoef = 0.6,
+          .triangles = mountains3,
         },
     };
     // our setup is this:
@@ -146,6 +192,15 @@ int main() {
             SetShaderValue(shader, atmosphereCoefLoc, &layer.atmosphereCoef, SHADER_UNIFORM_FLOAT);
             for (int r = 0; r < layer.numRectangles; r++) {
                 DrawRectangleRec(layer.rectangles[r].rectangle, layer.rectangles[r].color);
+            }
+            for (int t = 0; t < layer.numTriangles; t++) {
+                printf("drawing triangle %d, .x = %f\n", t, layer.triangles[t].a.x);
+                DrawTriangle(
+                    layer.triangles[t].a,
+                    layer.triangles[t].b,
+                    layer.triangles[t].c,
+                    layer.triangles[t].color
+                );
             }
         }
         EndShaderMode();
