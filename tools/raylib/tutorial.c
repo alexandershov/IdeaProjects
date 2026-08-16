@@ -46,13 +46,16 @@ float rnd() {
 
 void fillMountains(ColoredTriangle triangles[NUM_MOUNTAINS], float height) {
     for (int i = 0; i < NUM_MOUNTAINS; i++) {
+        int width = 600 * (1 + rnd());
+        int step = 200 * (1 + rnd());
+        int base = 200;
         ColoredTriangle t = {
             // a is the most left point
-            .a = (Vector2){i * 200, height},
+            .a = (Vector2){i * step, base},
             // b is the highest point
-            .b = (Vector2){i * 200 + 100, 10},
+            .b = (Vector2){i * step + width * (0.5 + (rnd() / 2.5) - 0.2), base - height * (1 + rnd() / 10.0)},
             // c is the most right point
-            .c = (Vector2){i * 200 + 200, height},
+            .c = (Vector2){i * step + width, base},
             .color = BLUE,
         };
         triangles[i] = t;
@@ -88,9 +91,9 @@ int main() {
     ColoredTriangle mountains1[NUM_MOUNTAINS];
     ColoredTriangle mountains2[NUM_MOUNTAINS];
     ColoredTriangle mountains3[NUM_MOUNTAINS];
-    fillMountains(mountains1, 100);
-    fillMountains(mountains2, 150);
-    fillMountains(mountains3, 200);
+    fillMountains(mountains1, 50);
+    fillMountains(mountains2, 100);
+    fillMountains(mountains3, 150);
 
     Layer layers[NUM_LAYERS] = {
         // player layer
@@ -194,11 +197,11 @@ int main() {
                 DrawRectangleRec(layer.rectangles[r].rectangle, layer.rectangles[r].color);
             }
             for (int t = 0; t < layer.numTriangles; t++) {
-                printf("drawing triangle %d, .x = %f\n", t, layer.triangles[t].a.x);
                 DrawTriangle(
+                    // we need to pass vertexes in counter clockwise order to render triangle correctly
                     layer.triangles[t].a,
-                    layer.triangles[t].b,
                     layer.triangles[t].c,
+                    layer.triangles[t].b,
                     layer.triangles[t].color
                 );
             }
