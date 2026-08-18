@@ -9,7 +9,7 @@
 
 #define NUM_LAMPPOSTS 10
 #define NUM_TREES 8
-#define NUM_LINES 10000
+#define NUM_LINES 100000
 #define NUM_MOUNTAINS 40
 
 typedef struct ColoredRectangle {
@@ -101,8 +101,8 @@ size_t fillTreeRec(ColoredLine *line, size_t maxLines, size_t i, Vector2 start, 
         .color = BROWN,
     };
     line[i] = curLine;
-    size_t leftSize = fillTreeRec(line, maxLines, i + 1, myEnd, length * 0.66, thick * 0.8, angle - DEG2RAD * 30);
-    size_t rightSize = fillTreeRec(line, maxLines, i + 1 + leftSize, myEnd, length * 0.66, thick * 0.8, angle + DEG2RAD * 30);
+    size_t leftSize = fillTreeRec(line, maxLines, i + 1, myEnd, length * (0.66 + rnd() / 10), thick * 0.8, angle - DEG2RAD * (30 + 5 * rnd()));
+    size_t rightSize = fillTreeRec(line, maxLines, i + 1 + leftSize, myEnd, length * (0.66 + rnd() / 10), thick * 0.8, angle + DEG2RAD * (30 + 5 * rnd()));
     return leftSize + rightSize + 1;
 }
 
@@ -138,7 +138,7 @@ int main() {
     ColoredLine lines[NUM_LINES];
     size_t linesOffset = 0;
     for (int i = 0; i < NUM_TREES; i++) {
-        linesOffset += fillTree(lines, NUM_LINES, linesOffset, (Vector2){200 * (i + rnd()) + 60, 290 + 30 * rnd()}, 80 * (1 + rnd() / 10));
+        linesOffset += fillTree(lines, NUM_LINES, linesOffset, (Vector2){400 * i, 290 + 30 * rnd()}, 80 * (1 + rnd() / 10));
     }
 
     // mountains1 is the closest layer, mountains3 is the furthest layer
