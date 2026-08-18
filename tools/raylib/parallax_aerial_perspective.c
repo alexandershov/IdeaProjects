@@ -101,8 +101,8 @@ size_t fillTreeRec(ColoredLine *line, size_t maxLines, size_t i, Vector2 start, 
         .color = BROWN,
     };
     line[i] = curLine;
-    size_t leftSize = fillTreeRec(line, maxLines, i + 1, myEnd, length * (0.66 + rnd() / 10), thick * 0.8, angle - DEG2RAD * (30 + 5 * rnd()));
-    size_t rightSize = fillTreeRec(line, maxLines, i + 1 + leftSize, myEnd, length * (0.66 + rnd() / 10), thick * 0.8, angle + DEG2RAD * (30 + 5 * rnd()));
+    size_t leftSize = fillTreeRec(line, maxLines, i + 1, myEnd, length * (0.6 + rnd() / 5), thick * 0.8, angle - DEG2RAD * (20 + 10 * rnd()));
+    size_t rightSize = fillTreeRec(line, maxLines, i + 1 + leftSize, myEnd, length * (0.6 + rnd() / 5), thick * 0.8, angle + DEG2RAD * (20 + 10 * rnd()));
     return leftSize + rightSize + 1;
 }
 
