@@ -86,7 +86,7 @@ Vector2 pointAtAngle(Vector2 start, float radius, float angle) {
 }
 
 size_t fillTreeRec(ColoredLine *line, size_t maxLines, size_t i, Vector2 start, float length, float thick, float angle) {
-    if (length < 5) {
+    if (length < 2) {
         return 0;
     }
     if (i >= maxLines) {
@@ -138,7 +138,7 @@ int main() {
     ColoredLine lines[NUM_LINES];
     size_t linesOffset = 0;
     for (int i = 0; i < NUM_TREES; i++) {
-        linesOffset += fillTree(lines, NUM_LINES, linesOffset, (Vector2){200 * (i + rnd()) + 60, 400}, 80 * (1 + rnd() / 10));
+        linesOffset += fillTree(lines, NUM_LINES, linesOffset, (Vector2){200 * (i + rnd()) + 60, 290 + 30 * rnd()}, 80 * (1 + rnd() / 10));
     }
 
     // mountains1 is the closest layer, mountains3 is the furthest layer
