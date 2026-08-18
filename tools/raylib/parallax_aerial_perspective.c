@@ -15,6 +15,13 @@ typedef struct ColoredRectangle {
     Color color;
 } ColoredRectangle;
 
+typedef struct ColoredLine {
+    Vector2 start;
+    Vector2 end;
+    float thick;
+    Color color;
+} ColoredLine;
+
 typedef struct ColoredTriangle {
     Vector2 a;
     Vector2 b;
@@ -41,6 +48,9 @@ typedef struct Layer {
 
     size_t numTriangles;
     ColoredTriangle *triangles;
+
+    size_t numLines;
+    ColoredLine *lines;
 } Layer;
 
 float rnd() {
@@ -107,6 +117,7 @@ int main() {
             .numRectangles = 1,
             .rectangles = &player,
             .numTriangles = 0,
+            .numLines = 0,
             .atmosphereCoef = 0.0,
         },
         // lampposts layer
@@ -115,6 +126,7 @@ int main() {
           .numRectangles = NUM_LAMPPOSTS,
           .rectangles = lampposts,
           .numTriangles = 0,
+          .numLines = 0,
           .atmosphereCoef = 0.0,
         },
         // trees layer
@@ -123,6 +135,7 @@ int main() {
           .numRectangles = NUM_TREES,
           .rectangles = trees,
           .numTriangles = 0,
+          .numLines = 0,
           .atmosphereCoef = 0.0,
         },
         // mountain layers - don't participate in parallax; have aerial perspective
@@ -130,6 +143,7 @@ int main() {
           .parallax = 0.0,
           .numRectangles = 0,
           .numTriangles = NUM_MOUNTAINS,
+          .numLines = 0,
           .atmosphereCoef = 0.5,
           .triangles = mountains1,
         },
@@ -137,6 +151,7 @@ int main() {
           .parallax = 0.0,
           .numRectangles = 0,
           .numTriangles = NUM_MOUNTAINS,
+          .numLines = 0,
           .atmosphereCoef = 0.7,
           .triangles = mountains2,
         },
@@ -144,6 +159,7 @@ int main() {
           .parallax = 0.0,
           .numRectangles = 0,
           .numTriangles = NUM_MOUNTAINS,
+          .numLines = 0,
           .atmosphereCoef = 0.9,
           .triangles = mountains3,
         },
@@ -211,6 +227,10 @@ int main() {
                     layer.triangles[t].b,
                     layer.triangles[t].color
                 );
+            }
+            for (int ln = 0; ln < layer.numLines; ln++) {
+                ColoredLine line = layer.lines[ln];
+                DrawLineEx(line.start, line.end, line.thick, line.color);
             }
             // we need to draw current batch, otherwise raylib will batch all of our draw cals
             // with the same uniform value for the atmosphereCoef
