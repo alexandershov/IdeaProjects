@@ -1,5 +1,6 @@
 #include <raylib.h>
 #include <rlgl.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -8,6 +9,7 @@
 
 #define NUM_LAMPPOSTS 10
 #define NUM_TREES 8
+#define NUM_LINES 10000
 #define NUM_MOUNTAINS 40
 
 typedef struct ColoredRectangle {
@@ -76,6 +78,43 @@ void fillMountains(ColoredTriangle triangles[NUM_MOUNTAINS], float height) {
     }
 }
 
+Vector2 pointAtAngle(Vector2 start, float radius, float angle) {
+    return (Vector2){
+        .x = start.x + radius * cosf(angle),
+        .y = start.y + radius * sinf(angle),
+    };
+}
+
+size_t fillTreeRec(ColoredLine *line, size_t maxLines, size_t i, Vector2 start, float length, float thick, float angle) {
+    if (length < 5) {
+        return 0;
+    }
+    if (i >= maxLines) {
+        // no space for 1 new line
+        return 0;
+    }
+    Vector2 myEnd = pointAtAngle(start, length, angle);
+    ColoredLine curLine = {
+        .start = start,
+        .end = myEnd,
+        .thick = thick,
+        .color = BROWN,
+    };
+    line[i] = curLine;
+    size_t leftSize = fillTreeRec(line, maxLines, i + 1, myEnd, length * 0.66, thick * 0.95, angle - DEG2RAD * 30);
+    size_t rightSize = fillTreeRec(line, maxLines, i + 1 + leftSize, myEnd, length * 0.66, thick * 0.95, angle + DEG2RAD * 30);
+    return leftSize + rightSize + 1;
+}
+
+size_t fillTree(ColoredLine *line, size_t maxLines, size_t i, Vector2 start) {
+    // generate a new tree at the given position
+    // tree can consist of maxLines but not more
+    // it's expected that caller has allocated `maxLines` items starting at *line pointer
+
+    // raylib y axis goes downwards, so initial angle is negative
+    return fillTreeRec(line, maxLines, i, start, 50, 4, -DEG2RAD * 90);
+}
+
 int main() {
     int screenWidth = 800;
     int screenHeight = 600;
@@ -96,10 +135,10 @@ int main() {
         lampposts[i].color = YELLOW;
     }
 
-    ColoredRectangle trees[NUM_TREES];
+    ColoredLine lines[NUM_LINES];
+    size_t linesOffset = 0;
     for (int i = 0; i < NUM_TREES; i++) {
-        trees[i].rectangle = (Rectangle){100 * (i + rnd()), 100, 60, 300};
-        trees[i].color = BROWN;
+        linesOffset += fillTree(lines, NUM_LINES, linesOffset, (Vector2){100 * (i + rnd()) + 60, 400});
     }
 
     // mountains1 is the closest layer, mountains3 is the furthest layer
@@ -132,10 +171,10 @@ int main() {
         // trees layer
         {
           .parallax = 0.1,
-          .numRectangles = NUM_TREES,
-          .rectangles = trees,
+          .numRectangles = 0,
           .numTriangles = 0,
-          .numLines = 0,
+          .numLines = linesOffset,
+          .lines = lines,
           .atmosphereCoef = 0.0,
         },
         // mountain layers - don't participate in parallax; have aerial perspective
@@ -197,6 +236,11 @@ int main() {
             Layer layer = layers[i];
             for (int r = 0; r < layer.numRectangles; r++) {
                 layer.rectangles[r].rectangle.x += dx * dt * speed * layer.parallax;
+            }
+            for (int ln = 0; ln < layer.numLines; ln++) {
+                ColoredLine line = layer.lines[ln];
+                line.start.x += dx * dt * speed * layer.parallax;
+                line.end.x += dx * dt * speed * layer.parallax;
             }
         }
 
