@@ -101,18 +101,18 @@ size_t fillTreeRec(ColoredLine *line, size_t maxLines, size_t i, Vector2 start, 
         .color = BROWN,
     };
     line[i] = curLine;
-    size_t leftSize = fillTreeRec(line, maxLines, i + 1, myEnd, length * 0.66, thick * 0.95, angle - DEG2RAD * 30);
-    size_t rightSize = fillTreeRec(line, maxLines, i + 1 + leftSize, myEnd, length * 0.66, thick * 0.95, angle + DEG2RAD * 30);
+    size_t leftSize = fillTreeRec(line, maxLines, i + 1, myEnd, length * 0.66, thick * 0.8, angle - DEG2RAD * 30);
+    size_t rightSize = fillTreeRec(line, maxLines, i + 1 + leftSize, myEnd, length * 0.66, thick * 0.8, angle + DEG2RAD * 30);
     return leftSize + rightSize + 1;
 }
 
-size_t fillTree(ColoredLine *line, size_t maxLines, size_t i, Vector2 start) {
+size_t fillTree(ColoredLine *line, size_t maxLines, size_t i, Vector2 start, float length) {
     // generate a new tree at the given position
     // tree can consist of maxLines but not more
     // it's expected that caller has allocated `maxLines` items starting at *line pointer
 
     // raylib y axis goes downwards, so initial angle is negative
-    return fillTreeRec(line, maxLines, i, start, 50, 4, -DEG2RAD * 90);
+    return fillTreeRec(line, maxLines, i, start, length, 10, -DEG2RAD * 90);
 }
 
 int main() {
@@ -138,7 +138,7 @@ int main() {
     ColoredLine lines[NUM_LINES];
     size_t linesOffset = 0;
     for (int i = 0; i < NUM_TREES; i++) {
-        linesOffset += fillTree(lines, NUM_LINES, linesOffset, (Vector2){100 * (i + rnd()) + 60, 400});
+        linesOffset += fillTree(lines, NUM_LINES, linesOffset, (Vector2){200 * (i + rnd()) + 60, 400}, 80 * (1 + rnd() / 10));
     }
 
     // mountains1 is the closest layer, mountains3 is the furthest layer
