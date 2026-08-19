@@ -246,9 +246,8 @@ int main() {
                 layer.rectangles[r].rectangle.x += dx * dt * speed * layer.parallax;
             }
             for (int ln = 0; ln < layer.numLines; ln++) {
-                ColoredLine line = layer.lines[ln];
-                line.start.x += dx * dt * speed * layer.parallax;
-                line.end.x += dx * dt * speed * layer.parallax;
+                layer.lines[ln].start.x += dx * dt * speed * layer.parallax;
+                layer.lines[ln].end.x += dx * dt * speed * layer.parallax;
             }
         }
 
