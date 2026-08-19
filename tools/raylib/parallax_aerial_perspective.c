@@ -86,6 +86,9 @@ Vector2 pointAtAngle(Vector2 start, float radius, float angle) {
 }
 
 size_t fillTreeRec(ColoredLine *line, size_t maxLines, size_t i, Vector2 start, float length, float thick, float angle) {
+    // this is fractal-like generation: tree is a trunk and two trees at angles
+    // so every part of tree has the same characteristics as the larger
+    // recursion is the natural way to implement fractals
     if (length < 2) {
         return 0;
     }
@@ -108,7 +111,7 @@ size_t fillTreeRec(ColoredLine *line, size_t maxLines, size_t i, Vector2 start, 
 
 size_t fillTree(ColoredLine *line, size_t maxLines, size_t i, Vector2 start, float length) {
     // generate a new tree at the given position
-    // tree can consist of maxLines but not more
+    // tree can consist out of maxLines but not more
     // it's expected that caller has allocated `maxLines` items starting at *line pointer
 
     // raylib y axis goes downwards, so initial angle is negative
