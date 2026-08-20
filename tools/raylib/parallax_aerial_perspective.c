@@ -57,6 +57,10 @@ typedef struct Layer {
     ColoredLine *lines;
 } Layer;
 
+// repl = "F[−F]F[+F][F]"
+// repl.replace("F", repl).replace("F", repl).replace("F", repl)
+char *L_SYSTEM = "F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][−F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][+F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]][F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]][−F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][−F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][+F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]][F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]]F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][−F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][+F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]][F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]][+F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][−F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][+F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]][F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]][F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][−F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][+F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]][F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]]";
+
 float rnd() {
     return (float)rand() / (float)RAND_MAX;
 }
@@ -203,7 +207,9 @@ int main() {
     ColoredLine lines[NUM_LINES];
     size_t linesOffset = 0;
     for (int i = 0; i < NUM_TREES; i++) {
-        linesOffset += fillTree(lines, NUM_LINES, linesOffset, (Vector2){400 * i, 290 + 30 * rnd()}, 80 * (1 + rnd() / 10));
+        Vector2 start = {400 * i, 290 + 30 * rnd()};
+//         linesOffset += fillTree(lines, NUM_LINES, linesOffset, start, 80 * (1 + rnd() / 10));
+        linesOffset += fillTreeLSystem(lines + linesOffset, NUM_LINES, start, L_SYSTEM);
     }
 
     // mountains1 is the closest layer, mountains3 is the furthest layer
