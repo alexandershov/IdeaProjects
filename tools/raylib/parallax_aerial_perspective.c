@@ -145,7 +145,14 @@ size_t fillTreeLSystem(ColoredLine *line, size_t maxLines, Vector2 start, char *
         char c = *cur;
         switch (c) {
             case 'F':
-                Vector2 nextPosition = pointAtAngle(position, length, angle);
+                line[numLines++] = (ColoredLine){
+                    .start = position,
+                    .end = pointAtAngle(position, length, angle),
+                    .thick = 3,
+                    .color = BROWN
+                };
+                position = pointAtAngle(position, length, angle);
+                break;
             case '[':
                 if (stackPointer == MAX_L_SYSTEM_STACK_SIZE - 1) {
                     printf("L_SYSTEM_STACK_SIZE overflow, stackPointer = %d\n", stackPointer);
