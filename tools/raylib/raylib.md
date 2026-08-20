@@ -59,3 +59,5 @@ These simple rules will allow to draw shapes without lifting a "pencil".
 To bypass this limitation we can invent special characters `[` and `]` that act as a stack:
 `[` pushes the current position on a stack, and `]` restores the position from the top of the stack.
 Other than this `[` and `]` behave exactly the same as ordinary alphabet for a grammar.
+
+See `fillTreeLSystem` in [parallax_aerial_perspective.c](./parallax_aerial_perspective.c) for an L-system implementation.

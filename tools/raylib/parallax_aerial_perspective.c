@@ -12,6 +12,8 @@
 #define NUM_LINES 100000
 #define NUM_MOUNTAINS 40
 
+#define MAX_L_SYSTEM_STACK_SIZE 100
+
 typedef struct ColoredRectangle {
     Rectangle rectangle;
     Color color;
@@ -121,6 +123,54 @@ size_t fillTree(ColoredLine *line, size_t maxLines, size_t i, Vector2 start, flo
 
     // raylib y axis goes downwards, so initial angle is negative
     return fillTreeRec(line, maxLines, i, start, length, 10, -DEG2RAD * 90);
+}
+
+size_t fillTreeLSystem(ColoredLine *line, size_t maxLines, Vector2 start, char *lSystem) {
+    // generate a new tree using L-System
+    // L-System alphabet:
+    // F move forward by length
+    // [ save stack
+    // ] pop stack
+    // - rotate 30 degrees clockwise
+    // + rotate 30 degrees counter-clockwise
+    float rotation = DEG2RAD * 30;
+    char *cur = lSystem;
+    size_t numLines = 0;
+    Vector2 stack[MAX_L_SYSTEM_STACK_SIZE];
+    int stackPointer = -1;
+    Vector2 position = start;
+    float angle = DEG2RAD * 270;
+    float length = 20;
+    while (*cur != '\0') {
+        char c = *cur;
+        switch (c) {
+            case 'F':
+                Vector2 nextPosition = pointAtAngle(position, length, angle);
+            case '[':
+                if (stackPointer == MAX_L_SYSTEM_STACK_SIZE - 1) {
+                    printf("L_SYSTEM_STACK_SIZE overflow, stackPointer = %d\n", stackPointer);
+                } else {
+                    stackPointer++;
+                    stack[stackPointer] = position;
+                }
+                break;
+            case ']':
+                if (stackPointer < 0) {
+                    printf("L_SYSTEM_STACK_SIZE underflow, stackPointer = %d\n", stackPointer);
+                } else {
+                    position = stack[stackPointer];
+                    stackPointer--;
+                }
+            case '-':
+                angle += DEG2RAD * 30;
+                break;
+            case '+':
+                angle -= DEG2RAD * 30;
+                break;
+        }
+        cur++;
+    }
+    return numLines;
 }
 
 int main() {
