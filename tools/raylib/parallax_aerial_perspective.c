@@ -57,9 +57,14 @@ typedef struct Layer {
     ColoredLine *lines;
 } Layer;
 
+typedef struct LSystemInfo {
+    Vector2 position;
+    float angle;
+} LSystemInfo;
+
 // repl = "F[−F]F[+F][F]"
 // repl.replace("F", repl).replace("F", repl).replace("F", repl)
-char *L_SYSTEM = "F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][−F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][+F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]][F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]][−F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][−F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][+F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]][F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]]F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][−F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][+F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]][F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]][+F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][−F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][+F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]][F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]][F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][−F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]][+F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]][F[−F]F[+F][F][−F[−F]F[+F][F]]F[−F]F[+F][F][+F[−F]F[+F][F]][F[−F]F[+F][F]]]]";
+char *L_SYSTEM = "F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]][-F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]]F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]][+F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]][F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]][-F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]][-F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]]F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]][+F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]][F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]]]F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]][-F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]]F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]][+F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]][F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]][+F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]][-F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]]F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]][+F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]][F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]]][F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]][-F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]]F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]][+F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]][F[-F]F[+F][F][-F[-F]F[+F][F]]F[-F]F[+F][F][+F[-F]F[+F][F]][F[-F]F[+F][F]]]]";
 
 float rnd() {
     return (float)rand() / (float)RAND_MAX;
@@ -140,15 +145,15 @@ size_t fillTreeLSystem(ColoredLine *line, size_t maxLines, Vector2 start, char *
     float rotation = DEG2RAD * 30;
     char *cur = lSystem;
     size_t numLines = 0;
-    Vector2 stack[MAX_L_SYSTEM_STACK_SIZE];
+    LSystemInfo stack[MAX_L_SYSTEM_STACK_SIZE];
     int stackPointer = -1;
     Vector2 position = start;
-    float angle = DEG2RAD * 270;
-    float length = 20;
+    float angle = DEG2RAD * (-90);
+    float length = 10;
     while (*cur != '\0') {
         char c = *cur;
         switch (c) {
-            case 'F':
+            case 'F': {
                 line[numLines++] = (ColoredLine){
                     .start = position,
                     .end = pointAtAngle(position, length, angle),
@@ -157,27 +162,34 @@ size_t fillTreeLSystem(ColoredLine *line, size_t maxLines, Vector2 start, char *
                 };
                 position = pointAtAngle(position, length, angle);
                 break;
-            case '[':
+            }
+            case '[': {
                 if (stackPointer == MAX_L_SYSTEM_STACK_SIZE - 1) {
                     printf("L_SYSTEM_STACK_SIZE overflow, stackPointer = %d\n", stackPointer);
                 } else {
                     stackPointer++;
-                    stack[stackPointer] = position;
+                    stack[stackPointer] = (LSystemInfo){.position = position, .angle = angle};
                 }
                 break;
-            case ']':
+            }
+            case ']': {
                 if (stackPointer < 0) {
                     printf("L_SYSTEM_STACK_SIZE underflow, stackPointer = %d\n", stackPointer);
                 } else {
-                    position = stack[stackPointer];
+                    position = stack[stackPointer].position;
+                    angle = stack[stackPointer].angle;
                     stackPointer--;
                 }
-            case '-':
-                angle += DEG2RAD * 30;
                 break;
-            case '+':
-                angle -= DEG2RAD * 30;
+            }
+            case '-': {
+                angle += rotation;
                 break;
+            }
+            case '+': {
+                angle -= rotation;
+                break;
+            }
         }
         cur++;
     }
@@ -208,8 +220,11 @@ int main() {
     size_t linesOffset = 0;
     for (int i = 0; i < NUM_TREES; i++) {
         Vector2 start = {400 * i, 290 + 30 * rnd()};
-//         linesOffset += fillTree(lines, NUM_LINES, linesOffset, start, 80 * (1 + rnd() / 10));
-        linesOffset += fillTreeLSystem(lines + linesOffset, NUM_LINES, start, L_SYSTEM);
+        if (rnd() < 0.5) {
+            linesOffset += fillTree(lines, NUM_LINES, linesOffset, start, 80 * (1 + rnd() / 10));
+        } else {
+            linesOffset += fillTreeLSystem(lines + linesOffset, NUM_LINES, start, L_SYSTEM);
+        }
     }
 
     // mountains1 is the closest layer, mountains3 is the furthest layer
