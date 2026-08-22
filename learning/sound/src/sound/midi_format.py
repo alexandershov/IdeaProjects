@@ -62,12 +62,30 @@ class NoteEvent:
             struct.pack(">B", self.delta_ticks),
             # 1001 means "note on" (== we start playing a note)
             # 1000 means "note on" (== we stop playing a note)
-            struct.pack(">B", (0b10010000 if self.on else 0b10000000 | self.channel)),
-            # next is the note, e.g. 60 means C4 - it's a C note in 4th octave
-            # MIDI notes are described here: https://inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
+            struct.pack(">B", ((0b10010000 if self.on else 0b10000000) | self.channel)),
+            # next is the note
             struct.pack(">B", self.note),
             # next byte is how forcefully the note was played (velocity)
             struct.pack(">B", self.velocity),
+        ]
+        return b"".join(parts)
+
+
+@dataclass(frozen=True)
+class MetaEvent:
+    delta_ticks: int
+    sub_type: int
+
+    def as_bytes(self) -> bytes:
+        assert 0 <= self.delta_ticks <= 255
+        parts: list[bytes] = [
+            # ticks after previous event
+            struct.pack(">B", self.delta_ticks),
+            # 255 means "meta-event"
+            struct.pack(">B", 255),
+            struct.pack(">B", self.sub_type),
+            # 0 means that this meta-event has 0 bytes of a payload
+            struct.pack(">B", 0),
         ]
         return b"".join(parts)
 
@@ -84,24 +102,24 @@ def main():
         # then 4-byte length of the track in big-endian
         # length is 12 bytes for us
         output.write(struct.pack(">i", 12))
+
         # Let's add events to our track
-        #  "start playing note C4 on channel 0 with the 64 velocity"
+        # "start playing note C4 on channel 0 with the 64 velocity"
+        # 60 means C4 - it's a C note in 4th octave
+        # MIDI notes are described here: https://inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
         play_c4 = NoteEvent(delta_ticks=0, on=True, note=60, channel=0, velocity=64)
         output.write(play_c4.as_bytes())
+
         # "stop playing C4 on channel 0 after 96 ticks"
-        stop_c4 = NoteEvent(delta_ticks=0, on=True, note=60, channel=0, velocity=64)
+        stop_c4 = NoteEvent(delta_ticks=96, on=False, note=60, channel=0, velocity=64)
         output.write(stop_c4.as_bytes())
-        # ticks after previous event
-        output.write(struct.pack(">B", 0))
-        # 255 means "meta event"
-        output.write(struct.pack(">B", 255))
+
         # 47 means "end of track"
-        output.write(struct.pack(">B", 47))
-        # 0 means that this meta event has 0 bytes of a payload
-        output.write(struct.pack(">B", 0))
-        # on a high level the file we just wrote represents 2 musical events:
-        # play a note C4 on a channel 0
-        # after 0.5 seconds stop playing note C4 on a channel 0
+        end_of_track = MetaEvent(delta_ticks=0, sub_type=47)
+        output.write(end_of_track.as_bytes())
+        # on a high level, the file we just wrote represents 2 musical events:
+        # play a note C4 on channel 0
+        # after 0.5 seconds stop playing note C4 on channel 0
 
 
 if __name__ == '__main__':
