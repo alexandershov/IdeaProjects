@@ -1,3 +1,4 @@
+import abc
 import argparse
 import struct
 from dataclasses import dataclass
@@ -9,8 +10,14 @@ def parse_args():
     return parser.parse_args()
 
 
+class MIDIItem(abc.ABC):
+    @abc.abstractmethod
+    def as_bytes(self) -> bytes:
+        raise NotImplementedError
+
+
 @dataclass(frozen=True)
-class Header:
+class Header(MIDIItem):
     num_tracks: int
     ticks_in_quarter: int
 
@@ -44,7 +51,7 @@ class Header:
 
 
 @dataclass(frozen=True)
-class NoteEvent:
+class NoteEvent(MIDIItem):
     delta_ticks: int
     on: bool
     note: int
@@ -72,7 +79,7 @@ class NoteEvent:
 
 
 @dataclass(frozen=True)
-class MetaEvent:
+class MetaEvent(MIDIItem):
     delta_ticks: int
     sub_type: int
 
@@ -90,36 +97,47 @@ class MetaEvent:
         return b"".join(parts)
 
 
+@dataclass(frozen=True)
+class Track(MIDIItem):
+    events: list[MIDIItem]
+
+    def as_bytes(self):
+        event_parts: list[bytes] = []
+        for an_event in self.events:
+            event_parts.append(an_event.as_bytes())
+        events_as_bytes = b"".join(event_parts)
+
+        parts: list[bytes] = [
+            # first is ascii encoding of "MTrk" ("MIDI Track chunk")
+            b"MTrk",
+            # then 4-byte length of the track in big-endian
+            # it's sum of all events
+            struct.pack(">i", len(events_as_bytes)),
+            # and now the events themselves
+            events_as_bytes,
+        ]
+        return b"".join(parts)
+
+
 def main():
     parser = parse_args()
     with open(parser.output, 'wb') as output:
+        # each MIDI file starts with the header
         header = Header(num_tracks=1, ticks_in_quarter=96)
         output.write(header.as_bytes())
-        # now our header is done - we've written exactly 6 bytes of data
-        # let's define a track
-        # first is ascii encoding of "MTrk" ("MIDI Track chunk")
-        output.write(b"MTrk")
-        # then 4-byte length of the track in big-endian
-        # length is 12 bytes for us
-        output.write(struct.pack(">i", 12))
 
-        # Let's add events to our track
-        # "start playing note C4 on channel 0 with the 64 velocity"
+        # start playing note C4
         # 60 means C4 - it's a C note in 4th octave
         # MIDI notes are described here: https://inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
         play_c4 = NoteEvent(delta_ticks=0, on=True, note=60, channel=0, velocity=64)
-        output.write(play_c4.as_bytes())
-
-        # "stop playing C4 on channel 0 after 96 ticks"
+        # stop playing C4 after 96 ticks
         stop_c4 = NoteEvent(delta_ticks=96, on=False, note=60, channel=0, velocity=64)
-        output.write(stop_c4.as_bytes())
-
         # 47 means "end of track"
         end_of_track = MetaEvent(delta_ticks=0, sub_type=47)
-        output.write(end_of_track.as_bytes())
-        # on a high level, the file we just wrote represents 2 musical events:
-        # play a note C4 on channel 0
-        # after 0.5 seconds stop playing note C4 on channel 0
+
+        # track comes after header
+        track = Track(events=[play_c4, stop_c4, end_of_track])
+        output.write(track.as_bytes())
 
 
 if __name__ == '__main__':
