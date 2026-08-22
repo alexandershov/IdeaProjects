@@ -1,7 +1,6 @@
 import argparse
 import struct
 from dataclasses import dataclass
-from typing import IO
 
 
 def parse_args():
@@ -12,7 +11,6 @@ def parse_args():
 
 @dataclass(frozen=True)
 class Header:
-    length: int
     num_tracks: int
     ticks_in_quarter: int
 
@@ -28,7 +26,7 @@ class Header:
             # length is 4-byte integer in big-endian order (least significant byte is last)
             # if e.g. length of the header is 6, then we'll get
             # 0x00, 0x00, 0x00, 0x06
-            struct.pack(">i", self.length),
+            struct.pack(">i", 6),
             # next 2 bytes encode format.
             # format==0 means that everything is recorded in 1 track
             # 0x00, 0x00
@@ -48,7 +46,7 @@ class Header:
 def main():
     parser = parse_args()
     with open(parser.output, 'wb') as output:
-        header = Header(length=6, num_tracks=1, ticks_in_quarter=96)
+        header = Header(num_tracks=1, ticks_in_quarter=96)
         output.write(header.as_bytes())
 
         # now our header is done - we've written exactly 6 bytes of data
