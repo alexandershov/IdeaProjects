@@ -88,16 +88,9 @@ def main():
         #  "start playing note C4 on channel 0 with the 64 velocity"
         play_c4 = NoteEvent(delta_ticks=0, on=True, note=60, channel=0, velocity=64)
         output.write(play_c4.as_bytes())
-
-        # next 4 bytes describe an event "stop playing C4 on channel 0 after 96 ticks"
-        # ticks after the previous event
-        output.write(struct.pack(">B", 96))
-        # note off on channel 0
-        output.write(struct.pack(">B", 0b10000000))
-        # 60 (== C4) is the note that we stop playing
-        output.write(struct.pack(">B", 60))
-        # next byte is how quickly the note was released (release velocity)
-        output.write(struct.pack(">B", 64))
+        # "stop playing C4 on channel 0 after 96 ticks"
+        stop_c4 = NoteEvent(delta_ticks=0, on=True, note=60, channel=0, velocity=64)
+        output.write(stop_c4.as_bytes())
         # ticks after previous event
         output.write(struct.pack(">B", 0))
         # 255 means "meta event"
