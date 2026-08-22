@@ -1,5 +1,7 @@
 import argparse
 import struct
+from dataclasses import dataclass
+from typing import IO
 
 
 def parse_args():
@@ -8,33 +10,47 @@ def parse_args():
     return parser.parse_args()
 
 
+@dataclass(frozen=True)
+class Header:
+    length: int
+    num_tracks: int
+    ticks_in_quarter: int
+
+    def as_bytes(self) -> bytes:
+        parts: list[bytes] = [
+            # each MIDI file starts with the header.
+            # Header starts with the bytes 0x4d, 0x54, 0x68, 0x64
+            # these bytes actually can be represented by ascii encoding of
+            # the string "MThd", "hd" stands for "header"
+            b"MThd",
+            # next is the length of the header in bytes
+            # note the length of the header doesn't include MThd and the length field itself
+            # length is 4-byte integer in big-endian order (least significant byte is last)
+            # if e.g. length of the header is 6, then we'll get
+            # 0x00, 0x00, 0x00, 0x06
+            struct.pack(">i", self.length),
+            # next 2 bytes encode format.
+            # format==0 means that everything is recorded in 1 track
+            # 0x00, 0x00
+            struct.pack(">h", 0),
+            # next 2 bytes encode number of tracks
+            # e.g. for 1 track it's 0x00, 0x01
+            struct.pack(">h", self.num_tracks),
+            # next 2 bytes define how many ticks are in a quarter of the note
+            # ticks are abstract unit - they're not seconds
+            # we can define what a tick is, by default quarter of a note is 0.5 seconds
+            # so our tick is 0.5s/96
+            struct.pack(">h", self.ticks_in_quarter),
+        ]
+        return b"".join(parts)
+
+
 def main():
     parser = parse_args()
     with open(parser.output, 'wb') as output:
-        # each MIDI file starts with the header.
-        # Header starts with the bytes 0x4d, 0x54, 0x68, 0x64
-        # these bytes actually can be represented by ascii encoding of
-        # the string "MThd", "hd" stands for "header"
-        output.write(b"MThd")
-        # next is the length of the header in bytes
-        # note the length of the header doesn't include MThd and the length field itself
-        # length is 4-byte integer in big-endian order (least significant byte is last)
-        # in our case length of the header is 6
-        # 0x00, 0x00, 0x00, 0x06
-        output.write(struct.pack(">i", 6))
-        # next 2 bytes encode format.
-        # format==0 means that everything is recorded in 1 track
-        # 0x00, 0x00
-        output.write(struct.pack(">h", 0))
-        # next 2 bytes encode number of tracks
-        # for 1 track it's 0x00, 0x01
-        output.write(struct.pack(">h", 1))
-        # next 2 bytes define how many ticks are in a quarter of the note
-        # ticks are abstract unit - they're not seconds
-        # here he have 96 ticks in a quarter of a note
-        # we can define what a tick is, by default quarter of a note is 0.5 seconds
-        # so our tick is 0.5s/96
-        output.write(struct.pack(">h", 96))
+        header = Header(length=6, num_tracks=1, ticks_in_quarter=96)
+        output.write(header.as_bytes())
+
         # now our header is done - we've written exactly 6 bytes of data
         # let's define a track
         # first is ascii encoding of "MTrk" ("MIDI Track chunk")
