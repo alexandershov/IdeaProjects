@@ -43,12 +43,40 @@ class Header:
         return b"".join(parts)
 
 
+@dataclass(frozen=True)
+class NoteEvent:
+    delta_ticks: int
+    on: bool
+    note: int
+    channel: int
+    velocity: int
+
+    def as_bytes(self) -> bytes:
+        assert 0 <= self.delta_ticks <= 255
+        assert 0 <= self.note <= 255
+        assert 0 <= self.channel <= 15
+        assert 0 <= self.velocity <= 255
+        parts: list[bytes] = [
+            # events are essentially a pair {ticks after the previous event, event}
+            # number of ticks is 1 byte
+            struct.pack(">B", self.delta_ticks),
+            # 1001 means "note on" (== we start playing a note)
+            # 1000 means "note on" (== we stop playing a note)
+            struct.pack(">B", (0b10010000 if self.on else 0b10000000 | self.channel)),
+            # next is the note, e.g. 60 means C4 - it's a C note in 4th octave
+            # MIDI notes are described here: https://inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
+            struct.pack(">B", self.note),
+            # next byte is how forcefully the note was played (velocity)
+            struct.pack(">B", self.velocity),
+        ]
+        return b"".join(parts)
+
+
 def main():
     parser = parse_args()
     with open(parser.output, 'wb') as output:
         header = Header(num_tracks=1, ticks_in_quarter=96)
         output.write(header.as_bytes())
-
         # now our header is done - we've written exactly 6 bytes of data
         # let's define a track
         # first is ascii encoding of "MTrk" ("MIDI Track chunk")
@@ -57,19 +85,10 @@ def main():
         # length is 12 bytes for us
         output.write(struct.pack(">i", 12))
         # Let's add events to our track
-        # events are essentially a pair {ticks after the previous event, event}
-        # number of ticks is 1 byte, here zero ticks after the previous event
-        output.write(struct.pack(">B", 0))
-        # 1001 means "note on" (== we start playing a note)
-        # 0000 is channel number, there are 16 channels in total
-        # we use channel 0
-        output.write(struct.pack(">B", 0b10010000))
-        # next is the note, 60 means C4 - it's a C note in 4th octave
-        # MIDI notes are described here: https://inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
-        output.write(struct.pack(">B", 60))
-        # next byte is how forcefully the note was played (velocity)
-        output.write(struct.pack(">B", 64))
-        # previous 4 bytes were an event: "start playing note C4 on channel 0 with the 64 velocity"
+        #  "start playing note C4 on channel 0 with the 64 velocity"
+        play_c4 = NoteEvent(delta_ticks=0, on=True, note=60, channel=0, velocity=64)
+        output.write(play_c4.as_bytes())
+
         # next 4 bytes describe an event "stop playing C4 on channel 0 after 96 ticks"
         # ticks after the previous event
         output.write(struct.pack(">B", 96))
