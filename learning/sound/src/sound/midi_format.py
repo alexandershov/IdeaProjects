@@ -13,6 +13,7 @@ MIDI_NOTE = {
     "F#3": 54,
     "C#3": 49,
     "D#3": 51,
+    "C4": 60,
 }
 
 
@@ -67,13 +68,14 @@ class Header(MIDIItem):
 class NoteEvent(MIDIItem):
     delta_ticks: int
     on: bool
-    note: int
+    note: str
     channel: int
     velocity: int
 
     def as_bytes(self) -> bytes:
         assert 0 <= self.delta_ticks <= 255
-        assert 0 <= self.note <= 255
+        midi_note = MIDI_NOTE[self.note]
+        assert 0 <= midi_note <= 255
         assert 0 <= self.channel <= 15
         assert 0 <= self.velocity <= 255
         parts: list[bytes] = [
@@ -84,7 +86,7 @@ class NoteEvent(MIDIItem):
             # 1000 means "note on" (== we stop playing a note)
             struct.pack(">B", ((0b10010000 if self.on else 0b10000000) | self.channel)),
             # next is the note
-            struct.pack(">B", self.note),
+            struct.pack(">B", midi_note),
             # next byte is how forcefully the note was played (velocity)
             struct.pack(">B", self.velocity),
         ]
@@ -142,9 +144,9 @@ def main():
         # start playing note C4
         # 60 means C4 - it's a C note in 4th octave
         # MIDI notes are described here: https://inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
-        play_c4 = NoteEvent(delta_ticks=0, on=True, note=60, channel=0, velocity=args.velocity)
+        play_c4 = NoteEvent(delta_ticks=0, on=True, note="C4", channel=0, velocity=args.velocity)
         # stop playing C4 after 96 ticks
-        stop_c4 = NoteEvent(delta_ticks=96, on=False, note=60, channel=0, velocity=args.velocity)
+        stop_c4 = NoteEvent(delta_ticks=96, on=False, note="C4", channel=0, velocity=args.velocity)
         # 47 means "end of track"
         end_of_track = MetaEvent(delta_ticks=0, sub_type=47)
 
