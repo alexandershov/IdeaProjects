@@ -2,6 +2,7 @@ import abc
 import argparse
 import struct
 from dataclasses import dataclass
+from typing import Optional
 
 # excerpts from https://inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
 MIDI_NOTE = {
@@ -72,14 +73,15 @@ class Header(MIDIItem):
 
 @dataclass(frozen=True)
 class NoteEvent(MIDIItem):
-    delta_ticks: int
+    delta_ticks: Optional[int]
     on: bool
     note: str
     channel: int
     velocity: int
 
     def as_bytes(self) -> bytes:
-        assert 0 <= self.delta_ticks <= 255
+        if self.delta_ticks is not None:
+            assert 0 <= self.delta_ticks <= 255
         midi_note = MIDI_NOTE[self.note]
         assert 0 <= midi_note <= 255
         assert 0 <= self.channel <= 15
@@ -87,7 +89,8 @@ class NoteEvent(MIDIItem):
         parts: list[bytes] = [
             # events are essentially a pair {ticks after the previous event, event}
             # number of ticks is 1 byte
-            struct.pack(">B", self.delta_ticks),
+            # Our NoteEvent supports delta_ticks = None, so it can also used in live MIDI stream
+            struct.pack(">B", self.delta_ticks) if self.delta_ticks is not None else b"",
             # 1001 means "note on" (== we start playing a note)
             # 1000 means "note on" (== we stop playing a note)
             struct.pack(">B", ((0b10010000 if self.on else 0b10000000) | self.channel)),
