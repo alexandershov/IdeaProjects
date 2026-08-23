@@ -20,14 +20,14 @@ MIDI_NOTE = {
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--notes", type=_parse_notes)
+    parser.add_argument("--notes", type=parse_notes)
     parser.add_argument('--velocity', default=64, type=int)
-    parser.add_argument('--note-ticks', default=96, type=int)
+    parser.add_argument('--note-duration-ticks', default=96, type=int)
     parser.add_argument('--output', default='/dev/stdout')
     return parser.parse_args()
 
 
-def _parse_notes(s: str) -> list[str]:
+def parse_notes(s: str) -> list[str]:
     return s.split(" ")
 
 
@@ -159,7 +159,8 @@ def main():
             # start playing the given note
             note_on = NoteEvent(delta_ticks=0, on=True, note=note, channel=0, velocity=args.velocity)
             # stop playing the given note after the specified number of ticks
-            note_off = NoteEvent(delta_ticks=args.note_ticks, on=False, note=note, channel=0, velocity=args.velocity)
+            note_off = NoteEvent(delta_ticks=args.note_duration_ticks, on=False, note=note, channel=0,
+                                 velocity=args.velocity)
             events.extend([note_on, note_off])
 
         track = Track(events=events)
