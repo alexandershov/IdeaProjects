@@ -19,9 +19,14 @@ MIDI_NOTE = {
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output', default='/dev/stdout')
+    parser.add_argument("--notes", type=_parse_notes)
     parser.add_argument('--velocity', default=64, type=int)
+    parser.add_argument('--output', default='/dev/stdout')
     return parser.parse_args()
+
+
+def _parse_notes(s: str) -> list[str]:
+    return s.split(",")
 
 
 class MIDIItem(abc.ABC):
@@ -120,6 +125,10 @@ class Track(MIDIItem):
         event_parts: list[bytes] = []
         for an_event in self.events:
             event_parts.append(an_event.as_bytes())
+
+        # 47 means "end of track"
+        event_parts.append(MetaEvent(delta_ticks=0, sub_type=47).as_bytes())
+
         events_as_bytes = b"".join(event_parts)
 
         parts: list[bytes] = [
@@ -137,21 +146,20 @@ class Track(MIDIItem):
 def main():
     args = parse_args()
     with open(args.output, 'wb') as output:
-        # each MIDI file starts with the header
         header = Header(num_tracks=1, ticks_in_quarter=96)
+        # each MIDI file starts with the header
         output.write(header.as_bytes())
 
-        # start playing note C4
-        # 60 means C4 - it's a C note in 4th octave
-        # MIDI notes are described here: https://inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
-        play_c4 = NoteEvent(delta_ticks=0, on=True, note="C4", channel=0, velocity=args.velocity)
-        # stop playing C4 after 96 ticks
-        stop_c4 = NoteEvent(delta_ticks=96, on=False, note="C4", channel=0, velocity=args.velocity)
-        # 47 means "end of track"
-        end_of_track = MetaEvent(delta_ticks=0, sub_type=47)
+        events = []
+        for note in args.notes:
+            # start playing the given note
+            note_on = NoteEvent(delta_ticks=0, on=True, note=note, channel=0, velocity=args.velocity)
+            # stop playing the given note after 96 ticks
+            note_off = NoteEvent(delta_ticks=96, on=False, note=note, channel=0, velocity=args.velocity)
+            events.extend([note_on, note_off])
 
-        # track comes after header
-        track = Track(events=[play_c4, stop_c4, end_of_track])
+        track = Track(events=events)
+        # track comes after the header
         output.write(track.as_bytes())
 
 
