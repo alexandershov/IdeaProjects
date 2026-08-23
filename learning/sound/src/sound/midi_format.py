@@ -26,7 +26,7 @@ def parse_args():
 
 
 def _parse_notes(s: str) -> list[str]:
-    return s.split(",")
+    return s.split(" ")
 
 
 class MIDIItem(abc.ABC):

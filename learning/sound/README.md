@@ -12,7 +12,7 @@ Extension is `.mid` or `.midi`.
 See [midi_format.py](src/sound/midi_format.py) for a walkthrough of the MIDI format.
 Run it with
 ```shell
-uv run src/sound/midi_format.py --output c4.mid
+uv run src/sound/midi_format.py --output c4.mid --notes C4
 ```
 
 On Mac you can play MIDI files with `open path/to/file.mid` - it will open MIDI file in Garage Band.
