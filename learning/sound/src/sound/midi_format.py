@@ -3,10 +3,23 @@ import argparse
 import struct
 from dataclasses import dataclass
 
+# excerpts from https://inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
+MIDI_NOTE = {
+    # note B in the 3rd octave
+    "B3": 59,
+    # note F# in the 4th octave, F# is one semitone higher than F
+    "F#4": 66,
+    "A#4": 70,
+    "F#3": 54,
+    "C#3": 49,
+    "D#3": 51,
+}
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', default='/dev/stdout')
+    parser.add_argument('--velocity', default=64, type=int)
     return parser.parse_args()
 
 
@@ -120,8 +133,8 @@ class Track(MIDIItem):
 
 
 def main():
-    parser = parse_args()
-    with open(parser.output, 'wb') as output:
+    args = parse_args()
+    with open(args.output, 'wb') as output:
         # each MIDI file starts with the header
         header = Header(num_tracks=1, ticks_in_quarter=96)
         output.write(header.as_bytes())
@@ -129,9 +142,9 @@ def main():
         # start playing note C4
         # 60 means C4 - it's a C note in 4th octave
         # MIDI notes are described here: https://inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
-        play_c4 = NoteEvent(delta_ticks=0, on=True, note=60, channel=0, velocity=64)
+        play_c4 = NoteEvent(delta_ticks=0, on=True, note=60, channel=0, velocity=args.velocity)
         # stop playing C4 after 96 ticks
-        stop_c4 = NoteEvent(delta_ticks=96, on=False, note=60, channel=0, velocity=64)
+        stop_c4 = NoteEvent(delta_ticks=96, on=False, note=60, channel=0, velocity=args.velocity)
         # 47 means "end of track"
         end_of_track = MetaEvent(delta_ticks=0, sub_type=47)
 
