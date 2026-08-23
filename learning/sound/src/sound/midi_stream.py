@@ -40,6 +40,7 @@ async def amain():
             midiout.send_message(note_on.as_bytes())
 
             # no ticks, just sleep
+            # note that this is not perfect: we'll sleep even if the next note is ready to play
             await asyncio.sleep(args.note_duration_seconds)
 
             note_off = NoteEvent(delta_ticks=None, on=False, note=note, channel=0, velocity=args.velocity)
