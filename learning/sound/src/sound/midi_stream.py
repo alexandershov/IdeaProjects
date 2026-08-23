@@ -28,7 +28,10 @@ async def amain():
     args = parse_args()
     midiout = rtmidi.MidiOut()
     # get_ports() is e.g. ['IAC Driver Bus 1', 'GarageBand Virtual In']
-    midiout.open_port(midiout.get_ports().index(args.midi_port_name))
+    try:
+        midiout.open_port(midiout.get_ports().index(args.midi_port_name))
+    except ValueError:
+        raise SystemExit(f"MIDI port {args.midi_port_name!r} not found, available ports: {midiout.get_ports()!r}")
 
     with midiout:
         async for note in iter_notes(args):
@@ -59,7 +62,6 @@ async def iter_notes(args):
         queue.put_nowait(char)
 
     fd = sys.stdin.fileno()
-    print(f"{fd=}")
     old_settings = termios.tcgetattr(fd)
     try:
         # put terminal in a cbreak mode - all (mostly, except for Ctrl-C etc) keypresses are immediately available for read
