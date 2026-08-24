@@ -8,6 +8,7 @@ Main ideas are:
 
 
 ## Install
+In hindsight: don't install nix on Mac! Uninstall is quite involved with 7 manual steps: https://nix.dev/manual/nix/2.21/installation/uninstall
 ```shell
 curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh
 ```
