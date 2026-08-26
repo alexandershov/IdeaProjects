@@ -44,6 +44,18 @@ def test_lazy_import_access():
         broken_utils.add(8, 9)
 
 
+def test_frozendict():
+    # frozendict is an immutable dictionary
+    d = frozendict({'x': 1, 'y': 2})
+    with pytest.raises(TypeError):
+        # you can't change frozendict
+        d['z'] = 3
+    # frozendict is not a subclass of dictionary
+    assert not isinstance(d, dict)
+    # it inherits from object
+    assert frozenset.__bases__ == (object,)
+
+
 def my_sum(items, thread_id, queue):
     result = 0
     for an_item in items:
