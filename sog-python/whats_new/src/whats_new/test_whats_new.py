@@ -4,6 +4,13 @@ import threading
 import time
 from queue import Queue
 
+import pytest
+
+# lazy imports are exactly what it sounds like:
+# at import time they don't actual import, they just create a proxy object
+# real import happens when you access module attributes
+lazy from . import broken_utils
+
 
 def test_nogil():
     # python 3.13+ has free threaded mode, without GIL
@@ -28,6 +35,13 @@ def test_nogil():
     duration = time.monotonic() - started_at
     results = {queue.get(), queue.get()}
     print(f"{duration=}, {sys._is_gil_enabled()=}, {results=}")
+
+
+def test_lazy_import_access():
+    # although broken_utils is totally broken (it raises at import time)
+    # we'll get an exception only here: at the place of first use
+    with pytest.raises(ZeroDivisionError):
+        broken_utils.add(8, 9)
 
 
 def my_sum(items, thread_id, queue):
