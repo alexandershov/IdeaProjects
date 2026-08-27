@@ -1,4 +1,5 @@
 # Tests describing interesting new features from python3.13-python3.15
+import asyncio
 import copy
 import sys
 import threading
@@ -97,6 +98,23 @@ def test_copy_replace():
     one_two = copy.replace(origin, x=1, y=2)
     assert one_two.x == 1
     assert one_two.y == 2
+
+
+async def test_as_completed():
+    s1 = sleep_and_return(0.1)
+    s2 = sleep_and_return(0.2)
+    s3 = sleep_and_return(0.3)
+    results = []
+    # as_completed returns awaitable in the order of their completion
+    # here s1 completes the first, s2 completes the second, s3 completes the third
+    async for fut in asyncio.as_completed([s3, s2, s1]):
+        results.append(fut.result())
+    assert results == [0.1, 0.2, 0.3]
+
+
+async def sleep_and_return(delay: float) -> float:
+    await asyncio.sleep(delay)
+    return delay
 
 
 def my_sum(items, thread_id, queue):
