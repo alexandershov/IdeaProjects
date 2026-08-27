@@ -12,6 +12,16 @@ import pytest
 lazy from . import broken_utils
 
 
+class Point:
+    """Class to showcase __static_attributes__"""
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+
+    def set_distance(self):
+        self.distance = (self.x ** 2 + self.y ** 2) ** 0.5
+
+
 def test_nogil():
     # python 3.13+ has free threaded mode, without GIL
     # in .python_version I use 3.15t - "t" stands for free threaded.
@@ -54,6 +64,11 @@ def test_frozendict():
     assert not isinstance(d, dict)
     # it inherits from object
     assert frozenset.__bases__ == (object,)
+
+
+def test_static_attributes():
+    # __static_attributes__ returns a list of all attributes accessed via self.X in a class definition
+    assert set(Point.__static_attributes__) == {'x', 'y', 'distance'}
 
 
 def my_sum(items, thread_id, queue):
