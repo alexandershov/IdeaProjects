@@ -4,6 +4,7 @@ import copy
 import sys
 import threading
 import time
+from pathlib import Path
 from queue import Queue
 from typing import NamedTuple
 
@@ -115,6 +116,14 @@ async def test_as_completed():
 async def sleep_and_return(delay: float) -> float:
     await asyncio.sleep(delay)
     return delay
+
+
+def test_path_full_match():
+    # PurePath.full_match supports globs: *, **, and ?
+    # * matches 1 path segment (or part of segment)
+    # ** matches N path segments
+    # ? matches any single character
+    assert Path("/Users/aershov/.cargo/whatever/package.yml").full_match('/Users/*/**/package.???')
 
 
 def my_sum(items, thread_id, queue):
