@@ -1,8 +1,10 @@
 # Tests describing interesting new features from python3.13-python3.15
+import copy
 import sys
 import threading
 import time
 from queue import Queue
+from typing import NamedTuple
 
 import pytest
 
@@ -13,13 +15,25 @@ lazy from . import broken_utils
 
 
 class Point:
-    """Class to showcase __static_attributes__"""
+    """Class to showcase __static_attributes__ & __replace__"""
+
     def __init__(self):
         self.x = 0
         self.y = 0
 
     def set_distance(self):
         self.distance = (self.x ** 2 + self.y ** 2) ** 0.5
+
+    def __replace__(self, x, y):
+        new = copy.copy(self)
+        new.x = x
+        new.y = y
+        return new
+
+
+class Person(NamedTuple):
+    name: str
+    age: int
 
 
 def test_nogil():
@@ -69,6 +83,20 @@ def test_frozendict():
 def test_static_attributes():
     # __static_attributes__ returns a list of all attributes accessed via self.X in a class definition
     assert set(Point.__static_attributes__) == {'x', 'y', 'distance'}
+
+
+def test_copy_replace():
+    me = Person(name='sasa', age=41)
+    # copy.replace is similar to dataclasses.replace, but more generic
+    # e.g. namedtuple now supports it
+    new_me = copy.replace(me, age=42)
+    assert new_me.age == 42
+    # you can support copy.replace in your class with __replace__
+    # see Point.__replace__ for an example
+    origin = Point()
+    one_two = copy.replace(origin, x=1, y=2)
+    assert one_two.x == 1
+    assert one_two.y == 2
 
 
 def my_sum(items, thread_id, queue):
