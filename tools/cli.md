@@ -76,6 +76,26 @@ By default, you have 5 seconds to do that.
 You can increase this timeout, search for "undo" in settings.
 Cool stuff. 
 
+### Paste History
+You can view any copied/pasted text in iIerm2 - Cmd-Shift-H will open a paste history.
+
+### Open Quickly
+You can search & switch to your tabs with "Cmd-Shift-O" - it's a command pallete that includes opened tabs.
+
+### Marks
+Save a mark with Cmd-Shift-M; you can jump to mark with Cmd-Shift-J. 
+It's can be handy, but Shell Integration gets in the way: it saves marks at the beginning of each prompt.
+You can iterate these marks with Cmd-Shift-Up/Down.
+
+### Recent directories
+"Open Recent Directories" menu item will open a popup with the recent directories. 
+Directories are ranked based on frecency, frecency is tracked across different tabs.  
+
+### Filter
+Cmd-Opt-Shift-F opens a filter window: it's like occur in emacs: shows only lines that match your search item.
+````
+### Global search``
+Cmd-Shift-F searches through all the tabs! Pretty cool.
 
 ## Variety
 
