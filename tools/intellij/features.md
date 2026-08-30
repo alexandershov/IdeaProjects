@@ -92,8 +92,8 @@ E.g. here I add `/opt/homebrew/include` to the includes, so IntelliSense will wo
       "mergeConfigurations": true
     }
   ],
-  "version": 0
+  "version": 4
 }
 ```
 
-For some reason `"version": 4` didn't work for me, also I needed to specify `mergeConfigurations: true`.
+For some reason I needed to specify `mergeConfigurations: true` for IntelliSense to work.
