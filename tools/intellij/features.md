@@ -37,7 +37,6 @@ Cmd-N in Markdown mode can also help with inserting links, images, and tables.
 Opt-k to expand selection, Opt-Down to shrink selection
 Cmd-Shift-U to toggle case (uppercase/lowercase)
 
-
 ### Running
 * You can save your running configurations into file.
   Select configuration in "Edit configuration" and enable checkbox "Store as project file"
@@ -70,3 +69,4 @@ You can drop into debugger on failed tests:
 
 ### Misc
 * You can enable "Compact mode" to get more space for editing area.
+* For python you can enable ruff "Other Settings" -> "External Tools" -> "Ruff", and formatting will use ruff after that.

@@ -1,5 +1,4 @@
 # Tests describing interesting new features from python3.13-python3.15
-import annotationlib
 import asyncio
 import copy
 import sys
@@ -10,7 +9,9 @@ from pathlib import Path
 from queue import Queue
 from typing import NamedTuple
 
+import annotationlib
 import pytest
+
 # lazy imports are exactly what it sounds like:
 # at import time they don't actual import, they just create a proxy object
 # real import happens when you access module attributes
@@ -25,7 +26,7 @@ class Point:
         self.y = 0
 
     def set_distance(self):
-        self.distance = (self.x ** 2 + self.y ** 2) ** 0.5
+        self.distance = (self.x**2 + self.y**2) ** 0.5
 
     def __replace__(self, x, y):
         new = copy.copy(self)
@@ -53,7 +54,9 @@ def test_nogil():
     started_at = time.monotonic()
     queue = Queue()
     t1 = threading.Thread(target=my_sum, args=(range(10_000_000), "t1", queue))
-    t2 = threading.Thread(target=my_sum, args=(range(10_000_000, 20_000_000), "t2", queue))
+    t2 = threading.Thread(
+        target=my_sum, args=(range(10_000_000, 20_000_000), "t2", queue)
+    )
     t1.start()
     t2.start()
     t1.join()
@@ -73,10 +76,10 @@ def test_lazy_import_access():
 
 def test_frozendict():
     # frozendict is an immutable dictionary
-    d = frozendict({'x': 1, 'y': 2})
+    d = frozendict({"x": 1, "y": 2})
     with pytest.raises(TypeError):
         # you can't change frozendict
-        d['z'] = 3
+        d["z"] = 3
     # frozendict is not a subclass of dictionary
     assert not isinstance(d, dict)
     # it inherits from object
@@ -85,11 +88,11 @@ def test_frozendict():
 
 def test_static_attributes():
     # __static_attributes__ returns a list of all attributes accessed via self.X in a class definition
-    assert set(Point.__static_attributes__) == {'x', 'y', 'distance'}
+    assert set(Point.__static_attributes__) == {"x", "y", "distance"}
 
 
 def test_copy_replace():
-    me = Person(name='sasa', age=41)
+    me = Person(name="sasa", age=41)
     # copy.replace is similar to dataclasses.replace, but more generic
     # e.g. namedtuple now supports it
     new_me = copy.replace(me, age=42)
@@ -124,7 +127,9 @@ def test_path_full_match():
     # * matches 1 path segment (or part of segment)
     # ** matches N path segments
     # ? matches any single character
-    assert Path("/Users/aershov/.cargo/whatever/package.yml").full_match('/Users/*/**/package.???')
+    assert Path("/Users/aershov/.cargo/whatever/package.yml").full_match(
+        "/Users/*/**/package.???"
+    )
 
 
 def test_annotations():
@@ -140,7 +145,7 @@ def test_annotations():
 
         # we can even annotate total gibberish, it'll still work (but won't help with typechecking)
         def length(self) -> total_gibberish:
-            return (self.x ** 2 + self.y ** 2) ** 0.5
+            return (self.x**2 + self.y**2) ** 0.5
 
     v = Vector(3, 4)
     assert v.length() == pytest.approx(5)
@@ -148,20 +153,24 @@ def test_annotations():
     # we can inspect deferred annotations with annotationslib
     # get_annotations will evaluate annotations
     add_annotations = annotationlib.get_annotations(Vector.__add__)
-    assert add_annotations['other'] is Vector
-    assert add_annotations['return'] is Vector
+    assert add_annotations["other"] is Vector
+    assert add_annotations["return"] is Vector
 
     # we can't evaluate annotations for Vector.length, because it contains a bad reference
     with pytest.raises(NameError) as exc:
         annotationlib.get_annotations(Vector.length)
-    assert exc.value.name == 'total_gibberish'
+    assert exc.value.name == "total_gibberish"
 
     # but we can ask get_annotations to skip evaluation ...
-    length_string_annotations = annotationlib.get_annotations(Vector.length, format=annotationlib.Format.STRING)
-    assert length_string_annotations['return'] == 'total_gibberish'
+    length_string_annotations = annotationlib.get_annotations(
+        Vector.length, format=annotationlib.Format.STRING
+    )
+    assert length_string_annotations["return"] == "total_gibberish"
     # ... or evaluate what's possible
-    length_forwardref_annotations = annotationlib.get_annotations(Vector.length, format=annotationlib.Format.FORWARDREF)
-    assert isinstance(length_forwardref_annotations['return'], annotationlib.ForwardRef)
+    length_forwardref_annotations = annotationlib.get_annotations(
+        Vector.length, format=annotationlib.Format.FORWARDREF
+    )
+    assert isinstance(length_forwardref_annotations["return"], annotationlib.ForwardRef)
 
 
 async def coro_stacks():
