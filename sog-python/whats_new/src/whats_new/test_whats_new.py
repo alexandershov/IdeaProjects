@@ -2,7 +2,6 @@
 import annotationlib
 import asyncio
 import copy
-import pdb
 import sys
 import threading
 import time
@@ -12,7 +11,6 @@ from queue import Queue
 from typing import NamedTuple
 
 import pytest
-
 # lazy imports are exactly what it sounds like:
 # at import time they don't actual import, they just create a proxy object
 # real import happens when you access module attributes
