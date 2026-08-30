@@ -10,6 +10,8 @@
     * [Navigating](#navigating)
     * [Testing](#testing)
     * [Misc](#misc)
+    * [Plugins](#plugins)
+      * [CLion](#clion)
 <!-- TOC -->
 
 Most interesting Intellij features.
