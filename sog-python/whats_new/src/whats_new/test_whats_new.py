@@ -1,4 +1,5 @@
 # Tests describing interesting new features from python3.13-python3.15
+import annotationlib
 import asyncio
 import copy
 import sys
@@ -124,6 +125,43 @@ def test_path_full_match():
     # ** matches N path segments
     # ? matches any single character
     assert Path("/Users/aershov/.cargo/whatever/package.yml").full_match('/Users/*/**/package.???')
+
+
+def test_annotations():
+    class Vector:
+        def __init__(self, x: float, y: float) -> None:
+            self.x = x
+            self.y = y
+
+        # starting with 3.14 annotations, evaluation is deferred
+        # with deferred evaluation we don't need to quote 'Vector', because it's not yet defined
+        def __add__(self, other: Vector) -> Vector:
+            return Vector(self.x + other.x, self.y + other.y)
+
+        # we can even annotate total gibberish, it'll still work (but won't help with typechecking)
+        def length(self) -> total_gibberish:
+            return (self.x ** 2 + self.y ** 2) ** 0.5
+
+    v = Vector(3, 4)
+    assert v.length() == pytest.approx(5)
+
+    # we can inspect deferred annotations with annotationslib
+    # get_annotations will evaluate annotations
+    add_annotations = annotationlib.get_annotations(Vector.__add__)
+    assert add_annotations['other'] is Vector
+    assert add_annotations['return'] is Vector
+
+    # we can't evaluate annotations for Vector.length, because it contains a bad reference
+    with pytest.raises(NameError) as exc:
+        annotationlib.get_annotations(Vector.length)
+    assert exc.value.name == 'total_gibberish'
+
+    # but we can ask get_annotations to skip evaluation ...
+    length_string_annotations = annotationlib.get_annotations(Vector.length, format=annotationlib.Format.STRING)
+    assert length_string_annotations['return'] == 'total_gibberish'
+    # ... or evaluate what's possible
+    length_forwardref_annotations = annotationlib.get_annotations(Vector.length, format=annotationlib.Format.FORWARDREF)
+    assert isinstance(length_forwardref_annotations['return'], annotationlib.ForwardRef)
 
 
 def my_sum(items, thread_id, queue):
