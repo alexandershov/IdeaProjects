@@ -21,5 +21,9 @@ def main():
     # previous terminal prints
     # hello via remote_exec
 
+    # pdb now supports remote debugging as well, it uses remote_exec behind the scenes,
+    # and it can connect to a running python process
+    # sudo uv run -m pdb -p 55805
+
 if __name__ == '__main__':
     main()
