@@ -70,3 +70,28 @@ You can drop into debugger on failed tests:
 ### Misc
 * You can enable "Compact mode" to get more space for editing area.
 * For python you can enable ruff "Other Settings" -> "External Tools" -> "Ruff", and formatting will use ruff after that.
+
+### Plugins
+
+#### CLion
+CLion is now available as a plugin: install "CLion C and C++ plugin" 
+(as of 2026-08-30 you'd need to disable Kotlin Multiplatform plugin, because it conflicts with CLion plugin).
+
+For the quick-and-dirty projects you may use .idea/c_cpp_properties.json to configure include paths.
+E.g. here I add `/opt/homebrew/include` to the includes, so IntelliSense will work.
+```json
+{
+  "configurations": [
+    {
+      "name": "CLion",
+      "includePath": [
+        "/opt/homebrew/include"
+      ],
+      "mergeConfigurations": true
+    }
+  ],
+  "version": 0
+}
+```
+
+For some reason `"version": 4` didn't work for me, also I needed to specify `mergeConfigurations: true`.
