@@ -2,9 +2,11 @@
 import annotationlib
 import asyncio
 import copy
+import pdb
 import sys
 import threading
 import time
+import traceback
 from pathlib import Path
 from queue import Queue
 from typing import NamedTuple
@@ -162,6 +164,24 @@ def test_annotations():
     # ... or evaluate what's possible
     length_forwardref_annotations = annotationlib.get_annotations(Vector.length, format=annotationlib.Format.FORWARDREF)
     assert isinstance(length_forwardref_annotations['return'], annotationlib.ForwardRef)
+
+
+async def coro_stacks():
+    # print async-aware call graph of the current task
+    asyncio.print_call_graph()
+    # with print_call_graph you'll see that current task is a child of test_async_introspection
+    # with traceback.print_stack() you won't see it, because task is executed in the insides of event loop
+    traceback.print_stack()
+
+    # there's also capture_call_graph that returns a FutureCallGraphObject
+    # so you can do your own visualiztion/etc
+    call_graph = asyncio.capture_call_graph()
+    assert isinstance(call_graph, asyncio.FutureCallGraph)
+
+
+async def test_async_introspection():
+    t = asyncio.create_task(coro_stacks())
+    await t
 
 
 def my_sum(items, thread_id, queue):
