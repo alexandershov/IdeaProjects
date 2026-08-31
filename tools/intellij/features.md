@@ -52,6 +52,10 @@ Cmd-Shift-U to toggle case (uppercase/lowercase)
 * You can change values of variables during debugging: hover on variable and click on "Set value"
 * You add inline watches for expressions: select expression and "Add inline watch"
 * You can use `await` at top-level in Python console. 
+* PyCharm 2026.1 supports debugpy for debugging - it implements Debugger Adapter Protocol - it's kinda like LSP but for debugging
+  It supports `await` in debug console.
+  Also it can connect to existing python processes: "Attach to Process" and select the process.
+  Process to debug can be started without IDEA!
 
 ### Navigating
 * There are bookmarks, that you can set and jump to them. Use "Add bookmark" in a gutter.
